@@ -8,7 +8,8 @@ public class ExtensionArm extends AbstractModule
 {
   private enum Position
   {
-    RETRACTED( 0 ), EXTENDED( 100 );
+    RETRACTED( 0 ),
+    EXTENDED( 100 );
 
     Position( int value )
     {
@@ -22,8 +23,11 @@ public class ExtensionArm extends AbstractModule
 
   private enum Speed
   {
-    EXTEND( 20 ), //retracted
-    RETRACT( -20 ), MANUAL_EXTEND( 40 ), MANUAL_RETRACT( -40 ), STOP( 0 );
+    EXTEND( 20 ),
+    RETRACT( -20 ),
+    MANUAL_EXTEND( 40 ),
+    MANUAL_RETRACT( -40 ),
+    STOP( 0 );
 
     Speed( int value )
     {
