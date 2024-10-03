@@ -64,7 +64,12 @@ public class ExtensionArm extends AbstractModule
   public void manuallyExtend()
   {
     final int currPosition = extensionArmMotor.getCurrentPosition();
-    final int nextPosition = currPosition + MANUAL_POSITION_ADJUST;
+    int nextPosition = currPosition + MANUAL_POSITION_ADJUST;
+
+    //Prevent the extension arm from extending too far
+    if( nextPosition > Position.EXTENDED.value )
+    { nextPosition = Position.EXTENDED.value; }
+
     extensionArmMotor.setTargetPosition( nextPosition );
     extensionArmMotor.setPower( Speed.MANUAL_EXTEND.value );
   }
@@ -73,7 +78,12 @@ public class ExtensionArm extends AbstractModule
   public void manuallyRetract()
   {
     final int currPosition = extensionArmMotor.getCurrentPosition();
-    final int nextPosition = currPosition - MANUAL_POSITION_ADJUST;
+    int nextPosition = currPosition - MANUAL_POSITION_ADJUST;
+
+    //Prevent the extension arm from retracting too far
+    if( nextPosition < Position.RETRACTED.value )
+    { nextPosition = Position.RETRACTED.value; }
+
     extensionArmMotor.setTargetPosition( nextPosition );
     extensionArmMotor.setPower( Speed.MANUAL_RETRACT.value );
   }
@@ -83,6 +93,9 @@ public class ExtensionArm extends AbstractModule
   {
     extensionArmMotor.setPower( Speed.STOP.value );
   }
+
+  public int getMotorPosition()
+  { return extensionArmMotor.getCurrentPosition(); }
 
   private void initObjects( HardwareMap hardwareMap )
   {
