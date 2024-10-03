@@ -14,7 +14,7 @@ public class ModuleTester extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         //Allocate a robot for us to control
-        JoeBot robot = new JoeBot( hardwareMap );
+        Flipper flipper = new Flipper( hardwareMap );
 
         waitForStart();
 
@@ -29,15 +29,15 @@ public class ModuleTester extends LinearOpMode {
         {
             //test moving the flipper left and then right two times
             for( int i = 0; i < 2; i++ ) {
-                robot.flipper.setTwistPosition(Flipper.TwistPosition.LEFT);
+                flipper.setTwistPosition(Flipper.TwistPosition.LEFT);
                 sleep(WAIT_DELAY);
-                robot.flipper.setTwistPosition(Flipper.TwistPosition.RIGHT);
+                flipper.setTwistPosition(Flipper.TwistPosition.RIGHT);
                 sleep(WAIT_DELAY);
             }
 
             //test running the motor at each speed
             for( Flipper.MotorPower motorPower : Flipper.MotorPower.values() ) {
-                robot.flipper.setExtensionMotorSpeed(motorPower);
+                flipper.setExtensionMotorSpeed(motorPower);
                 sleep(WAIT_DELAY);
             }
         }

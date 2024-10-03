@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.drive.JoeBot;
 
@@ -11,7 +10,6 @@ import org.firstinspires.ftc.teamcode.drive.JoeBot;
 @TeleOp(name="Manual Joe Bot", group="Iterative Opmode")
 
 public class ManualJoeBot extends OpMode {
-  HardwareMap hardwareMap = null;
   JoeBot robot = null;
 
   private boolean retracted = true;
@@ -24,10 +22,9 @@ public class ManualJoeBot extends OpMode {
   public void init () {
     robot = new JoeBot( hardwareMap );
     previousButtons.copy( gamepad2 );
-    telemetry.addLine("Initialization complete");
+    telemetry.addLine("Manual Joe Bot initialization complete");
     telemetry.update();
   }
-
 
   //This loop runs before the start button is pressed
   @Override
@@ -52,8 +49,19 @@ public class ManualJoeBot extends OpMode {
       retracted = !retracted;
     }
 
+    if( gamepad2.left_bumper &&
+        !gamepad2.right_bumper )
+    { robot.extensionArm.manuallyRetract(); }
+
+    else if( gamepad2.right_bumper &&
+             !gamepad2.left_bumper )
+    { robot.extensionArm.manuallyExtend(); }
+
     //Set this every time through the loop
     previousButtons.copy( gamepad2 );
+
+    telemetry.addLine( String.format("Extension Arm - %s", robot.extensionArm.getMotorPosition() ) );
+    telemetry.update();
   }
 
   //Called when the OpMode terminates
