@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class Flipper
+public class Flipper extends AbstractModule
 {
     private Servo twistServo = null;
     private DcMotor extensionMotor = null;
@@ -43,6 +43,9 @@ public class Flipper
 
         public final int value;
     }
+
+    public void stop()
+    { extensionMotor.setPower( 0 ); }
 
     public void setExtensionMotorSpeed( MotorPower power )
     {

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class ExtensionArm
+public class ExtensionArm extends AbstractModule
 {
   private enum Position
   {
@@ -69,7 +69,7 @@ public class ExtensionArm
     extensionArmMotor.setPower( Speed.MANUAL_RETRACT.value );
   }
 
-  public void stopMoving()
+  public void stop()
   {
     extensionArmMotor.setPower( Speed.STOP.value );
   }

@@ -15,4 +15,10 @@ public class JoeBot {
         flipper = new Flipper( hardwareMap );
         extensionArm = new ExtensionArm( hardwareMap );
     }
+
+    public void stop()
+    {
+      flipper.stop();
+      extensionArm.stop();
+    }
 }
