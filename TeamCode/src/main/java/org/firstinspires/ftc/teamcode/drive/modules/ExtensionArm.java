@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class ExtensionArm extends AbstractModule
 {
+  //Preset positions we can extend the arm to
   private enum Position
   {
     RETRACTED( 0 ),
@@ -19,8 +20,10 @@ public class ExtensionArm extends AbstractModule
     public final int value;
   }
 
+  //Relative position for manually extending and contracting the arm
   private static final int MANUAL_POSITION_ADJUST = 10;
 
+  //Various speeds for extending and retracting the arm
   private enum Speed
   {
     EXTEND( 20 ),
@@ -57,6 +60,7 @@ public class ExtensionArm extends AbstractModule
     extensionArmMotor.setPower( Speed.RETRACT.value );
   }
 
+  //Extends the arm slightly
   public void manuallyExtend()
   {
     final int currPosition = extensionArmMotor.getCurrentPosition();
@@ -65,6 +69,7 @@ public class ExtensionArm extends AbstractModule
     extensionArmMotor.setPower( Speed.MANUAL_EXTEND.value );
   }
 
+  //Retracts the arm slightly
   public void manuallyRetract()
   {
     final int currPosition = extensionArmMotor.getCurrentPosition();
@@ -73,6 +78,7 @@ public class ExtensionArm extends AbstractModule
     extensionArmMotor.setPower( Speed.MANUAL_RETRACT.value );
   }
 
+  //Stops the extension arm motor
   public void stop()
   {
     extensionArmMotor.setPower( Speed.STOP.value );
