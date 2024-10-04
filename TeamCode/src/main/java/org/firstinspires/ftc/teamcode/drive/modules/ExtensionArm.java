@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class ExtensionArm extends AbstractModule
 {
   //Preset positions we can extend the arm to
@@ -42,8 +44,10 @@ public class ExtensionArm extends AbstractModule
 
   private DcMotor extensionArmMotor = null;
 
-  public ExtensionArm( HardwareMap hardwareMap )
+  public ExtensionArm( HardwareMap hardwareMap,
+                       Telemetry telemetry )
   {
+    super( telemetry );
     initObjects( hardwareMap );
     initState();
   }
@@ -92,6 +96,13 @@ public class ExtensionArm extends AbstractModule
   public void stop()
   {
     extensionArmMotor.setPower( Speed.STOP.value );
+  }
+
+  //Prints out the extension arm motor position
+  public void printTelemetry()
+  {
+    telemetry.addLine( String.format("Extension Arm - %s", getMotorPosition() ) );
+    telemetry.update();
   }
 
   public int getMotorPosition()
