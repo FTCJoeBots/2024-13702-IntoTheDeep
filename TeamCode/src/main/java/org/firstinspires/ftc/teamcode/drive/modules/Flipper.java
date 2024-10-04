@@ -9,72 +9,78 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Flipper extends AbstractModule
 {
-    private Servo twistServo = null;
-    private DcMotor extensionMotor = null;
+  private Servo twistServo = null;
+  private DcMotor extensionMotor = null;
 
-    public Flipper( HardwareMap hardwareMap,
-                    Telemetry telemetry ) {
-        super( telemetry );
-        initObjects( hardwareMap );
-        initState();
-    }
+  public Flipper( HardwareMap hardwareMap, Telemetry telemetry )
+  {
+    super( telemetry );
+    initObjects( hardwareMap );
+    initState();
+  }
 
-    private void initObjects( HardwareMap hardwareMap )
+  private void initObjects( HardwareMap hardwareMap )
+  {
+    twistServo = hardwareMap.get( Servo.class, "twistServo" );
+    extensionMotor = hardwareMap.get( DcMotor.class, "extensionMotor" );
+  }
+
+  private void initState()
+  {
+    twistServo.setDirection( Servo.Direction.REVERSE );
+    setTwistPosition( TwistPosition.LEFT );
+
+    extensionMotor.setDirection( DcMotorSimple.Direction.FORWARD );
+    extensionMotor.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
+    extensionMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+    setExtensionMotorSpeed( MotorPower.ZERO );
+  }
+
+  public enum MotorPower
+  {
+    HIGH( 100 ), MEDIUM( 50 ), LOW( 10 ), ZERO( 0 );
+
+    MotorPower( int value )
     {
-        twistServo = hardwareMap.get( Servo.class, "twistServo" );
-        extensionMotor = hardwareMap.get( DcMotor.class, "extensionMotor" );
+      this.value = value;
     }
 
-    private void initState()
+    public final int value;
+  }
+
+  public void stop()
+  {
+    extensionMotor.setPower( 0 );
+  }
+
+  public void printTelemetry()
+  {
+  }
+
+  public void setExtensionMotorSpeed( MotorPower power )
+  {
+    if( extensionMotor == null )
+    { return; }
+    extensionMotor.setPower( power.value );
+  }
+
+  public enum TwistPosition
+  {
+    LEFT( -100 ), RIGHT( 200 );
+
+    TwistPosition( double value )
     {
-        twistServo.setDirection( Servo.Direction.REVERSE );
-        setTwistPosition( TwistPosition.LEFT );
-
-        extensionMotor.setDirection( DcMotorSimple.Direction.FORWARD );
-        extensionMotor.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
-        extensionMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
-        setExtensionMotorSpeed( MotorPower.ZERO );
+      this.value = value;
     }
 
-    public enum MotorPower {
-        HIGH( 100 ),
-        MEDIUM( 50 ),
-        LOW( 10 ),
-        ZERO( 0 );
+    public final double value;
+  }
 
-        MotorPower( int value )
-        { this.value = value; }
+  public void setTwistPosition( TwistPosition position )
+  {
+    if( twistServo == null )
+    { return; }
 
-        public final int value;
-    }
-
-    public void stop()
-    { extensionMotor.setPower( 0 ); }
-
-    public void printTelemetry() {}
-
-    public void setExtensionMotorSpeed( MotorPower power )
-    {
-        if (extensionMotor == null)
-        { return; }
-        extensionMotor.setPower(power.value);
-    }
-
-    public enum TwistPosition {
-        LEFT( -100 ),
-        RIGHT( 200 );
-
-        TwistPosition( double value )
-        { this.value = value; }
-
-        public final double value;
-    }
-
-    public void setTwistPosition( TwistPosition position )
-    {
-        if (twistServo == null)
-        { return; }
-
-        twistServo.setPosition(position.value);
-    }
+    twistServo.setPosition( position.value );
+  }
 }
