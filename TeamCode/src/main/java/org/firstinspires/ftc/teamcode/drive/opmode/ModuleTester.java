@@ -14,7 +14,7 @@ public class ModuleTester extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         //Allocate a robot for us to control
-        Flipper flipper = new Flipper( hardwareMap );
+        Flipper flipper = new Flipper( hardwareMap, telemetry );
 
         waitForStart();
 

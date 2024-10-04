@@ -5,12 +5,16 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class Flipper extends AbstractModule
 {
     private Servo twistServo = null;
     private DcMotor extensionMotor = null;
 
-    public Flipper( HardwareMap hardwareMap ) {
+    public Flipper( HardwareMap hardwareMap,
+                    Telemetry telemetry ) {
+        super( telemetry );
         initObjects( hardwareMap );
         initState();
     }
@@ -46,6 +50,8 @@ public class Flipper extends AbstractModule
 
     public void stop()
     { extensionMotor.setPower( 0 ); }
+
+    public void printTelemetry() {}
 
     public void setExtensionMotorSpeed( MotorPower power )
     {

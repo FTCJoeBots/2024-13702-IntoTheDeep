@@ -16,11 +16,21 @@ public class ManualJoeBot extends OpMode {
 
   private final Gamepad previousButtons = new Gamepad();
 
+  private enum Module
+  {
+    EXTENSION_ARM,
+    LIFT,
+    INTAKE,
+    DRIVE_MOTORS,
+    DRIVE_ODOMETERS
+  };
+
+  private Module currentModule = Module.EXTENSION_ARM;
 
   //We run this when the user hits "INIT" on the app
   @Override
   public void init () {
-    robot = new JoeBot( hardwareMap );
+    robot = new JoeBot( hardwareMap, telemetry );
     previousButtons.copy( gamepad2 );
     telemetry.addLine("Manual Joe Bot initialization complete");
     telemetry.update();
@@ -49,6 +59,17 @@ public class ManualJoeBot extends OpMode {
       retracted = !retracted;
     }
 
+    if( gamepad2.right_stick_button &&
+        !previousButtons.right_stick_button )
+    {
+      Module[] modules = Module.values();
+
+      if( currentModule == modules[ modules.length - 1 ] )
+      { currentModule = modules[ 0 ] ; }
+      else
+      { currentModule = Module.values()[ currentModule.ordinal() + 1 ]; }
+    }
+
     if( gamepad2.left_bumper &&
         !gamepad2.right_bumper )
     { robot.extensionArm.manuallyRetract(); }
@@ -57,11 +78,21 @@ public class ManualJoeBot extends OpMode {
              !gamepad2.left_bumper )
     { robot.extensionArm.manuallyExtend(); }
 
+    switch( currentModule )
+    {
+      case EXTENSION_ARM:
+        robot.extensionArm.printTelemetry();
+        break;
+      case LIFT:
+//        robot.lift.printTelemetry();
+        break;
+      case INTAKE:
+//        robot.intake.printTelemetry();
+        break;
+    }
+
     //Set this every time through the loop
     previousButtons.copy( gamepad2 );
-
-    telemetry.addLine( String.format("Extension Arm - %s", robot.extensionArm.getMotorPosition() ) );
-    telemetry.update();
   }
 
   //Called when the OpMode terminates
