@@ -11,8 +11,7 @@ public class ExtensionArm extends AbstractModule
   //Preset positions we can extend the arm to
   private enum Position
   {
-    RETRACTED( 0 ),
-    EXTENDED( 100 );
+    RETRACTED( 0 ), EXTENDED( 100 );
 
     Position( int value )
     {
@@ -28,11 +27,7 @@ public class ExtensionArm extends AbstractModule
   //Various speeds for extending and retracting the arm
   private enum Speed
   {
-    EXTEND( 20 ),
-    RETRACT( -20 ),
-    MANUAL_EXTEND( 40 ),
-    MANUAL_RETRACT( -40 ),
-    STOP( 0 );
+    EXTEND( 20 ), RETRACT( -20 ), MANUAL_EXTEND( 40 ), MANUAL_RETRACT( -40 ), STOP( 0 );
 
     Speed( int value )
     {
@@ -44,8 +39,7 @@ public class ExtensionArm extends AbstractModule
 
   private DcMotor extensionArmMotor = null;
 
-  public ExtensionArm( HardwareMap hardwareMap,
-                       Telemetry telemetry )
+  public ExtensionArm( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( telemetry );
     initObjects( hardwareMap );
@@ -101,12 +95,14 @@ public class ExtensionArm extends AbstractModule
   //Prints out the extension arm motor position
   public void printTelemetry()
   {
-    telemetry.addLine( String.format("Extension Arm - %s", getMotorPosition() ) );
+    telemetry.addLine( String.format( "Extension Arm - %s", getMotorPosition() ) );
     telemetry.update();
   }
 
   public int getMotorPosition()
-  { return extensionArmMotor.getCurrentPosition(); }
+  {
+    return extensionArmMotor.getCurrentPosition();
+  }
 
   private void initObjects( HardwareMap hardwareMap )
   {
