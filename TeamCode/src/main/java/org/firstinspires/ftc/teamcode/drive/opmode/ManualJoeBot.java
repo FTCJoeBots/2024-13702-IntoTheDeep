@@ -13,9 +13,8 @@ public class ManualJoeBot extends OpMode
 {
   JoeBot robot = null;
 
-  private boolean retracted = true;
-
-  private final Gamepad previousButtons = new Gamepad();
+  private final Gamepad previousButtons1 = new Gamepad();
+  private final Gamepad previousButtons2 = new Gamepad();
 
   private enum Module
   {
@@ -29,7 +28,8 @@ public class ManualJoeBot extends OpMode
   public void init()
   {
     robot = new JoeBot( hardwareMap, telemetry );
-    previousButtons.copy( gamepad2 );
+    previousButtons1.copy( gamepad1 );
+    previousButtons2.copy( gamepad2 );
     telemetry.addLine( "ManualJoeBot OpMode Initialized" );
     telemetry.update();
   }
@@ -46,22 +46,65 @@ public class ManualJoeBot extends OpMode
   {
   }
 
+
   //Main OpMode loop
   @Override
   public void loop()
   {
-    //if "A" is pressed, and it wasn't pressed the last time through the loop
-    if( gamepad2.a && !previousButtons.a )
+    //Fully extend - B + Y
+    if( gamepad2.b && gamepad2.y &&
+        !( previousButtons2.b && previousButtons2.y ) )
     {
-      if( retracted )
-      { robot.extensionArm.fullyExtend(); }
-      else
-      { robot.extensionArm.fullyRetract(); }
-
-      retracted = !retracted;
+      robot.extensionArm.fullyExtend();
+    }
+    //Manually extend - Y
+    else if( gamepad2.y && !previousButtons2.y )
+    {
+      robot.extensionArm.manuallyExtend();
     }
 
-    if( gamepad2.right_stick_button && !previousButtons.right_stick_button )
+    //Full retract - B + A
+    if( gamepad2.b && gamepad2.a &&
+      !( previousButtons2.b && previousButtons2.a ) )
+    {
+      robot.extensionArm.fullyRetract();
+    }
+    //Manually retract - A
+    else if( gamepad2.a && !previousButtons2.a )
+    {
+      robot.extensionArm.manuallyRetract();
+    }
+
+    //Raise lift slow (high torque) - dpad_up + b
+    if( gamepad2.b && gamepad2.dpad_up &&
+      !( previousButtons2.b && previousButtons2.dpad_up ) )
+    {
+      //TODO - use slow
+      robot.lift.liftmanualup();
+    }
+    //Raise lift fast - dpad_up
+    else if( gamepad2.dpad_up && !previousButtons2.dpad_up)
+    {
+      //TODO - use fast
+      robot.lift.liftmanualup();
+    }
+    //Lower lift slow (high torque) - dpad_down + b
+    else if( gamepad2.b && gamepad2.dpad_down &&
+      !( previousButtons2.b && previousButtons2.dpad_down ) )
+    {
+      //TODO - use slow
+      robot.lift.liftmanualdown();
+    }
+    //Lower lift fast- dpad_down
+    else if( gamepad2.dpad_down && !previousButtons2.dpad_down )
+    {
+      //TODO - use fast
+      robot.lift.liftmanualdown();
+    }
+
+    //Cycle through telemetry
+    if( ( gamepad1.right_stick_button && !previousButtons1.right_stick_button ) ||
+        ( gamepad2.right_stick_button && !previousButtons2.right_stick_button ) )
     {
       Module[] modules = Module.values();
 
@@ -70,12 +113,6 @@ public class ManualJoeBot extends OpMode
       else
       { currentModule = Module.values()[ currentModule.ordinal() + 1 ]; }
     }
-
-    if( gamepad2.left_bumper && !gamepad2.right_bumper )
-    { robot.extensionArm.manuallyRetract(); }
-
-    else if( gamepad2.right_bumper && !gamepad2.left_bumper )
-    { robot.extensionArm.manuallyExtend(); }
 
     switch( currentModule )
     {
@@ -91,7 +128,8 @@ public class ManualJoeBot extends OpMode
     }
 
     //Set this every time through the loop
-    previousButtons.copy( gamepad2 );
+    previousButtons1.copy( gamepad1 );
+    previousButtons2.copy( gamepad2 );
   }
 
   //Called when the OpMode terminates
