@@ -4,7 +4,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.drive.Button;
+import org.firstinspires.ftc.teamcode.drive.Gamepads;
 import org.firstinspires.ftc.teamcode.drive.JoeBot;
+import org.firstinspires.ftc.teamcode.drive.Participant;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 //Tell framework that this is a TeleOp mode
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
@@ -12,6 +18,7 @@ import org.firstinspires.ftc.teamcode.drive.JoeBot;
 public class ManualJoeBot extends OpMode
 {
   JoeBot robot = null;
+  Gamepads gamepads = null;
 
   private final Gamepad previousButtons1 = new Gamepad();
   private final Gamepad previousButtons2 = new Gamepad();
@@ -28,6 +35,7 @@ public class ManualJoeBot extends OpMode
   public void init()
   {
     robot = new JoeBot( hardwareMap, telemetry );
+    gamepads = new Gamepads( gamepad1, gamepad2 );
     previousButtons1.copy( gamepad1 );
     previousButtons2.copy( gamepad2 );
     telemetry.addLine( "ManualJoeBot OpMode Initialized" );
@@ -46,19 +54,17 @@ public class ManualJoeBot extends OpMode
   {
   }
 
-
   //Main OpMode loop
   @Override
   public void loop()
   {
     //Fully extend - B + Y
-    if( gamepad2.b && gamepad2.y &&
-        !( previousButtons2.b && previousButtons2.y ) )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.Y ) ) )
     {
       robot.extensionArm.fullyExtend();
     }
     //Manually extend - Y
-    else if( gamepad2.y && !previousButtons2.y )
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.Y ) )
     {
       robot.extensionArm.manuallyExtend();
     }
@@ -103,8 +109,7 @@ public class ManualJoeBot extends OpMode
     }
 
     //Cycle through telemetry
-    if( ( gamepad1.right_stick_button && !previousButtons1.right_stick_button ) ||
-        ( gamepad2.right_stick_button && !previousButtons2.right_stick_button ) )
+    if( gamepads.buttonPressed( Participant.ANY, Button.RIGHT_STICK ) )
     {
       Module[] modules = Module.values();
 
@@ -130,6 +135,7 @@ public class ManualJoeBot extends OpMode
     //Set this every time through the loop
     previousButtons1.copy( gamepad1 );
     previousButtons2.copy( gamepad2 );
+    gamepads.storeLastButtons();
   }
 
   //Called when the OpMode terminates
