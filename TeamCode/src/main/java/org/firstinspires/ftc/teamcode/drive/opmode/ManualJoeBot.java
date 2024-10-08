@@ -48,6 +48,12 @@ public class ManualJoeBot extends OpMode
   {
   }
 
+  private void addMessege( String message)
+  {
+    telemetry.addLine( message);
+    telemetry.update();
+  }
+
   //Main OpMode loop
   @Override
   public void loop()
@@ -56,22 +62,26 @@ public class ManualJoeBot extends OpMode
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.Y ) ) )
     {
       robot.extensionArm.fullyExtend();
+      addMessege( "Fully extend arm" );
     }
     //Manually extend - Y
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.Y ) )
     {
       robot.extensionArm.manuallyExtend();
+      addMessege( "Manually extend arm" );
     }
 
     //Full retract - B + A
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
     {
       robot.extensionArm.fullyRetract();
+      addMessege( "Fully retract arm" );
     }
     //Manually retract - A
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.A ) )
     {
       robot.extensionArm.manuallyRetract();
+      addMessege( "Manually retract arm" );
     }
 
     //Raise lift slow (high torque) - dpad_up + b
@@ -79,24 +89,28 @@ public class ManualJoeBot extends OpMode
     {
       //TODO - use slow
       robot.lift.liftmanualup();
+      addMessege( "Raise lift slow" );
     }
     //Raise lift fast - dpad_up
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_UP ) )
     {
       //TODO - use fast
       robot.lift.liftmanualup();
+      addMessege( "Raise lift fast" );
     }
     //Lower lift slow (high torque) - dpad_down + b
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.B ) ) )
     {
       //TODO - use slow
       robot.lift.liftmanualdown();
+      addMessege( "Lower lift slow" );
     }
     //Lower lift fast- dpad_down
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_DOWN ) )
     {
       //TODO - use fast
       robot.lift.liftmanualdown();
+      addMessege( "Lower lift fast" );
     }
 
     //Cycle through telemetry
