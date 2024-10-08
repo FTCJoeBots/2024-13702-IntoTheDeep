@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.drive.JoeBot;
 import org.firstinspires.ftc.teamcode.drive.Participant;
 
 import java.util.EnumSet;
-import java.util.Set;
 
 //Tell framework that this is a TeleOp mode
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
@@ -70,46 +69,43 @@ public class ManualJoeBot extends OpMode
     }
 
     //Full retract - B + A
-    if( gamepad2.b && gamepad2.a &&
-      !( previousButtons2.b && previousButtons2.a ) )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
     {
       robot.extensionArm.fullyRetract();
     }
     //Manually retract - A
-    else if( gamepad2.a && !previousButtons2.a )
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.A ) )
     {
       robot.extensionArm.manuallyRetract();
     }
 
     //Raise lift slow (high torque) - dpad_up + b
-    if( gamepad2.b && gamepad2.dpad_up &&
-      !( previousButtons2.b && previousButtons2.dpad_up ) )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.B ) ) )
     {
       //TODO - use slow
       robot.lift.liftmanualup();
     }
     //Raise lift fast - dpad_up
-    else if( gamepad2.dpad_up && !previousButtons2.dpad_up)
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_UP ) )
     {
       //TODO - use fast
       robot.lift.liftmanualup();
     }
     //Lower lift slow (high torque) - dpad_down + b
-    else if( gamepad2.b && gamepad2.dpad_down &&
-      !( previousButtons2.b && previousButtons2.dpad_down ) )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.B ) ) )
     {
       //TODO - use slow
       robot.lift.liftmanualdown();
     }
     //Lower lift fast- dpad_down
-    else if( gamepad2.dpad_down && !previousButtons2.dpad_down )
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_DOWN ) )
     {
       //TODO - use fast
       robot.lift.liftmanualdown();
     }
 
     //Cycle through telemetry
-    if( gamepads.buttonPressed( Participant.ANY, Button.RIGHT_STICK ) )
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.RIGHT_STICK ) )
     {
       Module[] modules = Module.values();
 

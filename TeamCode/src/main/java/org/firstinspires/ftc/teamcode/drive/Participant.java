@@ -4,5 +4,5 @@ public enum Participant
 {
   DRIVER,
   OPERATOR,
-  ANY
+  DRIVER_OR_OPERATOR
 }

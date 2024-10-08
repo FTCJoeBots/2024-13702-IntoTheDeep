@@ -15,12 +15,12 @@ public class Gamepads
   public boolean buttonDown( Participant participant, Button button )
   {
     if( ( participant == Participant.DRIVER ||
-          participant == Participant.ANY ) &&
+          participant == Participant.DRIVER_OR_OPERATOR ) &&
       buttonDown( gamepad1, button ) )
     { return true; }
 
     return ( participant == Participant.OPERATOR ||
-             participant == Participant.ANY ) &&
+             participant == Participant.DRIVER_OR_OPERATOR ) &&
            buttonDown( gamepad2, button );
   }
 
@@ -38,7 +38,7 @@ public class Gamepads
   public boolean buttonPressed( Participant participant, Button button )
   {
     if( participant == Participant.DRIVER ||
-        participant == Participant.ANY )
+        participant == Participant.DRIVER_OR_OPERATOR )
     {
       if( buttonDown( gamepad1, button ) &&
          !buttonDown( previousButtons1, button ) )
@@ -46,7 +46,7 @@ public class Gamepads
     }
 
     if( participant == Participant.OPERATOR ||
-        participant == Participant.ANY )
+        participant == Participant.DRIVER_OR_OPERATOR )
     {
       if( buttonDown( gamepad2, button ) &&
           !buttonDown( previousButtons2, button ) )
@@ -59,12 +59,12 @@ public class Gamepads
   public boolean buttonsPressed( Participant participant, Set<Button> buttons )
   {
     if( ( participant == Participant.DRIVER ||
-          participant == Participant.ANY ) &&
+          participant == Participant.DRIVER_OR_OPERATOR ) &&
         buttonsPressed( buttons, gamepad1, previousButtons1 ) )
     { return true; }
 
     if( ( participant == Participant.OPERATOR ||
-          participant == Participant.ANY ) &&
+          participant == Participant.DRIVER_OR_OPERATOR ) &&
       buttonsPressed( buttons, gamepad2, previousButtons2 ) )
     { return true; }
 
@@ -101,6 +101,8 @@ public class Gamepads
         return gamepad.x;
       case Y:
         return gamepad.y;
+      case GUIDE:
+        return gamepad.guide;
     }
 
     return false;
