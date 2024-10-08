@@ -4,7 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.drive.Button;
+import org.firstinspires.ftc.teamcode.drive.Gamepads;
 import org.firstinspires.ftc.teamcode.drive.JoeBot;
+import org.firstinspires.ftc.teamcode.drive.Participant;
+
+import java.util.EnumSet;
 
 //Tell framework that this is a TeleOp mode
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
@@ -12,6 +17,7 @@ import org.firstinspires.ftc.teamcode.drive.JoeBot;
 public class ManualJoeBot extends OpMode
 {
   JoeBot robot = null;
+  Gamepads gamepads = null;
 
   private final Gamepad previousButtons1 = new Gamepad();
   private final Gamepad previousButtons2 = new Gamepad();
@@ -28,6 +34,7 @@ public class ManualJoeBot extends OpMode
   public void init()
   {
     robot = new JoeBot( hardwareMap, telemetry );
+    gamepads = new Gamepads( gamepad1, gamepad2 );
     previousButtons1.copy( gamepad1 );
     previousButtons2.copy( gamepad2 );
     telemetry.addLine( "ManualJoeBot OpMode Initialized" );
@@ -46,65 +53,59 @@ public class ManualJoeBot extends OpMode
   {
   }
 
-
   //Main OpMode loop
   @Override
   public void loop()
   {
     //Fully extend - B + Y
-    if( gamepad2.b && gamepad2.y &&
-        !( previousButtons2.b && previousButtons2.y ) )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.Y ) ) )
     {
       robot.extensionArm.fullyExtend();
     }
     //Manually extend - Y
-    else if( gamepad2.y && !previousButtons2.y )
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.Y ) )
     {
       robot.extensionArm.manuallyExtend();
     }
 
     //Full retract - B + A
-    if( gamepad2.b && gamepad2.a &&
-      !( previousButtons2.b && previousButtons2.a ) )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
     {
       robot.extensionArm.fullyRetract();
     }
     //Manually retract - A
-    else if( gamepad2.a && !previousButtons2.a )
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.A ) )
     {
       robot.extensionArm.manuallyRetract();
     }
 
     //Raise lift slow (high torque) - dpad_up + b
-    if( gamepad2.b && gamepad2.dpad_up &&
-      !( previousButtons2.b && previousButtons2.dpad_up ) )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.B ) ) )
     {
       //TODO - use slow
       robot.lift.liftmanualup();
     }
     //Raise lift fast - dpad_up
-    else if( gamepad2.dpad_up && !previousButtons2.dpad_up)
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_UP ) )
     {
       //TODO - use fast
       robot.lift.liftmanualup();
     }
     //Lower lift slow (high torque) - dpad_down + b
-    else if( gamepad2.b && gamepad2.dpad_down &&
-      !( previousButtons2.b && previousButtons2.dpad_down ) )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.B ) ) )
     {
       //TODO - use slow
       robot.lift.liftmanualdown();
     }
     //Lower lift fast- dpad_down
-    else if( gamepad2.dpad_down && !previousButtons2.dpad_down )
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_DOWN ) )
     {
       //TODO - use fast
       robot.lift.liftmanualdown();
     }
 
     //Cycle through telemetry
-    if( ( gamepad1.right_stick_button && !previousButtons1.right_stick_button ) ||
-        ( gamepad2.right_stick_button && !previousButtons2.right_stick_button ) )
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.RIGHT_STICK ) )
     {
       Module[] modules = Module.values();
 
@@ -130,6 +131,7 @@ public class ManualJoeBot extends OpMode
     //Set this every time through the loop
     previousButtons1.copy( gamepad1 );
     previousButtons2.copy( gamepad2 );
+    gamepads.storeLastButtons();
   }
 
   //Called when the OpMode terminates
