@@ -10,6 +10,7 @@ public class Gamepads
   {
     this.gamepad1 = gamepad1;
     this.gamepad2 = gamepad2;
+    storeLastButtons();
   }
 
   public boolean buttonDown( Participant participant, Button button )

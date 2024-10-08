@@ -19,9 +19,6 @@ public class ManualJoeBot extends OpMode
   JoeBot robot = null;
   Gamepads gamepads = null;
 
-  private final Gamepad previousButtons1 = new Gamepad();
-  private final Gamepad previousButtons2 = new Gamepad();
-
   private enum Module
   {
     NONE, EXTENSION_ARM, LIFT, INTAKE, DRIVE_MOTORS, DRIVE_ODOMETERS
@@ -35,8 +32,6 @@ public class ManualJoeBot extends OpMode
   {
     robot = new JoeBot( hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
-    previousButtons1.copy( gamepad1 );
-    previousButtons2.copy( gamepad2 );
     telemetry.addLine( "ManualJoeBot OpMode Initialized" );
     telemetry.update();
   }
@@ -128,9 +123,6 @@ public class ManualJoeBot extends OpMode
         break;
     }
 
-    //Set this every time through the loop
-    previousButtons1.copy( gamepad1 );
-    previousButtons2.copy( gamepad2 );
     gamepads.storeLastButtons();
   }
 
