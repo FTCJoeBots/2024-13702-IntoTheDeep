@@ -19,9 +19,6 @@ public class ManualJoeBot extends OpMode
   JoeBot robot = null;
   Gamepads gamepads = null;
 
-  private final Gamepad previousButtons1 = new Gamepad();
-  private final Gamepad previousButtons2 = new Gamepad();
-
   private enum Module
   {
     NONE, EXTENSION_ARM, LIFT, INTAKE, DRIVE_MOTORS, DRIVE_ODOMETERS
@@ -35,8 +32,6 @@ public class ManualJoeBot extends OpMode
   {
     robot = new JoeBot( hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
-    previousButtons1.copy( gamepad1 );
-    previousButtons2.copy( gamepad2 );
     telemetry.addLine( "ManualJoeBot OpMode Initialized" );
     telemetry.update();
   }
@@ -53,6 +48,12 @@ public class ManualJoeBot extends OpMode
   {
   }
 
+  private void addMessege( String message)
+  {
+    telemetry.addLine( message);
+    telemetry.update();
+  }
+
   //Main OpMode loop
   @Override
   public void loop()
@@ -61,47 +62,51 @@ public class ManualJoeBot extends OpMode
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.Y ) ) )
     {
       robot.extensionArm.fullyExtend();
+      addMessege( "Fully extend arm" );
     }
     //Manually extend - Y
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.Y ) )
     {
       robot.extensionArm.manuallyExtend();
+      addMessege( "Manually extend arm" );
     }
 
     //Full retract - B + A
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
     {
       robot.extensionArm.fullyRetract();
+      addMessege( "Fully retract arm" );
     }
     //Manually retract - A
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.A ) )
     {
       robot.extensionArm.manuallyRetract();
+      addMessege( "Manually retract arm" );
     }
 
     //Raise lift slow (high torque) - dpad_up + b
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.B ) ) )
     {
-      //TODO - use slow
-      robot.lift.liftmanualup();
+      robot.lift.slowLift();
+      addMessege( "Raise lift slow" );
     }
     //Raise lift fast - dpad_up
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_UP ) )
     {
-      //TODO - use fast
-      robot.lift.liftmanualup();
+      robot.lift.fastLift();
+      addMessege( "Raise lift fast" );
     }
     //Lower lift slow (high torque) - dpad_down + b
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.B ) ) )
     {
-      //TODO - use slow
-      robot.lift.liftmanualdown();
+      robot.lift.slowDrop();
+      addMessege( "Lower lift slow" );
     }
     //Lower lift fast- dpad_down
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_DOWN ) )
     {
-      //TODO - use fast
-      robot.lift.liftmanualdown();
+      robot.lift.fastDrop();
+      addMessege( "Lower lift fast" );
     }
 
     //Cycle through telemetry
@@ -128,9 +133,6 @@ public class ManualJoeBot extends OpMode
         break;
     }
 
-    //Set this every time through the loop
-    previousButtons1.copy( gamepad1 );
-    previousButtons2.copy( gamepad2 );
     gamepads.storeLastButtons();
   }
 
