@@ -87,29 +87,25 @@ public class ManualJoeBot extends OpMode
     //Raise lift slow (high torque) - dpad_up + b
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.B ) ) )
     {
-      //TODO - use slow
-      robot.lift.liftmanualup();
+      robot.lift.slowLift();
       addMessege( "Raise lift slow" );
     }
     //Raise lift fast - dpad_up
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_UP ) )
     {
-      //TODO - use fast
-      robot.lift.liftmanualup();
+      robot.lift.fastLift();
       addMessege( "Raise lift fast" );
     }
     //Lower lift slow (high torque) - dpad_down + b
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.B ) ) )
     {
-      //TODO - use slow
-      robot.lift.liftmanualdown();
+      robot.lift.slowDrop();
       addMessege( "Lower lift slow" );
     }
     //Lower lift fast- dpad_down
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_DOWN ) )
     {
-      //TODO - use fast
-      robot.lift.liftmanualdown();
+      robot.lift.fastDrop();
       addMessege( "Lower lift fast" );
     }
 
