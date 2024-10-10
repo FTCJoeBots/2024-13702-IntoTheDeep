@@ -4,7 +4,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public abstract class AbstractModule
 {
-
   protected Telemetry telemetry;
 
   AbstractModule( Telemetry telemetry )

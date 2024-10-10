@@ -59,6 +59,9 @@ public class ManualJoeBot extends OpMode
   @Override
   public void loop()
   {
+    //==================
+    //Extension Arm
+    //==================
     //Fully extend - B + Y
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.Y ) ) )
     {
@@ -85,6 +88,9 @@ public class ManualJoeBot extends OpMode
       addMessege( "Manually retract arm" );
     }
 
+    //==================
+    //Lift
+    //==================
     //High basket - x + dpad_up
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) )
     {
@@ -128,6 +134,25 @@ public class ManualJoeBot extends OpMode
     {
       robot.lift.fastDrop();
       addMessege( "Lower lift fast" );
+    }
+
+    //==================
+    //Intake
+    //==================
+    //Pull in sample - negative left_stick_y + left_stick_button
+    if( gamepad2.left_stick_y < 0 )
+    {
+      robot.intake.pullInSample();
+    }
+    //Spit out sample - positive left_stick_y + left_stick_button
+    else if ( gamepad2.left_stick_y > 0 )
+    {
+      robot.intake.spitOutSample();
+    }
+    //Stop
+    else
+    {
+      robot.intake.stop();
     }
 
     //Cycle through telemetry

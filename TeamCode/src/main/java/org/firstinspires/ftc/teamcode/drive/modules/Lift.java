@@ -29,7 +29,6 @@ public class Lift extends AbstractModule
   DcMotor leftMotor = null;
   DcMotor rightMotor = null;
 
-
   public Lift( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( telemetry );
@@ -39,8 +38,8 @@ public class Lift extends AbstractModule
 
   private void initObjects( HardwareMap hardwareMap )
   {
-    leftMotor = hardwareMap.get( DcMotor.class, "leftMotor" );
-    rightMotor = hardwareMap.get( DcMotor.class, "rightMotor" );
+    leftMotor = hardwareMap.get( DcMotor.class, "leftLiftMotor" );
+    rightMotor = hardwareMap.get( DcMotor.class, "rightLiftMotor" );
   }
 
   private void initMotor( DcMotor motor, DcMotorSimple.Direction direction )
