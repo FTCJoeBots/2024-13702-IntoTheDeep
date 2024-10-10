@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.drive.Button;
 import org.firstinspires.ftc.teamcode.drive.Gamepads;
 import org.firstinspires.ftc.teamcode.drive.JoeBot;
 import org.firstinspires.ftc.teamcode.drive.Participant;
+import org.firstinspires.ftc.teamcode.drive.modules.Lift;
 
 import java.util.EnumSet;
 
@@ -58,6 +59,9 @@ public class ManualJoeBot extends OpMode
   @Override
   public void loop()
   {
+    //==================
+    //Extension Arm
+    //==================
     //Fully extend - B + Y
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.Y ) ) )
     {
@@ -84,8 +88,31 @@ public class ManualJoeBot extends OpMode
       addMessege( "Manually retract arm" );
     }
 
+    //==================
+    //Lift
+    //==================
+    //High basket - x + dpad_up
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) )
+    {
+      robot.lift.travelTo( Lift.Position.HIGH_BASKET );
+    }
+    //Low basket - x + dpad_down
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) )
+    {
+      robot.lift.travelTo( Lift.Position.LOW_BASKET );
+    }
+    //Move lift to bottom - x + a
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.A, Button.X ) ) )
+    {
+      robot.lift.travelTo( Lift.Position.FLOOR );
+    }
+    //Climbing - x + dpad_right
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_RIGHT, Button.X ) ) )
+    {
+      robot.lift.climb();
+    }
     //Raise lift slow (high torque) - dpad_up + b
-    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.B ) ) )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.B ) ) )
     {
       robot.lift.slowLift();
       addMessege( "Raise lift slow" );
@@ -107,6 +134,25 @@ public class ManualJoeBot extends OpMode
     {
       robot.lift.fastDrop();
       addMessege( "Lower lift fast" );
+    }
+
+    //==================
+    //Intake
+    //==================
+    //Pull in sample - negative left_stick_y + left_stick_button
+    if( gamepad2.left_stick_y < 0 )
+    {
+      robot.intake.pullInSample();
+    }
+    //Spit out sample - positive left_stick_y + left_stick_button
+    else if ( gamepad2.left_stick_y > 0 )
+    {
+      robot.intake.spitOutSample();
+    }
+    //Stop
+    else
+    {
+      robot.intake.stop();
     }
 
     //Cycle through telemetry

@@ -8,13 +8,23 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends AbstractModule
 {
-  public static final int LIFTLOWPOINT = 10;
-  public static final int LIFTHIGHPOINT = 200;
-
   public static final double SLOW_SPEED = 0.1;
   public static final double FAST_SPEED= 1;
 
   public static final int LIFTMANUALINC = 30;
+
+  //Preset positions we can extend the arm to
+  public enum Position
+  {
+    HIGHEST(360 ), HIGH_BASKET( 200 ), LOW_BASKET( 100 ), FLOOR( 0 );
+
+    Position( int value )
+    {
+      this.value = value;
+    }
+
+    public final int value;
+  }
 
   DcMotor leftMotor = null;
   DcMotor rightMotor = null;
@@ -28,8 +38,8 @@ public class Lift extends AbstractModule
 
   private void initObjects( HardwareMap hardwareMap )
   {
-    leftMotor = hardwareMap.get( DcMotor.class, "leftMotor" );
-    rightMotor = hardwareMap.get( DcMotor.class, "rightMotor" );
+    leftMotor = hardwareMap.get( DcMotor.class, "leftLiftMotor" );
+    rightMotor = hardwareMap.get( DcMotor.class, "rightLiftMotor" );
   }
 
   private void initMotor( DcMotor motor, DcMotorSimple.Direction direction )
@@ -44,7 +54,7 @@ public class Lift extends AbstractModule
   {
     initMotor( leftMotor, DcMotorSimple.Direction.FORWARD );
     initMotor(rightMotor, DcMotorSimple.Direction.REVERSE  );
-    liftautodown();
+    travelTo( Position.FLOOR );
   }
 
   private void turnMotor( DcMotor motor,
@@ -56,14 +66,14 @@ public class Lift extends AbstractModule
       ( direction == DcMotorSimple.Direction.FORWARD ?
         1 : -1 ) * LIFTMANUALINC;
 
-    if( liftNewPosition > LIFTHIGHPOINT )
+    if( liftNewPosition > Position.HIGHEST.value )
     {
-      liftNewPosition = LIFTHIGHPOINT;
+      liftNewPosition = Position.HIGHEST.value;
     }
 
-    if( liftNewPosition < LIFTLOWPOINT )
+    if( liftNewPosition < Position.FLOOR.value)
     {
-      liftNewPosition = LIFTLOWPOINT;
+      liftNewPosition = Position.FLOOR.value;
     }
 
     motor.setTargetPosition( liftNewPosition );
@@ -103,18 +113,16 @@ public class Lift extends AbstractModule
     turnMotor( rightMotor, DcMotorSimple.Direction.REVERSE, SLOW_SPEED );
   }
 
-  //auto down
-  public void liftautodown()
+  public void travelTo( Position position )
   {
-    setMotorPostion( leftMotor, LIFTLOWPOINT, FAST_SPEED );
-    setMotorPostion( rightMotor, LIFTLOWPOINT, FAST_SPEED );
+    setMotorPostion( leftMotor, position.value, FAST_SPEED );
+    setMotorPostion( rightMotor, position.value, FAST_SPEED );
   }
 
-  //auto up
-  public void liftautoup()
+  public void climb()
   {
-    setMotorPostion( leftMotor, LIFTHIGHPOINT, FAST_SPEED );
-    setMotorPostion( rightMotor, LIFTHIGHPOINT, FAST_SPEED );
+    setMotorPostion( leftMotor, Position.HIGHEST.value, SLOW_SPEED );
+    setMotorPostion( rightMotor, Position.HIGHEST.value, SLOW_SPEED );
   }
 
   //Stops the extension arm motor
