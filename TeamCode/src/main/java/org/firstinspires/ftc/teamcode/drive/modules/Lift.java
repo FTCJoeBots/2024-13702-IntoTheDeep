@@ -9,14 +9,14 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Lift extends AbstractModule
 {
   public static final double SLOW_SPEED = 0.1;
-  public static final double FAST_SPEED= 1;
+  public static final double FAST_SPEED = 1;
 
   public static final int LIFTMANUALINC = 30;
 
   //Preset positions we can extend the arm to
   public enum Position
   {
-    HIGHEST(360 ), HIGH_BASKET( 200 ), LOW_BASKET( 100 ), FLOOR( 0 );
+    HIGHEST( 360 ), HIGH_BASKET( 200 ), LOW_BASKET( 100 ), FLOOR( 0 );
 
     Position( int value )
     {
@@ -34,7 +34,7 @@ public class Lift extends AbstractModule
     super( telemetry );
     initObjects( hardwareMap );
     initState();
-  } 
+  }
 
   private void initObjects( HardwareMap hardwareMap )
   {
@@ -53,25 +53,21 @@ public class Lift extends AbstractModule
   private void initState()
   {
     initMotor( leftMotor, DcMotorSimple.Direction.FORWARD );
-    initMotor(rightMotor, DcMotorSimple.Direction.REVERSE  );
+    initMotor( rightMotor, DcMotorSimple.Direction.REVERSE );
     travelTo( Position.FLOOR );
   }
 
-  private void turnMotor( DcMotor motor,
-                          DcMotorSimple.Direction direction,
-                          double speed)
+  private void turnMotor( DcMotor motor, DcMotorSimple.Direction direction, double speed )
   {
     int liftCurPosition = motor.getCurrentPosition();
-    int liftNewPosition = liftCurPosition +
-      ( direction == DcMotorSimple.Direction.FORWARD ?
-        1 : -1 ) * LIFTMANUALINC;
+    int liftNewPosition = liftCurPosition + ( direction == DcMotorSimple.Direction.FORWARD ? 1 : -1 ) * LIFTMANUALINC;
 
     if( liftNewPosition > Position.HIGHEST.value )
     {
       liftNewPosition = Position.HIGHEST.value;
     }
 
-    if( liftNewPosition < Position.FLOOR.value)
+    if( liftNewPosition < Position.FLOOR.value )
     {
       liftNewPosition = Position.FLOOR.value;
     }
@@ -80,9 +76,7 @@ public class Lift extends AbstractModule
     motor.setPower( speed );
   }
 
-  private void setMotorPostion( DcMotor motor,
-                                int position,
-                                double power )
+  private void setMotorPosition( DcMotor motor, int position, double power )
   {
     motor.setTargetPosition( position );
     motor.setPower( power );
@@ -115,14 +109,14 @@ public class Lift extends AbstractModule
 
   public void travelTo( Position position )
   {
-    setMotorPostion( leftMotor, position.value, FAST_SPEED );
-    setMotorPostion( rightMotor, position.value, FAST_SPEED );
+    setMotorPosition( leftMotor, position.value, FAST_SPEED );
+    setMotorPosition( rightMotor, position.value, FAST_SPEED );
   }
 
   public void climb()
   {
-    setMotorPostion( leftMotor, Position.HIGHEST.value, SLOW_SPEED );
-    setMotorPostion( rightMotor, Position.HIGHEST.value, SLOW_SPEED );
+    setMotorPosition( leftMotor, Position.HIGHEST.value, SLOW_SPEED );
+    setMotorPosition( rightMotor, Position.HIGHEST.value, SLOW_SPEED );
   }
 
   //Stops the extension arm motor
@@ -139,5 +133,4 @@ public class Lift extends AbstractModule
     telemetry.addLine( String.format( "Right Lift Motor -  %s", rightMotor.getCurrentPosition() ) );
     telemetry.update();
   }
-
 }

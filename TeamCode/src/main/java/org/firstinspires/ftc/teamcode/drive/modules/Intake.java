@@ -9,8 +9,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Intake extends AbstractModule
 {
   public static final double SLOW_SPEED = 0.1;
-  public static final double FAST_SPEED= 1;
-  public static final double STOP_SPEED=0;
+  public static final double FAST_SPEED = 1;
+  public static final double STOP_SPEED = 0;
 
   private CRServo leftServo = null;
   private CRServo rightServo = null;
@@ -28,16 +28,16 @@ public class Intake extends AbstractModule
     rightServo = hardwareMap.get( CRServo.class, "rightIntakeServo" );
   }
 
+  private void initState()
+  {
+    initServo( leftServo, DcMotorSimple.Direction.FORWARD );
+    initServo( rightServo, DcMotorSimple.Direction.REVERSE );
+  }
+
   private void initServo( CRServo servo, DcMotorSimple.Direction direction )
   {
     servo.setDirection( direction );
     servo.setPower( STOP_SPEED );
-  }
-
-  private void initState()
-  {
-    initServo( leftServo, DcMotorSimple.Direction.FORWARD );
-    initServo( rightServo, DcMotorSimple.Direction.REVERSE  );
   }
 
   private void setServoSpeed( double speed )
@@ -65,8 +65,7 @@ public class Intake extends AbstractModule
   public void printTelemetry()
   {
     telemetry.addLine( String.format( "Left Intake Servo -  %s", leftServo.getPower() ) );
-    telemetry.addLine( String.format( "Right Intake Servo -  %s",rightServo.getPower() ) );
+    telemetry.addLine( String.format( "Right Intake Servo -  %s", rightServo.getPower() ) );
     telemetry.update();
   }
-
 }
