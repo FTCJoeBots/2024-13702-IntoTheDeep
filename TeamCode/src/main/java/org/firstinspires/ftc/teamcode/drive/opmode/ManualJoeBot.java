@@ -24,7 +24,7 @@ public class ManualJoeBot extends OpMode
     NONE, EXTENSION_ARM, LIFT, INTAKE, DRIVE_MOTORS, DRIVE_ODOMETERS
   }
 
-  private Module currentModule = Module.values()[ 0 ];
+  private Module currentModule = Module.INTAKE; //Module.values()[ 0 ];
 
   //We run this when the user hits "INIT" on the app
   @Override
