@@ -58,6 +58,8 @@ public class ManualJoeBot extends OpMode
   @Override
   public void loop()
   {
+    robot.teamSelect.pollButton();
+
     //==================
     //Extension Arm
     //==================
