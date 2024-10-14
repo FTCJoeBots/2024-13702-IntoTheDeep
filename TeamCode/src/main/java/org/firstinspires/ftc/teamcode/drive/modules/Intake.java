@@ -19,6 +19,55 @@ public class Intake extends AbstractModule
   public static final double FAST_SPEED = 1;
   public static final double STOP_SPEED = 0;
 
+  public enum ObservedObject
+  {
+    RED_SAMPLE,
+    BLUE_SAMPLE,
+    YELLOW_SAMPLE,
+    NOTHING
+  }
+
+  public ObservedObject getObservedObject()
+  {
+    // Get the normalized colors from the sensor
+    NormalizedRGBA colors = colorSensor.getNormalizedColors();
+
+    // Update the hsvValues array by passing it to Color.colorToHSV()
+    Color.colorToHSV( colors.toColor(), hsvValues );
+
+    if( colorSensor instanceof DistanceSensor )
+    {
+      double distance = ( ( DistanceSensor ) colorSensor ).getDistance( DistanceUnit.CM );
+
+      if( Double.valueOf( distance ).isNaN() || distance > 10 )
+      {
+        return ObservedObject.NOTHING;
+      }
+    }
+
+    //samples have a saturation of .7
+    //the ground has a saturation of .2
+    float saturation = hsvValues[ 1 ];
+    if( saturation < 0.4 )
+    {
+      return ObservedObject.NOTHING;
+    }
+
+    float hue = hsvValues[ 0 ];
+
+    //red - hue < 20 or > 325
+    if( hue < 20 || hue > 325 )
+    { return ObservedObject.RED_SAMPLE; }
+    //yellow - hue > 45 and hue < 75
+    else if( hue > 45 && hue < 75 )
+    { return ObservedObject.YELLOW_SAMPLE; }
+    //blue - hue > 195 and hue < 265
+    else if( hue > 195 && hue < 265 )
+    { return ObservedObject.BLUE_SAMPLE; }
+
+    return ObservedObject.NOTHING;
+  }
+
   // You can give the sensor a gain value, will be multiplied by the sensor's raw value before the
   // normalized color values are calculated. Color sensors (especially the REV Color Sensor V3)
   // can give very low values (depending on the lighting conditions), which only use a small part
@@ -27,7 +76,7 @@ public class Intake extends AbstractModule
   // colors will report at or near 1, and you won't be able to determine what color you are
   // actually looking at. For this reason, it's better to err on the side of a lower gain
   // (but always greater than  or equal to 1).
-  float gain = 2;
+  final float gain = 2;
 
   // Once per loop, we will update this hsvValues array. The first element (0) will contain the
   // hue, the second element (1) will contain the saturation, and the third element (2) will
