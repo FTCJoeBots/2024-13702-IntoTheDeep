@@ -19,6 +19,15 @@ public class Intake extends AbstractModule
   public static final double FAST_SPEED = 1;
   public static final double STOP_SPEED = 0;
 
+  public enum CurrentAction
+  {
+    PULLING_IN,
+    SPITTING_OUT,
+    DOING_NOTHING
+  }
+
+  private CurrentAction currentAction = CurrentAction.DOING_NOTHING;
+
   public enum ObservedObject
   {
     RED_SAMPLE,
@@ -137,16 +146,40 @@ public class Intake extends AbstractModule
   public void pullInSample()
   {
     setServoSpeed( FAST_SPEED );
+    currentAction = CurrentAction.PULLING_IN;
   }
 
   public void spitOutSample()
   {
     setServoSpeed( -SLOW_SPEED );
+    currentAction = CurrentAction.SPITTING_OUT;
   }
 
   public void stop()
   {
     setServoSpeed( STOP_SPEED );
+    currentAction = CurrentAction.DOING_NOTHING;
+  }
+
+  public void actUponColor()
+  {
+    Boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
+
+    switch( currentAction )
+    {
+      case PULLING_IN:
+        if( sampleDetected )
+        { stop(); }
+        break;
+      case SPITTING_OUT:
+        if( !sampleDetected )
+        {
+          stop();
+        }
+        break;
+      case DOING_NOTHING:
+        break;
+    }
   }
 
   //Prints out the extension arm motor position
@@ -159,23 +192,32 @@ public class Intake extends AbstractModule
     NormalizedRGBA colors = colorSensor.getNormalizedColors();
 
     // Update the hsvValues array by passing it to Color.colorToHSV()
-    Color.colorToHSV(colors.toColor(), hsvValues);
+    Color.colorToHSV( colors.toColor(), hsvValues );
 
-    telemetry.addLine()
-      .addData("Red", "%.3f", colors.red)
-      .addData("Green", "%.3f", colors.green)
-      .addData("Blue", "%.3f", colors.blue);
-    telemetry.addLine()
-      .addData("Hue", "%.3f", hsvValues[0])
-      .addData("Saturation", "%.3f", hsvValues[1])
-      .addData("Value", "%.3f", hsvValues[2]);
-    telemetry.addData("Alpha", "%.3f", colors.alpha);
+    telemetry.addLine().addData( "Red", "%.3f", colors.red ).addData( "Green", "%.3f", colors.green ).addData( "Blue", "%.3f", colors.blue );
+    telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] ).addData( "Value", "%.3f", hsvValues[ 2 ] );
 
     /* If this color sensor also has a distance sensor, display the measured distance.
      * Note that the reported distance is only useful at very close range, and is impacted by
      * ambient light and surface reflectivity. */
     if (colorSensor instanceof DistanceSensor ) {
       telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance( DistanceUnit.CM));
+    }
+
+    switch( getObservedObject() )
+    {
+      case RED_SAMPLE:
+        telemetry.addLine( "we see a red sample");
+        break;
+      case BLUE_SAMPLE:
+        telemetry.addLine( "we see a blue sample");
+ break;
+      case YELLOW_SAMPLE:
+        telemetry.addLine( "we see a yellow sample");
+        break;
+      case NOTHING:
+        telemetry.addLine( "we see a no sample");
+        break;
     }
 
     telemetry.update();

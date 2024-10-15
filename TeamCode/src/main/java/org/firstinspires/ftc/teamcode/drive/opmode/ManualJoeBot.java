@@ -138,6 +138,8 @@ public class ManualJoeBot extends OpMode
     //==================
     //Intake
     //==================
+    robot.intake.actUponColor();
+
     //Pull in sample - negative left_stick_y + left_stick_button
     if( gamepad2.left_stick_y < 0 )
     {
@@ -149,7 +151,7 @@ public class ManualJoeBot extends OpMode
       robot.intake.spitOutSample();
     }
     //Stop
-    else
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.LEFT_STICK ) )
     {
       robot.intake.stop();
     }
