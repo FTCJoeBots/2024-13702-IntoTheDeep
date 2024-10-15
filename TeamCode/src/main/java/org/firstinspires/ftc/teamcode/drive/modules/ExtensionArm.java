@@ -87,12 +87,14 @@ public class ExtensionArm extends AbstractModule
   }
 
   //Stops the extension arm motor
+  @Override
   public void stop()
   {
     extensionArmMotor.setPower( Speed.STOP.value );
   }
 
   //Prints out the extension arm motor position
+  @Override
   public void printTelemetry()
   {
     telemetry.addLine( String.format( "Extension Arm - %s", getMotorPosition() ) );

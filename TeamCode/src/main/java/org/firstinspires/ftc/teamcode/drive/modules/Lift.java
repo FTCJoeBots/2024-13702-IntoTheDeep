@@ -42,14 +42,6 @@ public class Lift extends AbstractModule
     rightMotor = hardwareMap.get( DcMotor.class, "rightLiftMotor" );
   }
 
-  private void initMotor( DcMotor motor, DcMotorSimple.Direction direction )
-  {
-    motor.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
-    motor.setDirection( direction );
-    motor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-    motor.setPower( 0 );
-  }
-
   private void initState()
   {
     initMotor( leftMotor, DcMotorSimple.Direction.FORWARD );
@@ -120,6 +112,7 @@ public class Lift extends AbstractModule
   }
 
   //Stops the extension arm motor
+  @Override
   public void stop()
   {
     leftMotor.setPower( 0 );
@@ -127,6 +120,7 @@ public class Lift extends AbstractModule
   }
 
   //Prints out the extension arm motor position
+  @Override
   public void printTelemetry()
   {
     telemetry.addLine( String.format( "Left Lift Motor -  %s", leftMotor.getCurrentPosition() ) );
