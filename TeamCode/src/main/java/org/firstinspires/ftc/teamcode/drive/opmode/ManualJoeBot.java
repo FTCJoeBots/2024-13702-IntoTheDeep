@@ -24,7 +24,7 @@ public class ManualJoeBot extends OpMode
     NONE, EXTENSION_ARM, LIFT, INTAKE, DRIVE_MOTORS, DRIVE_ODOMETERS
   }
 
-  private Module currentModule = Module.values()[ 0 ];
+  private Module currentModule = Module.INTAKE; //Module.values()[ 0 ];
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -138,6 +138,8 @@ public class ManualJoeBot extends OpMode
     //==================
     //Intake
     //==================
+    robot.intake.actUponColor();
+
     //Pull in sample - negative left_stick_y + left_stick_button
     if( gamepad2.left_stick_y < 0 )
     {
@@ -149,7 +151,7 @@ public class ManualJoeBot extends OpMode
       robot.intake.spitOutSample();
     }
     //Stop
-    else
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.LEFT_STICK ) )
     {
       robot.intake.stop();
     }
