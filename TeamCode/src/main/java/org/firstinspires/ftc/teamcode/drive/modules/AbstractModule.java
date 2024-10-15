@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.drive.modules;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public abstract class AbstractModule
@@ -9,6 +12,14 @@ public abstract class AbstractModule
   AbstractModule( Telemetry telemetry )
   {
     this.telemetry = telemetry;
+  }
+
+  protected void initMotor( DcMotor motor, DcMotorSimple.Direction direction )
+  {
+    motor.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
+    motor.setDirection( direction );
+    motor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+    motor.setPower( 0 );
   }
 
   //You must override this function in derived classes to implement a

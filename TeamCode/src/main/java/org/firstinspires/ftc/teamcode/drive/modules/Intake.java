@@ -155,6 +155,7 @@ public class Intake extends AbstractModule
     currentAction = CurrentAction.SPITTING_OUT;
   }
 
+  @Override
   public void stop()
   {
     setServoSpeed( STOP_SPEED );
@@ -183,6 +184,7 @@ public class Intake extends AbstractModule
   }
 
   //Prints out the extension arm motor position
+  @Override
   public void printTelemetry()
   {
     telemetry.addLine( String.format( "Left Intake Servo -  %s", leftServo.getPower() ) );

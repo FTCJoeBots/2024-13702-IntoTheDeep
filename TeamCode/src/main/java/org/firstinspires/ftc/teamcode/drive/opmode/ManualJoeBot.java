@@ -21,7 +21,7 @@ public class ManualJoeBot extends OpMode
 
   private enum Module
   {
-    NONE, EXTENSION_ARM, LIFT, INTAKE, DRIVE_MOTORS, DRIVE_ODOMETERS
+    NONE, EXTENSION_ARM, LIFT, INTAKE, DRIVE
   }
 
   private Module currentModule = Module.INTAKE; //Module.values()[ 0 ];
@@ -156,6 +156,14 @@ public class ManualJoeBot extends OpMode
       robot.intake.stop();
     }
 
+     //==================
+     //Drive
+     //==================
+    final double forward = gamepad1.left_stick_y;
+    final double strafe = gamepad1.right_stick_x;
+    final double rotate = -gamepad1.left_trigger + gamepad1.right_trigger;
+    robot.drive.move( forward, strafe, rotate );
+
     //Cycle through telemetry
     if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.RIGHT_STICK ) )
     {
@@ -178,6 +186,8 @@ public class ManualJoeBot extends OpMode
       case INTAKE:
         robot.intake.printTelemetry();
         break;
+      case DRIVE:
+        robot.drive.printTelemetry();
     }
 
     gamepads.storeLastButtons();
