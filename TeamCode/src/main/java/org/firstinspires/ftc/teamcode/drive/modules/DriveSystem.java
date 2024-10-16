@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.drive.modules;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class DriveSystem extends AbstractModule
@@ -92,10 +91,10 @@ public class DriveSystem extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Drive Front Left Motor -  %s", frontLeftMotor.getPower() ) );
-    telemetry.addLine( String.format( "Drive Front Right Motor -  %s", frontRightMotor.getPower() ) );
-    telemetry.addLine( String.format( "Drive Back Left Motor -  %s", backLeftMotor.getPower() ) );
-    telemetry.addLine( String.format( "Drive Back Right Motor -  %s", backRightMotor.getPower() ) );
+    telemetry.addLine( String.format( "Drive Front Left Motor - %s", frontLeftMotor.getPower() ) );
+    telemetry.addLine( String.format( "Drive Front Right Motor - %s", frontRightMotor.getPower() ) );
+    telemetry.addLine( String.format( "Drive Back Left Motor - %s", backLeftMotor.getPower() ) );
+    telemetry.addLine( String.format( "Drive Back Right Motor - %s", backRightMotor.getPower() ) );
     telemetry.update();
   }
 }
