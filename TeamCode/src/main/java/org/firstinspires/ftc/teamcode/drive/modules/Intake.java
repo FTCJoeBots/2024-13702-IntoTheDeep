@@ -162,7 +162,7 @@ public class Intake extends AbstractModule
     currentAction = CurrentAction.DOING_NOTHING;
   }
 
-  public void actUponColor()
+  public Boolean actUponColor()
   {
     Boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
 
@@ -170,17 +170,23 @@ public class Intake extends AbstractModule
     {
       case PULLING_IN:
         if( sampleDetected )
-        { stop(); }
+        {
+          stop();
+          return true;
+        }
         break;
       case SPITTING_OUT:
         if( !sampleDetected )
         {
           stop();
+          return true;
         }
         break;
       case DOING_NOTHING:
         break;
     }
+
+    return false;
   }
 
   //Prints out the extension arm motor position
