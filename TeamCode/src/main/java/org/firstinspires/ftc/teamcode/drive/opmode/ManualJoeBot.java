@@ -138,14 +138,18 @@ public class ManualJoeBot extends OpMode
     //==================
     //Intake
     //==================
-    robot.intake.actUponColor();
+    if( robot.intake.actUponColor() )
+    {
+      gamepad1.rumbleBlips( 3 );
+      gamepad2.rumbleBlips( 3 );
+    }
 
-    //Pull in sample - negative left_stick_y + left_stick_button
+    //Pull in sample
     if( gamepad2.left_stick_y < 0 )
     {
       robot.intake.pullInSample();
     }
-    //Spit out sample - positive left_stick_y + left_stick_button
+    //Spit out sample
     else if ( gamepad2.left_stick_y > 0 )
     {
       robot.intake.spitOutSample();
