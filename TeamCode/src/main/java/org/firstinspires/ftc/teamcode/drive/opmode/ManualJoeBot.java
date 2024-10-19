@@ -21,10 +21,10 @@ public class ManualJoeBot extends OpMode
 
   private enum Module
   {
-    NONE, EXTENSION_ARM, LIFT, INTAKE, DRIVE
+    NONE, DRIVE, INTAKE, LIFT, EXTENSION_ARM
   }
 
-  private Module currentModule = Module.INTAKE; //Module.values()[ 0 ];
+  private Module currentModule = Module.values()[ 0 ];
 
   //We run this when the user hits "INIT" on the app
   @Override
