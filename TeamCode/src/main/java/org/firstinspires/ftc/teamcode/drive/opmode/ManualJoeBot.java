@@ -21,10 +21,10 @@ public class ManualJoeBot extends OpMode
 
   private enum Module
   {
-    NONE, EXTENSION_ARM, LIFT, INTAKE, DRIVE
+    NONE, DRIVE, INTAKE, LIFT, EXTENSION_ARM
   }
 
-  private Module currentModule = Module.INTAKE; //Module.values()[ 0 ];
+  private Module currentModule = Module.values()[ 0 ];
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -164,8 +164,8 @@ public class ManualJoeBot extends OpMode
     //Drive
     //==================
     final double forward = gamepad1.left_stick_y;
-    final double strafe = gamepad1.right_stick_x;
-    final double rotate = -gamepad1.left_trigger + gamepad1.right_trigger;
+    final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
+    final double rotate = gamepad1.left_trigger - gamepad1.right_trigger;
     robot.drive.move( forward, strafe, rotate );
 
     //Cycle through telemetry
