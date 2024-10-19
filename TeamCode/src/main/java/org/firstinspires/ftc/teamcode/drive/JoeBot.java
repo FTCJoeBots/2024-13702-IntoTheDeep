@@ -9,28 +9,40 @@ import org.firstinspires.ftc.teamcode.drive.modules.Lift;
 
 public class JoeBot
 {
-  public static ExtensionArm extensionArm = null;
-  public static Lift lift = null;
-  public static Intake intake = null;
-  public static DriveSystem drive = null;
+  private static ExtensionArm m_extensionArm = null;
+  private static Lift m_lift = null;
+  private static Intake m_intake = null;
+  private static DriveSystem m_drive = null;
 
   public JoeBot( HardwareMap hardwareMap, Telemetry telemetry )
   {
     //avoid recreating modules to avoid reseting encoders in between autonomus and tele op
-    if( extensionArm == null )
+    if( m_extensionArm == null )
     {
-      extensionArm = new ExtensionArm( hardwareMap, telemetry );
-      lift = new Lift( hardwareMap, telemetry );
-      intake = new Intake( hardwareMap, telemetry );
-      drive = new DriveSystem( hardwareMap, telemetry );
+      m_extensionArm = new ExtensionArm( hardwareMap, telemetry );
+      m_lift = new Lift( hardwareMap, telemetry );
+      m_intake = new Intake( hardwareMap, telemetry );
+      m_drive = new DriveSystem( hardwareMap, telemetry );
     }
   }
 
+  public ExtensionArm extensionArm()
+  { return m_extensionArm; }
+
+  public Lift lift()
+  { return m_lift; }
+
+  public Intake intake()
+  { return m_intake; }
+
+  public DriveSystem drive()
+  { return m_drive; }
+
   public void stop()
   {
-    extensionArm.stop();
-    lift.stop();
-    intake.stop();
-    drive.stop();
+    m_extensionArm.stop();
+    m_lift.stop();
+    m_intake.stop();
+    m_drive.stop();
   }
 }

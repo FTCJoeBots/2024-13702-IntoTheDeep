@@ -97,11 +97,11 @@ public class Intake extends AbstractModule
   public Intake( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( hardwareMap, telemetry );
-    initObjects( hardwareMap );
+    initObjects();
     initState();
   }
 
-  private void initObjects( HardwareMap hardwareMap )
+  private void initObjects()
   {
     leftServo = createServo( "leftServo" );
     rightServo = createServo( "rightServo" );
@@ -161,7 +161,7 @@ public class Intake extends AbstractModule
 
   public Boolean actUponColor()
   {
-    Boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
+    boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
 
     switch( currentAction )
     {

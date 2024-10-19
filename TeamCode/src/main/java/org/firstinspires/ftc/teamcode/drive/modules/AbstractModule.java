@@ -12,7 +12,7 @@ import java.util.Map;
 
 public abstract class AbstractModule
 {
-  private HardwareMap hardwareMap = null;
+  protected HardwareMap hardwareMap = null;
   protected Telemetry telemetry = null;
   private Map<String, DcMotor> motors = null;
   private Map<String, CRServo> servos = null;

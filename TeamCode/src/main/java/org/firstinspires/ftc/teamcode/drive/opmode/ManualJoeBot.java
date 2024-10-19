@@ -13,7 +13,6 @@ import java.util.EnumSet;
 
 //Tell framework that this is a TeleOp mode
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
-
 public class ManualJoeBot extends OpMode
 {
   JoeBot robot = null;
@@ -64,26 +63,26 @@ public class ManualJoeBot extends OpMode
     //Fully extend - B + Y
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.Y ) ) )
     {
-      robot.extensionArm.fullyExtend();
+      robot.extensionArm().fullyExtend();
       addMessage( "Fully extend arm" );
     }
     //Manually extend - Y
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.Y ) )
     {
-      robot.extensionArm.manuallyExtend();
+      robot.extensionArm().manuallyExtend();
       addMessage( "Manually extend arm" );
     }
 
     //Full retract - B + A
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
     {
-      robot.extensionArm.fullyRetract();
+      robot.extensionArm().fullyRetract();
       addMessage( "Fully retract arm" );
     }
     //Manually retract - A
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.A ) )
     {
-      robot.extensionArm.manuallyRetract();
+      robot.extensionArm().manuallyRetract();
       addMessage( "Manually retract arm" );
     }
 
@@ -93,52 +92,52 @@ public class ManualJoeBot extends OpMode
     //High basket - x + dpad_up
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) )
     {
-      robot.lift.travelTo( Lift.Position.HIGH_BASKET );
+      robot.lift().travelTo( Lift.Position.HIGH_BASKET );
     }
     //Low basket - x + dpad_down
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) )
     {
-      robot.lift.travelTo( Lift.Position.LOW_BASKET );
+      robot.lift().travelTo( Lift.Position.LOW_BASKET );
     }
     //Move lift to bottom - x + a
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.A, Button.X ) ) )
     {
-      robot.lift.travelTo( Lift.Position.FLOOR );
+      robot.lift().travelTo( Lift.Position.FLOOR );
     }
     //Climbing - x + dpad_right
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_RIGHT, Button.X ) ) )
     {
-      robot.lift.climb();
+      robot.lift().climb();
     }
     //Raise lift slow (high torque) - dpad_up + b
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.B ) ) )
     {
-      robot.lift.slowLift();
+      robot.lift().slowLift();
       addMessage( "Raise lift slow" );
     }
     //Raise lift fast - dpad_up
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_UP ) )
     {
-      robot.lift.fastLift();
+      robot.lift().fastLift();
       addMessage( "Raise lift fast" );
     }
     //Lower lift slow (high torque) - dpad_down + b
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.B ) ) )
     {
-      robot.lift.slowDrop();
+      robot.lift().slowDrop();
       addMessage( "Lower lift slow" );
     }
     //Lower lift fast- dpad_down
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.DPAD_DOWN ) )
     {
-      robot.lift.fastDrop();
+      robot.lift().fastDrop();
       addMessage( "Lower lift fast" );
     }
 
     //==================
     //Intake
     //==================
-    if( robot.intake.actUponColor() )
+    if( robot.intake().actUponColor() )
     {
       gamepad1.rumbleBlips( 3 );
       gamepad2.rumbleBlips( 3 );
@@ -147,17 +146,17 @@ public class ManualJoeBot extends OpMode
     //Pull in sample
     if( gamepad2.left_stick_y < 0 )
     {
-      robot.intake.pullInSample();
+      robot.intake().pullInSample();
     }
     //Spit out sample
     else if ( gamepad2.left_stick_y > 0 )
     {
-      robot.intake.spitOutSample();
+      robot.intake().spitOutSample();
     }
     //Stop
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.LEFT_STICK ) )
     {
-      robot.intake.stop();
+      robot.intake().stop();
     }
 
     //==================
@@ -166,7 +165,7 @@ public class ManualJoeBot extends OpMode
     final double forward = gamepad1.left_stick_y;
     final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
     final double rotate = gamepad1.left_trigger - gamepad1.right_trigger;
-    robot.drive.move( forward, strafe, rotate );
+    robot.drive().move( forward, strafe, rotate );
 
     //Cycle through telemetry
     if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.RIGHT_STICK ) )
@@ -182,16 +181,16 @@ public class ManualJoeBot extends OpMode
     switch( currentModule )
     {
       case EXTENSION_ARM:
-        robot.extensionArm.printTelemetry();
+        robot.extensionArm().printTelemetry();
         break;
       case LIFT:
-        robot.lift.printTelemetry();
+        robot.lift().printTelemetry();
         break;
       case INTAKE:
-        robot.intake.printTelemetry();
+        robot.intake().printTelemetry();
         break;
       case DRIVE:
-        robot.drive.printTelemetry();
+        robot.drive().printTelemetry();
     }
 
     gamepads.storeLastButtons();
