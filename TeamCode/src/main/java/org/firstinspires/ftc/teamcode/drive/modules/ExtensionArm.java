@@ -27,14 +27,14 @@ public class ExtensionArm extends AbstractModule
   //Various speeds for extending and retracting the arm
   private enum Speed
   {
-    EXTEND( 20 ), RETRACT( -20 ), MANUAL_EXTEND( 40 ), MANUAL_RETRACT( -40 ), STOP( 0 );
+    EXTEND( 0.5 ), RETRACT( 0.5 ), MANUAL_EXTEND( 0.1 ), MANUAL_RETRACT( 0.1 ), STOP( 0 );
 
-    Speed( int value )
+    Speed( double value )
     {
       this.value = value;
     }
 
-    public final int value;
+    public final double value;
   }
 
   private DcMotor extensionArmMotor = null;
@@ -48,14 +48,12 @@ public class ExtensionArm extends AbstractModule
 
   public void fullyExtend()
   {
-    extensionArmMotor.setTargetPosition( Position.EXTENDED.value );
-    extensionArmMotor.setPower( Speed.EXTEND.value );
+    setTargetPositionAndPower( Position.EXTENDED.value, Speed.EXTEND.value );
   }
 
   public void fullyRetract()
   {
-    extensionArmMotor.setTargetPosition( Position.RETRACTED.value );
-    extensionArmMotor.setPower( Speed.RETRACT.value );
+    setTargetPositionAndPower( Position.RETRACTED.value, Speed.RETRACT.value );
   }
 
   //Extends the arm slightly
@@ -68,8 +66,13 @@ public class ExtensionArm extends AbstractModule
     if( nextPosition > Position.EXTENDED.value )
     { nextPosition = Position.EXTENDED.value; }
 
-    extensionArmMotor.setTargetPosition( nextPosition );
-    extensionArmMotor.setPower( Speed.MANUAL_EXTEND.value );
+    setTargetPositionAndPower( nextPosition, Speed.MANUAL_EXTEND.value );
+  }
+
+  private void setTargetPositionAndPower( int position, double power )
+  {
+//    extensionArmMotor.setTargetPosition( position );
+//    extensionArmMotor.setPower( power );
   }
 
   //Retracts the arm slightly
@@ -82,8 +85,7 @@ public class ExtensionArm extends AbstractModule
     if( nextPosition < Position.RETRACTED.value )
     { nextPosition = Position.RETRACTED.value; }
 
-    extensionArmMotor.setTargetPosition( nextPosition );
-    extensionArmMotor.setPower( Speed.MANUAL_RETRACT.value );
+    setTargetPositionAndPower( nextPosition, Speed.MANUAL_RETRACT.value );
   }
 
   //Prints out the extension arm motor position
@@ -91,7 +93,6 @@ public class ExtensionArm extends AbstractModule
   public void printTelemetry()
   {
     telemetry.addLine( String.format( "Extension Arm - %s", getMotorPosition() ) );
-    telemetry.update();
   }
 
   public int getMotorPosition()

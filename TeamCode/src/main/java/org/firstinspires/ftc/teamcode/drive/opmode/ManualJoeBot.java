@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.Button;
 import org.firstinspires.ftc.teamcode.drive.Gamepads;
@@ -17,6 +18,7 @@ public class ManualJoeBot extends OpMode
 {
   JoeBot robot = null;
   Gamepads gamepads = null;
+  ElapsedTime time = new ElapsedTime();
 
   private enum Module
   {
@@ -50,7 +52,6 @@ public class ManualJoeBot extends OpMode
   private void addMessage( String message)
   {
     telemetry.addLine( message);
-    telemetry.update();
   }
 
   //Main OpMode loop
@@ -137,6 +138,8 @@ public class ManualJoeBot extends OpMode
     //==================
     //Intake
     //==================
+    robot.intake().resetColor();
+
     if( robot.intake().actUponColor() )
     {
       gamepad1.rumbleBlips( 3 );
@@ -194,6 +197,11 @@ public class ManualJoeBot extends OpMode
     }
 
     gamepads.storeLastButtons();
+
+    long fps = Math.round( 1.0 / time.seconds() );
+    telemetry.addData( "FPS", "%s", fps );
+    telemetry.update();
+    time.reset();
   }
 
   //Called when the OpMode terminates

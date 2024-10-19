@@ -64,14 +64,13 @@ public class Lift extends AbstractModule
       liftNewPosition = Position.FLOOR.value;
     }
 
-    motor.setTargetPosition( liftNewPosition );
-    motor.setPower( speed );
+    setMotorPosition( motor, liftNewPosition, speed );
   }
 
   private void setMotorPosition( DcMotor motor, int position, double power )
   {
-    motor.setTargetPosition( position );
-    motor.setPower( power );
+//    motor.setTargetPosition( position );
+//    motor.setPower( power );
   }
 
   public void fastLift()
@@ -115,8 +114,7 @@ public class Lift extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Left Lift Motor -  %s", leftMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Right Lift Motor -  %s", rightMotor.getCurrentPosition() ) );
-    telemetry.update();
+    telemetry.addLine( String.format( "Left Lift Motor - %s", leftMotor.getCurrentPosition() ) );
+    telemetry.addLine( String.format( "Right Lift Motor - %s", rightMotor.getCurrentPosition() ) );
   }
 }
