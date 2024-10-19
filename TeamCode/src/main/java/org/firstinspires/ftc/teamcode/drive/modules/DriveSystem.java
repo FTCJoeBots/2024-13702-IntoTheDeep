@@ -95,6 +95,5 @@ public class DriveSystem extends AbstractModule
     telemetry.addLine( String.format( "Drive Front Right Motor - %s", frontRightMotor.getPower() ) );
     telemetry.addLine( String.format( "Drive Back Left Motor - %s", backLeftMotor.getPower() ) );
     telemetry.addLine( String.format( "Drive Back Right Motor - %s", backRightMotor.getPower() ) );
-    telemetry.update();
   }
 }

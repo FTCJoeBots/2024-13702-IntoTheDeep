@@ -28,6 +28,9 @@ public class Intake extends AbstractModule
 
   private CurrentAction currentAction = CurrentAction.DOING_NOTHING;
 
+  private boolean colorKnown = false;
+  private NormalizedRGBA colors = new NormalizedRGBA();
+
   public enum ObservedObject
   {
     RED_SAMPLE,
@@ -36,10 +39,22 @@ public class Intake extends AbstractModule
     NOTHING
   }
 
-  public ObservedObject getObservedObject()
+  public void resetColor()
+  {
+    colorKnown = false;
+  }
+
+  public void updateState()
   {
     // Get the normalized colors from the sensor
-    NormalizedRGBA colors = colorSensor.getNormalizedColors();
+    colors = colorSensor.getNormalizedColors();
+    colorKnown = true;
+  }
+
+  public ObservedObject getObservedObject()
+  {
+    if ( !colorKnown )
+    { updateState(); }
 
     // Update the hsvValues array by passing it to Color.colorToHSV()
     Color.colorToHSV( colors.toColor(), hsvValues );
@@ -103,8 +118,8 @@ public class Intake extends AbstractModule
 
   private void initObjects()
   {
-    leftServo = createServo( "leftServo" );
-    rightServo = createServo( "rightServo" );
+    leftServo = createServo( "leftIntakeServo" );
+    rightServo = createServo( "rightIntakeServo" );
 
     // Get a reference to our sensor object. It's recommended to use NormalizedColorSensor over
     // ColorSensor, because NormalizedColorSensor consistently gives values between 0 and 1, while
@@ -161,6 +176,9 @@ public class Intake extends AbstractModule
 
   public Boolean actUponColor()
   {
+    if(currentAction == CurrentAction.DOING_NOTHING )
+    { return false; }
+
     boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
 
     switch( currentAction )
@@ -190,17 +208,17 @@ public class Intake extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Left Intake Servo -  %s", leftServo.getPower() ) );
-    telemetry.addLine( String.format( "Right Intake Servo -  %s", rightServo.getPower() ) );
+//    telemetry.addLine( String.format( "Left Intake Servo -  %s", leftServo.getPower() ) );
+ //   telemetry.addLine( String.format( "Right Intake Servo -  %s", rightServo.getPower() ) );
 
-    // Get the normalized colors from the sensor
-    NormalizedRGBA colors = colorSensor.getNormalizedColors();
+    if ( !colorKnown )
+    { updateState(); }
 
     // Update the hsvValues array by passing it to Color.colorToHSV()
     Color.colorToHSV( colors.toColor(), hsvValues );
 
-    telemetry.addLine().addData( "Red", "%.3f", colors.red ).addData( "Green", "%.3f", colors.green ).addData( "Blue", "%.3f", colors.blue );
-    telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] ).addData( "Value", "%.3f", hsvValues[ 2 ] );
+//    telemetry.addLine().addData( "Red", "%.3f", colors.red ).addData( "Green", "%.3f", colors.green ).addData( "Blue", "%.3f", colors.blue );
+    telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] );
 
     /* If this color sensor also has a distance sensor, display the measured distance.
      * Note that the reported distance is only useful at very close range, and is impacted by
@@ -224,7 +242,5 @@ public class Intake extends AbstractModule
         telemetry.addLine( "we see a no sample");
         break;
     }
-
-    telemetry.update();
   }
 }
