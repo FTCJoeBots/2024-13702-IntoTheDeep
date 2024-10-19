@@ -41,8 +41,8 @@ public class ExtensionArm extends AbstractModule
 
   public ExtensionArm( HardwareMap hardwareMap, Telemetry telemetry )
   {
-    super( telemetry );
-    initObjects( hardwareMap );
+    super( hardwareMap, telemetry );
+    initObjects();
     initState();
   }
 
@@ -86,13 +86,6 @@ public class ExtensionArm extends AbstractModule
     extensionArmMotor.setPower( Speed.MANUAL_RETRACT.value );
   }
 
-  //Stops the extension arm motor
-  @Override
-  public void stop()
-  {
-    extensionArmMotor.setPower( Speed.STOP.value );
-  }
-
   //Prints out the extension arm motor position
   @Override
   public void printTelemetry()
@@ -106,15 +99,14 @@ public class ExtensionArm extends AbstractModule
     return extensionArmMotor.getCurrentPosition();
   }
 
-  private void initObjects( HardwareMap hardwareMap )
+  private void initObjects()
   {
-    extensionArmMotor = hardwareMap.get( DcMotor.class, "extensionArmMotor" );
+    extensionArmMotor = createMotor( "extensionArmMotor" );
   }
 
   private void initState()
   {
-    extensionArmMotor.setMode( DcMotor.RunMode.RUN_USING_ENCODER );
-    extensionArmMotor.setDirection( DcMotorSimple.Direction.FORWARD );
+    initMotor( extensionArmMotor, DcMotor.RunMode.RUN_USING_ENCODER, DcMotorSimple.Direction.FORWARD );
     extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
     fullyRetract();
   }

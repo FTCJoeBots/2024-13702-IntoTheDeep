@@ -31,22 +31,22 @@ public class Lift extends AbstractModule
 
   public Lift( HardwareMap hardwareMap, Telemetry telemetry )
   {
-    super( telemetry );
-    initObjects( hardwareMap );
+    super( hardwareMap, telemetry );
+    initObjects();
     initState();
   }
 
-  private void initObjects( HardwareMap hardwareMap )
+  private void initObjects()
   {
-    leftMotor = hardwareMap.get( DcMotor.class, "leftLiftMotor" );
-    rightMotor = hardwareMap.get( DcMotor.class, "rightLiftMotor" );
+    leftMotor = createMotor( "leftLiftMotor" );
+    rightMotor = createMotor( "rightLiftMotor" );
   }
 
   private void initState()
   {
-    initMotor( leftMotor, DcMotorSimple.Direction.FORWARD );
-    initMotor( rightMotor, DcMotorSimple.Direction.REVERSE );
-    travelTo( Position.FLOOR );
+    final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_USING_ENCODER;
+    initMotor( leftMotor, runMode, DcMotorSimple.Direction.FORWARD );
+    initMotor( rightMotor, runMode, DcMotorSimple.Direction.REVERSE );
   }
 
   private void turnMotor( DcMotor motor, DcMotorSimple.Direction direction, double speed )
@@ -109,14 +109,6 @@ public class Lift extends AbstractModule
   {
     setMotorPosition( leftMotor, Position.HIGHEST.value, SLOW_SPEED );
     setMotorPosition( rightMotor, Position.HIGHEST.value, SLOW_SPEED );
-  }
-
-  //Stops the extension arm motor
-  @Override
-  public void stop()
-  {
-    leftMotor.setPower( 0 );
-    rightMotor.setPower( 0 );
   }
 
   //Prints out the extension arm motor position

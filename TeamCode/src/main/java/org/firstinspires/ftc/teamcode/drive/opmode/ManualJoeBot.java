@@ -164,8 +164,8 @@ public class ManualJoeBot extends OpMode
     //Drive
     //==================
     final double forward = gamepad1.left_stick_y;
-    final double strafe = gamepad1.right_stick_x;
-    final double rotate = -gamepad1.left_trigger + gamepad1.right_trigger;
+    final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
+    final double rotate = gamepad1.left_trigger - gamepad1.right_trigger;
     robot.drive.move( forward, strafe, rotate );
 
     //Cycle through telemetry

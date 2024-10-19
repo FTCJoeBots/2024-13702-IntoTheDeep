@@ -64,13 +64,10 @@ public class Intake extends AbstractModule
 
     float hue = hsvValues[ 0 ];
 
-    //red - hue < 20 or > 325
-    if( hue < 20 || hue > 325 )
+     if( hue < 15 || hue > 325 )
     { return ObservedObject.RED_SAMPLE; }
-    //yellow - hue > 45 and hue < 75
-    else if( hue > 45 && hue < 75 )
+    else if( hue > 30 && hue < 75 )
     { return ObservedObject.YELLOW_SAMPLE; }
-    //blue - hue > 195 and hue < 265
     else if( hue > 195 && hue < 265 )
     { return ObservedObject.BLUE_SAMPLE; }
 
@@ -99,15 +96,15 @@ public class Intake extends AbstractModule
 
   public Intake( HardwareMap hardwareMap, Telemetry telemetry )
   {
-    super( telemetry );
+    super( hardwareMap, telemetry );
     initObjects( hardwareMap );
     initState();
   }
 
   private void initObjects( HardwareMap hardwareMap )
   {
-    leftServo = hardwareMap.get( CRServo.class, "leftIntakeServo" );
-    rightServo = hardwareMap.get( CRServo.class, "rightIntakeServo" );
+    leftServo = createServo( "leftServo" );
+    rightServo = createServo( "rightServo" );
 
     // Get a reference to our sensor object. It's recommended to use NormalizedColorSensor over
     // ColorSensor, because NormalizedColorSensor consistently gives values between 0 and 1, while
@@ -158,7 +155,7 @@ public class Intake extends AbstractModule
   @Override
   public void stop()
   {
-    setServoSpeed( STOP_SPEED );
+    super.stop();
     currentAction = CurrentAction.DOING_NOTHING;
   }
 
