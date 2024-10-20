@@ -21,8 +21,8 @@ public abstract class AbstractModule
   {
     this.hardwareMap = hardwareMap;
     this.telemetry = telemetry;
-    motors = new HashMap<String, DcMotor>();
-    servos = new HashMap<String, CRServo>();
+    motors = new HashMap<>();
+    servos = new HashMap<>();
   }
 
   protected DcMotor createMotor( String name )
