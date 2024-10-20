@@ -27,7 +27,7 @@ public class ExtensionArm extends AbstractModule
   //Various speeds for extending and retracting the arm
   private enum Speed
   {
-    EXTEND( 0.5 ), RETRACT( 0.5 ), MANUAL_EXTEND( 0.1 ), MANUAL_RETRACT( 0.1 ), STOP( 0 );
+    EXTEND( 0.5 ), RETRACT( 0.5 ), MANUAL_EXTEND( 0.1 ), MANUAL_RETRACT( 0.1 );
 
     Speed( double value )
     {
