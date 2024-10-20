@@ -62,15 +62,29 @@ public final class MecanumDrive {
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
-        // drive model parameters
-        public double inPerTick = 1;
-        public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 0;
+        // drive model parameters - calibrated by following procedure
+        // described on https://rr.brott.dev/docs/v1-0/tuning/
+
+        //TODO - calibrate using ForwardPushTest
+        public double inPerTick = 0.0007624251472;
+
+        //TODO - calibrate using LateralRampLogger
+        //(Do not use LateralPushTest because do not use encoders on our drive wheels)
+        public double lateralInPerTick = 0.00051895096481978;
+
+        //TODO - calibrate using AngularRampLogger
+        //Important! Scroll down below first graph and update
+        //ThreeDeadWheelLocalizer.java / par*Ticks params as well
+        public double trackWidthTicks = 22026.409770070717;
 
         // feedforward parameters (in tick units)
-        public double kS = 0;
-        public double kV = 0;
-        public double kA = 0;
+        //TODO - calibrate using ForwardRampLogger (because we use dead wheels)
+        //TODO - fine tune using ManualFeedforwardTuner
+        public double kS = 0.9640962667515671;
+        public double kV = 0.00011370942725399379;
+
+        //TODO - calibrate using ManualFeedforwardTuner
+        public double kA = 0.00002;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -239,7 +253,9 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new DriveLocalizer();
+        // DONE: changed from DriveLocalizer to ThreeDeadWheelLocalizer
+//        localizer = new DriveLocalizer();
+        localizer = new ThreeDeadWheelLocalizer( hardwareMap, PARAMS.inPerTick );
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
