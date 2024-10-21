@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class DriveSystem extends AbstractModule
@@ -12,6 +16,7 @@ public class DriveSystem extends AbstractModule
   private DcMotor frontRightMotor = null;
   private DcMotor backLeftMotor = null;
   private DcMotor backRightMotor = null;
+  private IMU inertialMeasurementUnit = null;
 
   public DriveSystem( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -26,6 +31,7 @@ public class DriveSystem extends AbstractModule
     frontRightMotor = createMotor( "frontRightMotor" );
     backLeftMotor = createMotor( "backLeftMotor" );
     backRightMotor = createMotor( "backRightMotor" );
+    inertialMeasurementUnit = hardwareMap.get( IMU.class, "imu" );
   }
 
   private void initState()
@@ -35,6 +41,10 @@ public class DriveSystem extends AbstractModule
     initMotor( frontRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
     initMotor( backLeftMotor, runMode, DcMotorSimple.Direction.FORWARD );
     initMotor( backRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
+
+    RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
+    inertialMeasurementUnit.initialize( new IMU.Parameters( orientationOnRobot ) );
+    inertialMeasurementUnit.resetYaw();
   }
 
   private class MotorValues
@@ -88,6 +98,12 @@ public class DriveSystem extends AbstractModule
     backRightMotor.setPower( powers.backRight );
   }
 
+  private double getHeading()
+  {
+    YawPitchRollAngles orientation = inertialMeasurementUnit.getRobotYawPitchRollAngles();
+    return orientation.getYaw( AngleUnit.DEGREES );
+  }
+
   @Override
   public void printTelemetry()
   {
@@ -95,5 +111,6 @@ public class DriveSystem extends AbstractModule
     telemetry.addLine( String.format( "Drive Front Right Motor - %s", frontRightMotor.getPower() ) );
     telemetry.addLine( String.format( "Drive Back Left Motor - %s", backLeftMotor.getPower() ) );
     telemetry.addLine( String.format( "Drive Back Right Motor - %s", backRightMotor.getPower() ) );
+    telemetry.addLine().addData( "IMU Heading - ", "%.1f", getHeading() );
   }
 }
