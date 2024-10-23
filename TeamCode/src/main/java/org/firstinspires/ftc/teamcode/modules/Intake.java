@@ -77,6 +77,9 @@ public class Intake extends AbstractModule
 
   public ObservedObject getObservedObject()
   {
+    if( colorSensor == null )
+    { return ObservedObject.NOTHING; }
+
     if( !colorKnown )
     { updateState(); }
 
@@ -115,8 +118,8 @@ public class Intake extends AbstractModule
 
   private void initObjects()
   {
-    leftServo = createCRServo( "leftIntakeServo" );
-    rightServo = createCRServo( "rightIntakeServo" );
+//    leftServo = createCRServo( "leftIntakeServo" );
+//    rightServo = createCRServo( "rightIntakeServo" );
 
     // Get a reference to our sensor object. It's recommended to use NormalizedColorSensor over
     // ColorSensor, because NormalizedColorSensor consistently gives values between 0 and 1, while
@@ -146,14 +149,20 @@ public class Intake extends AbstractModule
 
   private void initServo( CRServo servo, DcMotorSimple.Direction direction )
   {
+    if( servo == null )
+    { return; }
+
     servo.setDirection( direction );
     servo.setPower( STOP_SPEED );
   }
 
   private void setServoSpeed( double speed )
   {
-    leftServo.setPower( speed );
-    rightServo.setPower( speed );
+    if( leftServo != null )
+    { leftServo.setPower( speed ); }
+
+    if( rightServo != null )
+    { rightServo.setPower( speed ); }
   }
 
   private void toggleColorSensorLight( boolean on )
@@ -189,7 +198,7 @@ public class Intake extends AbstractModule
 
   public Boolean actUponColor()
   {
-    if(currentAction == CurrentAction.DOING_NOTHING )
+    if( currentAction == CurrentAction.DOING_NOTHING )
     { return false; }
 
     boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
@@ -219,10 +228,26 @@ public class Intake extends AbstractModule
 
   //Prints out the extension arm motor position
   @Override
+
   public void printTelemetry()
   {
-//    telemetry.addLine( String.format( "Left Intake Servo -  %s", leftServo.getPower() ) );
- //   telemetry.addLine( String.format( "Right Intake Servo -  %s", rightServo.getPower() ) );
+    printServo( "Left Intake Servo", leftServo );
+    printServo( "Right Intake Servo", rightServo );
+    printColor();
+  }
+
+  private void printServo( String name, CRServo servo )
+  {
+    if( servo == null )
+    { return; }
+
+    telemetry.addLine( name + ": " + String.format( "%s", servo.getPower() ) );
+  }
+
+  private void printColor()
+  {
+    if( colorSensor == null )
+    { return; }
 
     if ( !colorKnown )
     { updateState(); }
@@ -230,16 +255,16 @@ public class Intake extends AbstractModule
     // Update the hsvValues array by passing it to Color.colorToHSV()
     Color.colorToHSV( colors.toColor(), hsvValues );
 
-//    telemetry.addLine().addData( "Red", "%.3f", colors.red ).addData( "Green", "%.3f", colors.green ).addData( "Blue", "%.3f", colors.blue );
+    //    telemetry.addLine().addData( "Red", "%.3f", colors.red ).addData( "Green", "%.3f", colors.green ).addData( "Blue", "%.3f", colors.blue );
     telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] );
 
     /* If this color sensor also has a distance sensor, display the measured distance.
      * Note that the reported distance is only useful at very close range, and is impacted by
      * ambient light and surface reflectivity. */
-//    if (colorSensor != null &&
+    //    if (colorSensor != null &&
     //    colorSensor instanceof DistanceSensor ) {
-//      telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance( DistanceUnit.CM));
-//    }
+    //      telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance( DistanceUnit.CM));
+    //    }
 
     switch( getObservedObject() )
     {
@@ -248,7 +273,7 @@ public class Intake extends AbstractModule
         break;
       case BLUE_SAMPLE:
         telemetry.addLine( "Blue sample");
- break;
+        break;
       case YELLOW_SAMPLE:
         telemetry.addLine( "Yellow sample");
         break;
@@ -257,4 +282,5 @@ public class Intake extends AbstractModule
         break;
     }
   }
+
 }

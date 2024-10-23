@@ -39,6 +39,9 @@ public abstract class AbstractModule
 
   protected void initMotor( DcMotor motor, DcMotor.RunMode runMode, DcMotorSimple.Direction direction )
   {
+    if( motor == null )
+    { return; }
+
     motor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
     motor.setMode( runMode );
     motor.setDirection( direction );

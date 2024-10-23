@@ -32,7 +32,7 @@ public class ManualJoeBot extends OpMode
   public void init()
   {
     //setup bulk reads
-    hubs = hardwareMap.getAll( LynxModule.class );
+//    hubs = hardwareMap.getAll( LynxModule.class );
     for( LynxModule module : hubs )
     {
       module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
