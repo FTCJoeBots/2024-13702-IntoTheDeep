@@ -7,35 +7,33 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractModule
 {
   protected HardwareMap hardwareMap = null;
   protected Telemetry telemetry = null;
-  private Map<String, DcMotor> motors = null;
-  private Map<String, CRServo> servos = null;
+  private List<DcMotorSimple> motors = null;
 
   AbstractModule( HardwareMap hardwareMap, Telemetry telemetry )
   {
     this.hardwareMap = hardwareMap;
     this.telemetry = telemetry;
-    motors = new HashMap<>();
-    servos = new HashMap<>();
+    motors = new ArrayList<>();
   }
 
   protected DcMotor createMotor( String name )
   {
     DcMotor motor = hardwareMap.get( DcMotor.class, name );
-    motors.put( name, motor );
+    motors.add( motor );
     return motor;
   }
 
-  protected CRServo createServo( String name )
+  protected CRServo createCRServo( String name )
   {
     CRServo servo = hardwareMap.get( CRServo.class, name );
-    servos.put( name, servo );
+    motors.add( servo );
     return servo;
   }
 
@@ -52,14 +50,9 @@ public abstract class AbstractModule
   //shut down procedure, e.g. stopping all motors and servos
   public void stop()
   {
-    for( DcMotor motor : motors.values() )
+    for( DcMotorSimple motor : motors )
     {
       motor.setPower( 0 );
-    }
-
-    for( CRServo servo : servos.values() )
-    {
-      servo.setPower( 0 );
     }
   }
 
