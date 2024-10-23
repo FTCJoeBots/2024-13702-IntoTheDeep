@@ -18,7 +18,7 @@ public class DriveSystem extends AbstractModule
   private DcMotor backLeftMotor = null;
   private DcMotor backRightMotor = null;
   private IMU inertialMeasurementUnit = null;
-  private YawPitchRollAngles orientation;
+  private YawPitchRollAngles orientation = null;
   ElapsedTime orientationTime = null;
 
   public DriveSystem( HardwareMap hardwareMap, Telemetry telemetry )
@@ -34,6 +34,11 @@ public class DriveSystem extends AbstractModule
     frontRightMotor = createMotor( "frontRightMotor" );
     backLeftMotor = createMotor( "backLeftMotor" );
     backRightMotor = createMotor( "backRightMotor" );
+//    initIMU();
+  }
+
+  private void initIMU()
+  {
     inertialMeasurementUnit = hardwareMap.get( IMU.class, "imu" );
     orientationTime = new ElapsedTime();
   }
@@ -46,12 +51,14 @@ public class DriveSystem extends AbstractModule
     initMotor( backLeftMotor, runMode, DcMotorSimple.Direction.FORWARD );
     initMotor( backRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
 
-    RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
-    inertialMeasurementUnit.initialize( new IMU.Parameters( orientationOnRobot ) );
-    inertialMeasurementUnit.resetYaw();
-
-    orientation = inertialMeasurementUnit.getRobotYawPitchRollAngles();
-    orientationTime.reset();
+    if( inertialMeasurementUnit != null )
+    {
+      RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
+      inertialMeasurementUnit.initialize( new IMU.Parameters( orientationOnRobot ) );
+      inertialMeasurementUnit.resetYaw();
+      orientation = inertialMeasurementUnit.getRobotYawPitchRollAngles();
+      orientationTime.reset();
+    }
   }
 
   private class MotorValues
@@ -107,7 +114,8 @@ public class DriveSystem extends AbstractModule
 
   private void updateLocation()
   {
-    if( orientationTime.seconds() >= 2 )
+    if( inertialMeasurementUnit != null &&
+        orientationTime.seconds() >= 2 )
     {
       YawPitchRollAngles angles = inertialMeasurementUnit.getRobotYawPitchRollAngles();
 
@@ -122,19 +130,22 @@ public class DriveSystem extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Drive Front Left Motor - %s", frontLeftMotor.getPower() ) );
-    telemetry.addLine( String.format( "Drive Front Right Motor - %s", frontRightMotor.getPower() ) );
-    telemetry.addLine( String.format( "Drive Back Left Motor - %s", backLeftMotor.getPower() ) );
-    telemetry.addLine( String.format( "Drive Back Right Motor - %s", backRightMotor.getPower() ) );
+    telemetry.addLine( String.format( "Front Left Power: %s", frontLeftMotor.getPower() ) );
+    telemetry.addLine( String.format( "Front Right Power: %s", frontRightMotor.getPower() ) );
+    telemetry.addLine( String.format( "Back Left Power: %s", backLeftMotor.getPower() ) );
+    telemetry.addLine( String.format( "Back Right Power: %s", backRightMotor.getPower() ) );
 
-    telemetry.addLine( String.format( "Front Left  Pos  %s", frontLeftMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Front Right  Pos  %s", frontRightMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Back Left  Pos  %s", backLeftMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Back Right  Pos  %s", backRightMotor.getCurrentPosition() ) );
+    telemetry.addLine( String.format( "Front Left Pos: %s", frontLeftMotor.getCurrentPosition() ) );
+    telemetry.addLine( String.format( "Front Right Pos: %s", frontRightMotor.getCurrentPosition() ) );
+    telemetry.addLine( String.format( "Back Left Pos: %s", backLeftMotor.getCurrentPosition() ) );
+    telemetry.addLine( String.format( "Back Right Pos: %s", backRightMotor.getCurrentPosition() ) );
 
-    updateLocation();
-    telemetry.addLine().addData( "IMU Heading - ", "%.1f", orientation.getYaw( AngleUnit.DEGREES ) );
-    telemetry.addLine().addData( "IMU pitch - ", "%.1f", orientation.getPitch( AngleUnit.DEGREES ) );
-    telemetry.addLine().addData( "IMU roll - ", "%.1f", orientation.getRoll( AngleUnit.DEGREES ) );
+    if( inertialMeasurementUnit != null )
+    {
+      updateLocation();
+      telemetry.addLine().addData( "Heading - ", "%.1f", orientation.getYaw( AngleUnit.DEGREES ) );
+      telemetry.addLine().addData( "Pitch - ", "%.1f", orientation.getPitch( AngleUnit.DEGREES ) );
+      telemetry.addLine().addData( "Roll - ", "%.1f", orientation.getRoll( AngleUnit.DEGREES ) );
+    }
   }
 }
