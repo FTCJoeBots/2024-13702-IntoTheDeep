@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -8,11 +9,13 @@ import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 
 import java.util.EnumSet;
+import java.util.List;
 
 //Tell framework that this is a TeleOp mode
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
 public class ManualJoeBot extends OpMode
 {
+  List<LynxModule> hubs;
   JoeBot robot = null;
   Gamepads gamepads = null;
   ElapsedTime time = new ElapsedTime();
@@ -28,6 +31,13 @@ public class ManualJoeBot extends OpMode
   @Override
   public void init()
   {
+    //setup bulk reads
+    hubs = hardwareMap.getAll( LynxModule.class );
+    for( LynxModule module : hubs )
+    {
+      module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
+    }
+
     robot = new JoeBot( hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
     telemetry.addLine( "ManualJoeBot OpMode Initialized" );
@@ -55,6 +65,12 @@ public class ManualJoeBot extends OpMode
   @Override
   public void loop()
   {
+    //Clear the BulkCache once per control cycle
+    for( LynxModule module : hubs )
+    {
+      module.clearBulkCache();
+    }
+
     //==================
     //Extension Arm
     //==================
