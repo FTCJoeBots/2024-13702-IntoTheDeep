@@ -47,16 +47,18 @@ public class ManualJoeBot extends OpMode
     telemetry.update();
   }
 
-  //This loop runs before the start button is pressed
   @Override
   public void init_loop()
   {
+    //Allow robot to be pushed around before the start button is pressed
+    robot.drive().coast();
   }
 
-  //Called when the user hits the start button
   @Override
   public void start()
   {
+    //Prevent robot from being pushed around
+    robot.drive().brake();
   }
 
   private void addMessage( String message)
@@ -64,7 +66,6 @@ public class ManualJoeBot extends OpMode
     telemetry.addLine( message);
   }
 
-  //Main OpMode loop
   @Override
   public void loop()
   {
@@ -73,6 +74,8 @@ public class ManualJoeBot extends OpMode
     {
       module.clearBulkCache();
     }
+
+    robot.drive().updateLocation();
 
     //==================
     //Extension Arm
@@ -227,6 +230,7 @@ public class ManualJoeBot extends OpMode
   public void stop()
   {
     robot.stop();
+    robot.drive().coast();
   }
 
 }

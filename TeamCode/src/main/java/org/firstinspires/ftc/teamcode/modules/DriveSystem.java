@@ -37,6 +37,16 @@ public class DriveSystem extends AbstractModule
     initState();
   }
 
+  public void coast()
+  {
+    setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+  }
+
+  public void brake()
+  {
+    setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+  }
+
   private void initObjects()
   {
     frontLeftMotor = createMotor( "frontLeftMotor" );
