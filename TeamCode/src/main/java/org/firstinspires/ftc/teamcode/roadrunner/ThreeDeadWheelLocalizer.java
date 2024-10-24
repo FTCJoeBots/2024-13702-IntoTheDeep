@@ -40,12 +40,20 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         // DONE: make sure your config has **motors** with these names (or change them)
         //   the encoders should be plugged into the slot matching the named motor
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
+
+        //Aka EL or Encoder Left
         par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "frontLeftMotor")));
-        par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "frontRightMotor")));
-        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "backLeftMotor")));
+
+        //Aka ER or Encoder Right
+        par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "backRightMotor")));
+
+        // aka ES or Encoder Strafe
+        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "frontRightMotor")));
 
         // DONE: reverse encoder directions if needed
-        par1.setDirection(DcMotorSimple.Direction.REVERSE);
+        par0.setDirection( DcMotorSimple.Direction.REVERSE );
+        par1.setDirection( DcMotorSimple.Direction.REVERSE );
+        perp.setDirection( DcMotorSimple.Direction.REVERSE );
 
         this.inPerTick = inPerTick;
 

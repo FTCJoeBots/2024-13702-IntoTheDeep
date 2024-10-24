@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -8,18 +9,20 @@ import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 
 import java.util.EnumSet;
+import java.util.List;
 
 //Tell framework that this is a TeleOp mode
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
 public class ManualJoeBot extends OpMode
 {
+  List<LynxModule> hubs;
   JoeBot robot = null;
   Gamepads gamepads = null;
   ElapsedTime time = new ElapsedTime();
 
   private enum Module
   {
-    NONE, DRIVE, INTAKE, LIFT, EXTENSION_ARM
+    DRIVE, INTAKE, LIFT, EXTENSION_ARM, NONE
   }
 
   private Module currentModule = Module.values()[ 0 ];
@@ -28,8 +31,16 @@ public class ManualJoeBot extends OpMode
   @Override
   public void init()
   {
+    //setup bulk reads
     robot = new JoeBot( hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
+
+    hubs = hardwareMap.getAll( LynxModule.class );
+    for( LynxModule module : hubs )
+    {
+      module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
+    }
+
     telemetry.addLine( "ManualJoeBot OpMode Initialized" );
     telemetry.update();
   }
@@ -55,6 +66,12 @@ public class ManualJoeBot extends OpMode
   @Override
   public void loop()
   {
+    //Clear the BulkCache once per control cycle
+    for( LynxModule module : hubs )
+    {
+      module.clearBulkCache();
+    }
+
     //==================
     //Extension Arm
     //==================
@@ -168,7 +185,9 @@ public class ManualJoeBot extends OpMode
     robot.drive().move( forward, strafe, rotate );
 
     //Cycle through telemetry
-    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.RIGHT_STICK ) )
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.RIGHT_STICK ) ||
+        gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.GUIDE ) ||
+        gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.START ) )
     {
       Module[] modules = Module.values();
 

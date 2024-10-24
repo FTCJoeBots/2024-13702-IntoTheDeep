@@ -15,6 +15,21 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Intake extends AbstractModule
 {
+  private CRServo leftServo = null;
+  private CRServo rightServo = null;
+  private NormalizedColorSensor colorSensor = null;
+
+  private boolean colorKnown = false;
+  private NormalizedRGBA colors = new NormalizedRGBA();
+
+  // Once per loop, we will update this hsvValues array. The first element (0) will contain the
+  // hue, the second element (1) will contain the saturation, and the third element (2) will
+  // contain the value. See http://web.archive.org/web/20190311170843/https://infohost.nmt.edu/tcc/help/pubs/colortheory/web/hsv.html
+  // for an explanation of HSV color.
+  final float[] hsvValues = new float[ 3 ];
+
+  private double distance = Double.NaN;
+
   public static final double SLOW_SPEED = 0.1;
   public static final double FAST_SPEED = 1;
   public static final double STOP_SPEED = 0;
@@ -27,9 +42,6 @@ public class Intake extends AbstractModule
   }
 
   private CurrentAction currentAction = CurrentAction.DOING_NOTHING;
-
-  private boolean colorKnown = false;
-  private NormalizedRGBA colors = new NormalizedRGBA();
 
   public enum ObservedObject
   {
@@ -46,27 +58,35 @@ public class Intake extends AbstractModule
 
   public void updateState()
   {
+    if( colorSensor == null )
+    { return; }
+
     // Get the normalized colors from the sensor
     colors = colorSensor.getNormalizedColors();
-    colorKnown = true;
-  }
-
-  public ObservedObject getObservedObject()
-  {
-    if ( !colorKnown )
-    { updateState(); }
 
     // Update the hsvValues array by passing it to Color.colorToHSV()
     Color.colorToHSV( colors.toColor(), hsvValues );
 
     if( colorSensor instanceof DistanceSensor )
     {
-      double distance = ( ( DistanceSensor ) colorSensor ).getDistance( DistanceUnit.CM );
+      distance = ( ( DistanceSensor ) colorSensor ).getDistance( DistanceUnit.CM );
+    }
 
-      if( Double.valueOf( distance ).isNaN() || distance > 10 )
-      {
-        return ObservedObject.NOTHING;
-      }
+    colorKnown = true;
+  }
+
+  public ObservedObject getObservedObject()
+  {
+    if( colorSensor == null )
+    { return ObservedObject.NOTHING; }
+
+    if( !colorKnown )
+    { updateState(); }
+
+    if( Double.valueOf( distance ).isNaN() ||
+        distance > 10 )
+    {
+      return ObservedObject.NOTHING;
     }
 
     //samples have a saturation of .7
@@ -89,26 +109,6 @@ public class Intake extends AbstractModule
     return ObservedObject.NOTHING;
   }
 
-  // You can give the sensor a gain value, will be multiplied by the sensor's raw value before the
-  // normalized color values are calculated. Color sensors (especially the REV Color Sensor V3)
-  // can give very low values (depending on the lighting conditions), which only use a small part
-  // of the 0-1 range that is available for the red, green, and blue values. In brighter conditions,
-  // you should use a smaller gain than in dark conditions. If your gain is too high, all of the
-  // colors will report at or near 1, and you won't be able to determine what color you are
-  // actually looking at. For this reason, it's better to err on the side of a lower gain
-  // (but always greater than  or equal to 1).
-  final float gain = 2;
-
-  // Once per loop, we will update this hsvValues array. The first element (0) will contain the
-  // hue, the second element (1) will contain the saturation, and the third element (2) will
-  // contain the value. See http://web.archive.org/web/20190311170843/https://infohost.nmt.edu/tcc/help/pubs/colortheory/web/hsv.html
-  // for an explanation of HSV color.
-  final float[] hsvValues = new float[3];
-
-  private CRServo leftServo = null;
-  private CRServo rightServo = null;
-  private NormalizedColorSensor colorSensor = null;
-
   public Intake( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( hardwareMap, telemetry );
@@ -118,13 +118,13 @@ public class Intake extends AbstractModule
 
   private void initObjects()
   {
-    leftServo = createServo( "leftIntakeServo" );
-    rightServo = createServo( "rightIntakeServo" );
+//    leftServo = createCRServo( "leftIntakeServo" );
+//    rightServo = createCRServo( "rightIntakeServo" );
 
     // Get a reference to our sensor object. It's recommended to use NormalizedColorSensor over
     // ColorSensor, because NormalizedColorSensor consistently gives values between 0 and 1, while
     // the values you get from ColorSensor are dependent on the specific sensor you're using.
-    colorSensor = hardwareMap.get( NormalizedColorSensor.class, "color" );
+//    colorSensor = hardwareMap.get( NormalizedColorSensor.class, "color" );
   }
 
   private void initState()
@@ -132,37 +132,58 @@ public class Intake extends AbstractModule
     initServo( leftServo, DcMotorSimple.Direction.FORWARD );
     initServo( rightServo, DcMotorSimple.Direction.REVERSE );
 
-    // If possible, turn the light on in the beginning (it might already be on anyway,
-    // we just make sure it is if we can).
-    if( colorSensor instanceof SwitchableLight )
-    {
-      ( ( SwitchableLight ) colorSensor ).enableLight( true );
-    }
-
     // Tell the sensor our desired gain value)
-    colorSensor.setGain( gain );
+    if( colorSensor != null )
+    {
+      // You can give the sensor a gain value, will be multiplied by the sensor's raw value before the
+      // normalized color values are calculated. Color sensors (especially the REV Color Sensor V3)
+      // can give very low values (depending on the lighting conditions), which only use a small part
+      // of the 0-1 range that is available for the red, green, and blue values. In brighter conditions,
+      // you should use a smaller gain than in dark conditions. If your gain is too high, all of the
+      // colors will report at or near 1, and you won't be able to determine what color you are
+      // actually looking at. For this reason, it's better to err on the side of a lower gain
+      // (but always greater than  or equal to 1).
+      colorSensor.setGain( 2 );
+    }
   }
 
   private void initServo( CRServo servo, DcMotorSimple.Direction direction )
   {
+    if( servo == null )
+    { return; }
+
     servo.setDirection( direction );
     servo.setPower( STOP_SPEED );
   }
 
   private void setServoSpeed( double speed )
   {
-    leftServo.setPower( speed );
-    rightServo.setPower( speed );
+    if( leftServo != null )
+    { leftServo.setPower( speed ); }
+
+    if( rightServo != null )
+    { rightServo.setPower( speed ); }
+  }
+
+  private void toggleColorSensorLight( boolean on )
+  {
+    if( colorSensor != null &&
+        colorSensor instanceof SwitchableLight )
+    {
+      ( ( SwitchableLight ) colorSensor ).enableLight( on );
+    }
   }
 
   public void pullInSample()
   {
+    toggleColorSensorLight( true );
     setServoSpeed( FAST_SPEED );
     currentAction = CurrentAction.PULLING_IN;
   }
 
   public void spitOutSample()
   {
+    toggleColorSensorLight( true );
     setServoSpeed( -SLOW_SPEED );
     currentAction = CurrentAction.SPITTING_OUT;
   }
@@ -170,13 +191,14 @@ public class Intake extends AbstractModule
   @Override
   public void stop()
   {
-    super.stop();
+    toggleColorSensorLight( false );
     currentAction = CurrentAction.DOING_NOTHING;
+    super.stop();
   }
 
   public Boolean actUponColor()
   {
-    if(currentAction == CurrentAction.DOING_NOTHING )
+    if( currentAction == CurrentAction.DOING_NOTHING )
     { return false; }
 
     boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
@@ -206,10 +228,26 @@ public class Intake extends AbstractModule
 
   //Prints out the extension arm motor position
   @Override
+
   public void printTelemetry()
   {
-//    telemetry.addLine( String.format( "Left Intake Servo -  %s", leftServo.getPower() ) );
- //   telemetry.addLine( String.format( "Right Intake Servo -  %s", rightServo.getPower() ) );
+    printServo( "Left Intake Servo", leftServo );
+    printServo( "Right Intake Servo", rightServo );
+    printColor();
+  }
+
+  private void printServo( String name, CRServo servo )
+  {
+    if( servo == null )
+    { return; }
+
+    telemetry.addLine( name + ": " + String.format( "%s", servo.getPower() ) );
+  }
+
+  private void printColor()
+  {
+    if( colorSensor == null )
+    { return; }
 
     if ( !colorKnown )
     { updateState(); }
@@ -217,30 +255,32 @@ public class Intake extends AbstractModule
     // Update the hsvValues array by passing it to Color.colorToHSV()
     Color.colorToHSV( colors.toColor(), hsvValues );
 
-//    telemetry.addLine().addData( "Red", "%.3f", colors.red ).addData( "Green", "%.3f", colors.green ).addData( "Blue", "%.3f", colors.blue );
+    //    telemetry.addLine().addData( "Red", "%.3f", colors.red ).addData( "Green", "%.3f", colors.green ).addData( "Blue", "%.3f", colors.blue );
     telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] );
 
     /* If this color sensor also has a distance sensor, display the measured distance.
      * Note that the reported distance is only useful at very close range, and is impacted by
      * ambient light and surface reflectivity. */
-    if (colorSensor instanceof DistanceSensor ) {
-      telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance( DistanceUnit.CM));
-    }
+    //    if (colorSensor != null &&
+    //    colorSensor instanceof DistanceSensor ) {
+    //      telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance( DistanceUnit.CM));
+    //    }
 
     switch( getObservedObject() )
     {
       case RED_SAMPLE:
-        telemetry.addLine( "we see a red sample");
+        telemetry.addLine( "Red sample");
         break;
       case BLUE_SAMPLE:
-        telemetry.addLine( "we see a blue sample");
- break;
+        telemetry.addLine( "Blue sample");
+        break;
       case YELLOW_SAMPLE:
-        telemetry.addLine( "we see a yellow sample");
+        telemetry.addLine( "Yellow sample");
         break;
       case NOTHING:
-        telemetry.addLine( "we see a no sample");
+        telemetry.addLine( "No sample");
         break;
     }
   }
+
 }

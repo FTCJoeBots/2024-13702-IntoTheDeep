@@ -104,6 +104,8 @@ public class Gamepads
         return gamepad.y;
       case GUIDE:
         return gamepad.guide;
+      case START:
+        return gamepad.start;
     }
 
     return false;

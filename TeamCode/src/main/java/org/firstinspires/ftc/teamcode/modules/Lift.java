@@ -38,8 +38,8 @@ public class Lift extends AbstractModule
 
   private void initObjects()
   {
-    leftMotor = createMotor( "leftLiftMotor" );
-    rightMotor = createMotor( "rightLiftMotor" );
+//    leftMotor = createMotor( "leftLiftMotor" );
+//    rightMotor = createMotor( "rightLiftMotor" );
   }
 
   private void initState()
@@ -69,8 +69,11 @@ public class Lift extends AbstractModule
 
   private void setMotorPosition( DcMotor motor, int position, double power )
   {
-//    motor.setTargetPosition( position );
-//    motor.setPower( power );
+    if( motor == null )
+    { return; }
+
+    motor.setTargetPosition( position );
+    motor.setPower( power );
   }
 
   public void fastLift()
@@ -114,7 +117,10 @@ public class Lift extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Left Lift Motor - %s", leftMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Right Lift Motor - %s", rightMotor.getCurrentPosition() ) );
+    if( leftMotor != null )
+    { telemetry.addLine( String.format( "Left Lift Motor - %s", leftMotor.getCurrentPosition() ) ); }
+
+    if( rightMotor != null )
+    { telemetry.addLine( String.format( "Right Lift Motor - %s", rightMotor.getCurrentPosition() ) ); }
   }
 }

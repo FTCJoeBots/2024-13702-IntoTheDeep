@@ -8,6 +8,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class ExtensionArm extends AbstractModule
 {
+  private DcMotor extensionArmMotor = null;
+
+  //Relative position for manually extending and contracting the arm
+  private static final int MANUAL_POSITION_ADJUST = 10;
+
   //Preset positions we can extend the arm to
   private enum Position
   {
@@ -21,9 +26,6 @@ public class ExtensionArm extends AbstractModule
     public final int value;
   }
 
-  //Relative position for manually extending and contracting the arm
-  private static final int MANUAL_POSITION_ADJUST = 10;
-
   //Various speeds for extending and retracting the arm
   private enum Speed
   {
@@ -36,8 +38,6 @@ public class ExtensionArm extends AbstractModule
 
     public final double value;
   }
-
-  private DcMotor extensionArmMotor = null;
 
   public ExtensionArm( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -59,6 +59,9 @@ public class ExtensionArm extends AbstractModule
   //Extends the arm slightly
   public void manuallyExtend()
   {
+    if( extensionArmMotor == null )
+    { return; }
+
     final int currPosition = extensionArmMotor.getCurrentPosition();
     int nextPosition = currPosition + MANUAL_POSITION_ADJUST;
 
@@ -71,13 +74,19 @@ public class ExtensionArm extends AbstractModule
 
   private void setTargetPositionAndPower( int position, double power )
   {
-//    extensionArmMotor.setTargetPosition( position );
-//    extensionArmMotor.setPower( power );
+    if( extensionArmMotor == null )
+    { return; }
+
+    extensionArmMotor.setTargetPosition( position );
+    extensionArmMotor.setPower( power );
   }
 
   //Retracts the arm slightly
   public void manuallyRetract()
   {
+    if( extensionArmMotor == null )
+    { return; }
+
     final int currPosition = extensionArmMotor.getCurrentPosition();
     int nextPosition = currPosition - MANUAL_POSITION_ADJUST;
 
@@ -92,23 +101,31 @@ public class ExtensionArm extends AbstractModule
   @Override
   public void printTelemetry()
   {
+    if( extensionArmMotor == null )
+    { return; }
+
     telemetry.addLine( String.format( "Extension Arm - %s", getMotorPosition() ) );
   }
 
   public int getMotorPosition()
   {
+    if( extensionArmMotor == null )
+    { return 0; }
+
     return extensionArmMotor.getCurrentPosition();
   }
 
   private void initObjects()
   {
-    extensionArmMotor = createMotor( "extensionArmMotor" );
+//    extensionArmMotor = createMotor( "extensionArmMotor" );
   }
 
   private void initState()
   {
+    if( extensionArmMotor == null )
+    { return; }
+
     initMotor( extensionArmMotor, DcMotor.RunMode.RUN_USING_ENCODER, DcMotorSimple.Direction.FORWARD );
     extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
-    fullyRetract();
   }
 }
