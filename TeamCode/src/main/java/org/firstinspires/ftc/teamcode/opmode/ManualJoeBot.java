@@ -15,33 +15,35 @@ import java.util.List;
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
 public class ManualJoeBot extends OpMode
 {
+  ElapsedTime time = null;
+  private Module currentModule;
   List<LynxModule> hubs;
   JoeBot robot = null;
   Gamepads gamepads = null;
-  ElapsedTime time = new ElapsedTime();
 
   private enum Module
   {
     DRIVE, INTAKE, LIFT, EXTENSION_ARM, NONE
   }
 
-  private Module currentModule = Module.values()[ 0 ];
-
   //We run this when the user hits "INIT" on the app
   @Override
   public void init()
   {
-    //setup bulk reads
-    robot = new JoeBot( hardwareMap, telemetry );
-    gamepads = new Gamepads( gamepad1, gamepad2 );
+    time = new ElapsedTime();
+    currentModule = Module.values()[ 0 ];
 
+    //setup bulk reads
     hubs = hardwareMap.getAll( LynxModule.class );
     for( LynxModule module : hubs )
     {
       module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
     }
 
-    telemetry.addLine( "ManualJoeBot OpMode Initialized" );
+    robot = new JoeBot( hardwareMap, telemetry );
+    gamepads = new Gamepads( gamepad1, gamepad2 );
+
+    telemetry.addLine( "ManualJoeBot Initialized" );
     telemetry.update();
   }
 

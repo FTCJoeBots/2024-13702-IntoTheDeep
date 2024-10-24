@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.modules;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.Twist2dDual;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -25,12 +23,12 @@ public class DriveSystem extends AbstractModule
   private DcMotor backLeftMotor = null;
   private DcMotor backRightMotor = null;
 
-  private ThreeDeadWheelLocalizer localizer= null;
-  private Pose2d pose = new Pose2d( 0, 0, 0 );
+  private ThreeDeadWheelLocalizer localizer = null;
+  private static Pose2d pose = new Pose2d( 0, 0, 0 );
 
   private IMU inertialMeasurementUnit = null;
-  private YawPitchRollAngles orientation = null;
-  ElapsedTime orientationTime = null;
+  private static YawPitchRollAngles orientation = new YawPitchRollAngles( AngleUnit.DEGREES, 0, 0, 0, 0 );
+  private static ElapsedTime orientationTime = new ElapsedTime();
 
   public DriveSystem( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -46,13 +44,7 @@ public class DriveSystem extends AbstractModule
     backLeftMotor = createMotor( "backLeftMotor" );
     backRightMotor = createMotor( "backRightMotor" );
     localizer = new ThreeDeadWheelLocalizer( hardwareMap, MecanumDrive.PARAMS.inPerTick );
-    //    initIMU();
-  }
-
-  private void initIMU()
-  {
-    inertialMeasurementUnit = hardwareMap.get( IMU.class, "imu" );
-    orientationTime = new ElapsedTime();
+//    inertialMeasurementUnit = hardwareMap.get( IMU.class, "imu" );
   }
 
   private void initState()
@@ -68,8 +60,6 @@ public class DriveSystem extends AbstractModule
       RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
       inertialMeasurementUnit.initialize( new IMU.Parameters( orientationOnRobot ) );
       inertialMeasurementUnit.resetYaw();
-      orientation = inertialMeasurementUnit.getRobotYawPitchRollAngles();
-      orientationTime.reset();
     }
   }
 
@@ -124,23 +114,32 @@ public class DriveSystem extends AbstractModule
     backRightMotor.setPower( powers.backRight );
   }
 
+  public void updateLocation()
+  {
+    updatePose();
+    updateHeading();
+  }
+
   private void updateHeading()
   {
-    if( inertialMeasurementUnit != null &&
-        orientationTime.seconds() >= 2 )
-    {
-      YawPitchRollAngles angles = inertialMeasurementUnit.getRobotYawPitchRollAngles();
+    if( inertialMeasurementUnit == null ||
+        orientationTime.seconds() < 10 )
+    { return; }
 
-      if( angles != null &&
-          !Double.valueOf( angles.getYaw( AngleUnit.DEGREES ) ).isNaN() )
-      { orientation = angles; }
+    YawPitchRollAngles angles = inertialMeasurementUnit.getRobotYawPitchRollAngles();
 
-      orientationTime.reset();
-    }
+    if( angles != null &&
+        !Double.valueOf( angles.getYaw( AngleUnit.DEGREES ) ).isNaN() )
+    { orientation = angles; }
+
+    orientationTime.reset();
   }
 
   private void updatePose()
   {
+    if( localizer == null )
+    { return; }
+
     Twist2dDual<Time> twist = localizer.update();
     pose = pose.plus( twist.value() );
   }
@@ -160,7 +159,6 @@ public class DriveSystem extends AbstractModule
 
     if( localizer != null )
     {
-      updatePose();
       telemetry.addLine().addData( "XL: ", "%s", localizer.par0.getPositionAndVelocity().position );
       telemetry.addLine().addData( "XR: ", "%s", localizer.par1.getPositionAndVelocity().position );
       telemetry.addLine().addData( "XS: ", "%s", localizer.perp.getPositionAndVelocity().position );
@@ -172,7 +170,6 @@ public class DriveSystem extends AbstractModule
 
     if( inertialMeasurementUnit != null )
     {
-      updateHeading();
       telemetry.addLine().addData( "IMU Heading: ", "%.1f", orientation.getYaw( AngleUnit.DEGREES ) );
       telemetry.addLine().addData( "Pitch: ", "%.1f", orientation.getPitch( AngleUnit.DEGREES ) );
       telemetry.addLine().addData( "Roll: ", "%.1f", orientation.getRoll( AngleUnit.DEGREES ) );
