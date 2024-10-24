@@ -8,11 +8,11 @@ import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 
 public class JoeBot
-{
-  private static ExtensionArm m_extensionArm = null;
-  private static Lift m_lift = null;
-  private static Intake m_intake = null;
-  private static DriveSystem m_drive = null;
+{ 
+  private ExtensionArm m_extensionArm = null;
+  private Lift m_lift = null;
+  private Intake m_intake = null;
+  private DriveSystem m_drive = null;
 
   public JoeBot( HardwareMap hardwareMap, Telemetry telemetry )
   {

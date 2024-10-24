@@ -22,7 +22,7 @@ public class ManualJoeBot extends OpMode
 
   private enum Module
   {
-    NONE, DRIVE, INTAKE, LIFT, EXTENSION_ARM
+    DRIVE, INTAKE, LIFT, EXTENSION_ARM, NONE
   }
 
   private Module currentModule = Module.values()[ 0 ];
@@ -32,14 +32,15 @@ public class ManualJoeBot extends OpMode
   public void init()
   {
     //setup bulk reads
-//    hubs = hardwareMap.getAll( LynxModule.class );
+    robot = new JoeBot( hardwareMap, telemetry );
+    gamepads = new Gamepads( gamepad1, gamepad2 );
+
+    hubs = hardwareMap.getAll( LynxModule.class );
     for( LynxModule module : hubs )
     {
       module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
     }
 
-    robot = new JoeBot( hardwareMap, telemetry );
-    gamepads = new Gamepads( gamepad1, gamepad2 );
     telemetry.addLine( "ManualJoeBot OpMode Initialized" );
     telemetry.update();
   }
@@ -184,7 +185,9 @@ public class ManualJoeBot extends OpMode
     robot.drive().move( forward, strafe, rotate );
 
     //Cycle through telemetry
-    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.RIGHT_STICK ) )
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.RIGHT_STICK ) ||
+        gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.GUIDE ) ||
+        gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.START ) )
     {
       Module[] modules = Module.values();
 

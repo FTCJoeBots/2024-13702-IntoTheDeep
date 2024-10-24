@@ -117,7 +117,10 @@ public class Lift extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Left Lift Motor - %s", leftMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Right Lift Motor - %s", rightMotor.getCurrentPosition() ) );
+    if( leftMotor != null )
+    { telemetry.addLine( String.format( "Left Lift Motor - %s", leftMotor.getCurrentPosition() ) ); }
+
+    if( rightMotor != null )
+    { telemetry.addLine( String.format( "Right Lift Motor - %s", rightMotor.getCurrentPosition() ) ); }
   }
 }
