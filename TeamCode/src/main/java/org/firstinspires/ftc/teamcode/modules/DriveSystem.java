@@ -157,15 +157,15 @@ public class DriveSystem extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Front Left Power: %s", frontLeftMotor.getPower() ) );
-    telemetry.addLine( String.format( "Front Right Power: %s", frontRightMotor.getPower() ) );
-    telemetry.addLine( String.format( "Back Left Power: %s", backLeftMotor.getPower() ) );
-    telemetry.addLine( String.format( "Back Right Power: %s", backRightMotor.getPower() ) );
+//    telemetry.addLine( String.format( "Front Left Power: %s", frontLeftMotor.getPower() ) );
+//    telemetry.addLine( String.format( "Front Right Power: %s", frontRightMotor.getPower() ) );
+//    telemetry.addLine( String.format( "Back Left Power: %s", backLeftMotor.getPower() ) );
+//    telemetry.addLine( String.format( "Back Right Power: %s", backRightMotor.getPower() ) );
 
-    telemetry.addLine( String.format( "Front Left Pos: %s", frontLeftMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Front Right Pos: %s", frontRightMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Back Left Pos: %s", backLeftMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Back Right Pos: %s", backRightMotor.getCurrentPosition() ) );
+//    telemetry.addLine( String.format( "Front Left Pos: %s", frontLeftMotor.getCurrentPosition() ) );
+//    telemetry.addLine( String.format( "Front Right Pos: %s", frontRightMotor.getCurrentPosition() ) );
+//    telemetry.addLine( String.format( "Back Left Pos: %s", backLeftMotor.getCurrentPosition() ) );
+//    telemetry.addLine( String.format( "Back Right Pos: %s", backRightMotor.getCurrentPosition() ) );
 
     if( localizer != null )
     {

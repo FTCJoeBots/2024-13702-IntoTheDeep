@@ -65,23 +65,23 @@ public final class MecanumDrive {
         // drive model parameters - calibrated by following procedure
         // described on https://rr.brott.dev/docs/v1-0/tuning/
 
-        //TODO - calibrate using ForwardPushTest
-        public double inPerTick = 0.0007624251472;
+        //DONE - calibrate using ForwardPushTest
+        public double inPerTick = 0.0005720292767600;
 
-        //TODO - calibrate using LateralRampLogger
+        //DONE - calibrate using LateralRampLogger
         //(Do not use LateralPushTest because do not use encoders on our drive wheels)
-        public double lateralInPerTick = 0.00051895096481978;
+        public double lateralInPerTick = 0.00036039496557478033;
 
-        //TODO - calibrate using AngularRampLogger
+        //DONE - calibrate using AngularRampLogger
         //Important! Scroll down below first graph and update
         //ThreeDeadWheelLocalizer.java / par*Ticks params as well
-        public double trackWidthTicks = 22026.409770070717;
+        public double trackWidthTicks = 25880.46302275907;
 
         // feedforward parameters (in tick units)
-        //TODO - calibrate using ForwardRampLogger (because we use dead wheels)
+        //DONE - calibrate using ForwardRampLogger (because we use dead wheels)
         //TODO - fine tune using ManualFeedforwardTuner
-        public double kS = 0.9640962667515671;
-        public double kV = 0.00011370942725399379;
+        public double kS = 1.1817249640551513;
+        public double kV = 0.00010173382026772806;
 
         //TODO - calibrate using ManualFeedforwardTuner
         public double kA = 0.00002;
@@ -151,10 +151,6 @@ public final class MecanumDrive {
             rightFront = new OverflowEncoder( new RawEncoder( MecanumDrive.this.rightFront ) );
 
             imu = lazyImu.get();
-
-            // DONE: reverse encoders if needed
-            rightFront.setDirection( DcMotorSimple.Direction.REVERSE );
-            rightBack.setDirection( DcMotorSimple.Direction.REVERSE );
         }
 
         @Override
@@ -243,8 +239,8 @@ public final class MecanumDrive {
         rightFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
 
         // DONE: reverse motor directions if needed
-        rightFront.setDirection( DcMotorSimple.Direction.REVERSE );
-        rightBack.setDirection( DcMotorSimple.Direction.REVERSE );
+        leftFront.setDirection( DcMotorSimple.Direction.REVERSE );
+        leftBack.setDirection( DcMotorSimple.Direction.REVERSE );
 
         // DONE: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -254,7 +250,6 @@ public final class MecanumDrive {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         // DONE: changed from DriveLocalizer to ThreeDeadWheelLocalizer
-//        localizer = new DriveLocalizer();
         localizer = new ThreeDeadWheelLocalizer( hardwareMap, PARAMS.inPerTick );
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);

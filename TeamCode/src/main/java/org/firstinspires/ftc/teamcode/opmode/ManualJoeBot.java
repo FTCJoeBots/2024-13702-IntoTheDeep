@@ -15,23 +15,23 @@ import java.util.List;
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
 public class ManualJoeBot extends OpMode
 {
+  private enum Module
+  {
+    DRIVE, INTAKE, LIFT, EXTENSION_ARM
+  }
+
   ElapsedTime time = null;
-  private Module currentModule;
+  private Module currentModule = Module.DRIVE;
   List<LynxModule> hubs;
   JoeBot robot = null;
   Gamepads gamepads = null;
-
-  private enum Module
-  {
-    DRIVE, INTAKE, LIFT, EXTENSION_ARM, NONE
-  }
 
   //We run this when the user hits "INIT" on the app
   @Override
   public void init()
   {
     time = new ElapsedTime();
-    currentModule = Module.values()[ 0 ];
+    currentModule = Module.DRIVE;
 
     //setup bulk reads
     hubs = hardwareMap.getAll( LynxModule.class );
@@ -202,19 +202,22 @@ public class ManualJoeBot extends OpMode
       { currentModule = Module.values()[ currentModule.ordinal() + 1 ]; }
     }
 
+    telemetry.addData( "%s", currentModule );
+
     switch( currentModule )
     {
-      case EXTENSION_ARM:
-        robot.extensionArm().printTelemetry();
-        break;
-      case LIFT:
-        robot.lift().printTelemetry();
+      case DRIVE:
+        robot.drive().printTelemetry();
         break;
       case INTAKE:
         robot.intake().printTelemetry();
         break;
-      case DRIVE:
-        robot.drive().printTelemetry();
+      case LIFT:
+        robot.lift().printTelemetry();
+        break;
+      case EXTENSION_ARM:
+        robot.extensionArm().printTelemetry();
+        break;
     }
 
     gamepads.storeLastButtons();
