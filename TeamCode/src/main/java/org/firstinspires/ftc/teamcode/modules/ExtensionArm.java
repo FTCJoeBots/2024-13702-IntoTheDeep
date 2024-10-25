@@ -104,7 +104,7 @@ public class ExtensionArm extends AbstractModule
     if( extensionArmMotor == null )
     { return; }
 
-    telemetry.addLine( String.format( "Extension Arm - %s", getMotorPosition() ) );
+    telemetry.addLine( String.format( "Extension Arm: %s", getMotorPosition() ) );
   }
 
   public int getMotorPosition()
@@ -117,7 +117,7 @@ public class ExtensionArm extends AbstractModule
 
   private void initObjects()
   {
-//    extensionArmMotor = createMotor( "extensionArmMotor" );
+    extensionArmMotor = createMotor( "extensionArmMotor" );
   }
 
   private void initState()

@@ -49,6 +49,17 @@ public abstract class AbstractModule
     motor.setPower( 0 );
   }
 
+  public void setZeroPowerBehavior( DcMotor.ZeroPowerBehavior val )
+  {
+    for( DcMotorSimple motor : motors )
+    {
+      if( motor instanceof DcMotor )
+      {
+        ( ( DcMotor ) motor ).setZeroPowerBehavior( val );
+      }
+    }
+  }
+
   //You must override this function in derived classes to implement a
   //shut down procedure, e.g. stopping all motors and servos
   public void stop()

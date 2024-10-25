@@ -118,13 +118,13 @@ public class Intake extends AbstractModule
 
   private void initObjects()
   {
-//    leftServo = createCRServo( "leftIntakeServo" );
-//    rightServo = createCRServo( "rightIntakeServo" );
+    leftServo = createCRServo( "leftIntakeServo" );
+    rightServo = createCRServo( "rightIntakeServo" );
 
     // Get a reference to our sensor object. It's recommended to use NormalizedColorSensor over
     // ColorSensor, because NormalizedColorSensor consistently gives values between 0 and 1, while
     // the values you get from ColorSensor are dependent on the specific sensor you're using.
-//    colorSensor = hardwareMap.get( NormalizedColorSensor.class, "color" );
+    colorSensor = hardwareMap.get( NormalizedColorSensor.class, "color" );
   }
 
   private void initState()

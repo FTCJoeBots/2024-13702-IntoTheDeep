@@ -15,46 +15,50 @@ import java.util.List;
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
 public class ManualJoeBot extends OpMode
 {
+  private enum Module
+  {
+    DRIVE, INTAKE, LIFT, EXTENSION_ARM
+  }
+
+  ElapsedTime time = null;
+  private Module currentModule = Module.DRIVE;
   List<LynxModule> hubs;
   JoeBot robot = null;
   Gamepads gamepads = null;
-  ElapsedTime time = new ElapsedTime();
-
-  private enum Module
-  {
-    DRIVE, INTAKE, LIFT, EXTENSION_ARM, NONE
-  }
-
-  private Module currentModule = Module.values()[ 0 ];
 
   //We run this when the user hits "INIT" on the app
   @Override
   public void init()
   {
-    //setup bulk reads
-    robot = new JoeBot( hardwareMap, telemetry );
-    gamepads = new Gamepads( gamepad1, gamepad2 );
+    time = new ElapsedTime();
+    currentModule = Module.DRIVE;
 
+    //setup bulk reads
     hubs = hardwareMap.getAll( LynxModule.class );
     for( LynxModule module : hubs )
     {
       module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
     }
 
-    telemetry.addLine( "ManualJoeBot OpMode Initialized" );
+    robot = new JoeBot( hardwareMap, telemetry );
+    gamepads = new Gamepads( gamepad1, gamepad2 );
+
+    telemetry.addLine( "ManualJoeBot Initialized" );
     telemetry.update();
   }
 
-  //This loop runs before the start button is pressed
   @Override
   public void init_loop()
   {
+    //Allow robot to be pushed around before the start button is pressed
+    robot.drive().coast();
   }
 
-  //Called when the user hits the start button
   @Override
   public void start()
   {
+    //Prevent robot from being pushed around
+    robot.drive().brake();
   }
 
   private void addMessage( String message)
@@ -62,7 +66,6 @@ public class ManualJoeBot extends OpMode
     telemetry.addLine( message);
   }
 
-  //Main OpMode loop
   @Override
   public void loop()
   {
@@ -71,6 +74,8 @@ public class ManualJoeBot extends OpMode
     {
       module.clearBulkCache();
     }
+
+    robot.drive().updateLocation();
 
     //==================
     //Extension Arm
@@ -197,19 +202,22 @@ public class ManualJoeBot extends OpMode
       { currentModule = Module.values()[ currentModule.ordinal() + 1 ]; }
     }
 
+    telemetry.addData( "%s", currentModule );
+
     switch( currentModule )
     {
-      case EXTENSION_ARM:
-        robot.extensionArm().printTelemetry();
-        break;
-      case LIFT:
-        robot.lift().printTelemetry();
+      case DRIVE:
+        robot.drive().printTelemetry();
         break;
       case INTAKE:
         robot.intake().printTelemetry();
         break;
-      case DRIVE:
-        robot.drive().printTelemetry();
+      case LIFT:
+        robot.lift().printTelemetry();
+        break;
+      case EXTENSION_ARM:
+        robot.extensionArm().printTelemetry();
+        break;
     }
 
     gamepads.storeLastButtons();
@@ -225,6 +233,7 @@ public class ManualJoeBot extends OpMode
   public void stop()
   {
     robot.stop();
+    robot.drive().coast();
   }
 
 }
