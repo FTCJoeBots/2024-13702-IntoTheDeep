@@ -59,6 +59,7 @@ public class DriveSystem extends AbstractModule
 
   private void initState()
   {
+    //do not use the motor encoder for built-in velocity control
     final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
     initMotor( frontLeftMotor, runMode, DcMotorSimple.Direction.FORWARD );
     initMotor( frontRightMotor, runMode, DcMotorSimple.Direction.REVERSE );

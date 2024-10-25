@@ -42,11 +42,15 @@ public abstract class AbstractModule
     if( motor == null )
     { return; }
 
-    motor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-    motor.setMode( runMode );
+    motor.setPower( 0 );
     motor.setDirection( direction );
     motor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-    motor.setPower( 0 );
+
+    // Reset the motor encoder so that it reads zero ticks
+    motor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+
+    // Turn the motor back on
+    motor.setMode( runMode );
   }
 
   public void setZeroPowerBehavior( DcMotor.ZeroPowerBehavior val )
