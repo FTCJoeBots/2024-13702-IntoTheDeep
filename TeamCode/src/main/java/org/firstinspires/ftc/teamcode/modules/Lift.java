@@ -44,7 +44,7 @@ public class Lift extends AbstractModule
 
   private void initState()
   {
-    final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_TO_POSITION;
+    final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_USING_ENCODER;
     initMotor( leftMotor, runMode, DcMotorSimple.Direction.FORWARD );
     initMotor( rightMotor, runMode, DcMotorSimple.Direction.REVERSE );
   }

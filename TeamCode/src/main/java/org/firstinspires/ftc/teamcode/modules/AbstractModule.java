@@ -25,14 +25,14 @@ public abstract class AbstractModule
 
   protected DcMotor createMotor( String name )
   {
-    DcMotor motor = hardwareMap.get( DcMotor.class, name );
+    DcMotor motor = hardwareMap.dcMotor.get( name );
     motors.add( motor );
     return motor;
   }
 
   protected CRServo createCRServo( String name )
   {
-    CRServo servo = hardwareMap.get( CRServo.class, name );
+    CRServo servo = hardwareMap.crservo.get( name );
     motors.add( servo );
     return servo;
   }
@@ -44,6 +44,8 @@ public abstract class AbstractModule
 
     motor.setPower( 0 );
     motor.setDirection( direction );
+    motor.setTargetPosition( 0 );
+
     motor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
 
     // Reset the motor encoder so that it reads zero ticks

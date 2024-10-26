@@ -94,6 +94,10 @@ public class Gamepads
         return gamepad.left_stick_button;
       case RIGHT_STICK:
         return gamepad.right_stick_button;
+      case LEFT_BUMPER:
+        return gamepad.left_bumper;
+      case RIGHT_BUMPER:
+        return gamepad.right_bumper;
       case A:
         return gamepad.a;
       case B:
