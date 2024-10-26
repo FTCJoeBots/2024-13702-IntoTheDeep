@@ -61,6 +61,40 @@ public class DriveSystem extends AbstractModule
   private RotateDirection targetDirection = RotateDirection.RIGHT;
   private double targetAngle = 0;
 
+  public DriveSystem( HardwareMap hardwareMap, Telemetry telemetry )
+  {
+    super( hardwareMap, telemetry );
+    initObjects();
+    initState();
+  }
+
+  private void initObjects()
+  {
+    frontLeftMotor = createMotor( "frontLeftMotor" );
+    frontRightMotor = createMotor( "frontRightMotor" );
+    backLeftMotor = createMotor( "backLeftMotor" );
+    backRightMotor = createMotor( "backRightMotor" );
+    localizer = new ThreeDeadWheelLocalizer( hardwareMap, MecanumDrive.PARAMS.inPerTick );
+    //    inertialMeasurementUnit = hardwareMap.get( IMU.class, "imu" );
+  }
+
+  private void initState()
+  {
+    //do not use the motor encoder for built-in velocity control
+    final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
+    initMotor( frontLeftMotor, runMode, DcMotorSimple.Direction.FORWARD );
+    initMotor( frontRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
+    initMotor( backLeftMotor, runMode, DcMotorSimple.Direction.FORWARD );
+    initMotor( backRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
+
+    if( inertialMeasurementUnit != null )
+    {
+      RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
+      inertialMeasurementUnit.initialize( new IMU.Parameters( orientationOnRobot ) );
+      inertialMeasurementUnit.resetYaw();
+    }
+  }
+
   public void turnAround( RotateDirection direction )
   {
     double currAngle = angleForHeading( pose.heading.toDouble() );
@@ -134,13 +168,6 @@ public class DriveSystem extends AbstractModule
     targetAngle = angle;
   }
 
-  public DriveSystem( HardwareMap hardwareMap, Telemetry telemetry )
-  {
-    super( hardwareMap, telemetry );
-    initObjects();
-    initState();
-  }
-
   public void coast()
   {
     setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
@@ -149,33 +176,6 @@ public class DriveSystem extends AbstractModule
   public void brake()
   {
     setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-  }
-
-  private void initObjects()
-  {
-    frontLeftMotor = createMotor( "frontLeftMotor" );
-    frontRightMotor = createMotor( "frontRightMotor" );
-    backLeftMotor = createMotor( "backLeftMotor" );
-    backRightMotor = createMotor( "backRightMotor" );
-    localizer = new ThreeDeadWheelLocalizer( hardwareMap, MecanumDrive.PARAMS.inPerTick );
-//    inertialMeasurementUnit = hardwareMap.get( IMU.class, "imu" );
-  }
-
-  private void initState()
-  {
-    //do not use the motor encoder for built-in velocity control
-    final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
-    initMotor( frontLeftMotor, runMode, DcMotorSimple.Direction.FORWARD );
-    initMotor( frontRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
-    initMotor( backLeftMotor, runMode, DcMotorSimple.Direction.FORWARD );
-    initMotor( backRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
-
-    if( inertialMeasurementUnit != null )
-    {
-      RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
-      inertialMeasurementUnit.initialize( new IMU.Parameters( orientationOnRobot ) );
-      inertialMeasurementUnit.resetYaw();
-    }
   }
 
   private class MotorValues
