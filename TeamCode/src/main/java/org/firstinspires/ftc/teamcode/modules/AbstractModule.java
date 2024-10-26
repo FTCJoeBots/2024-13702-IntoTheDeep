@@ -25,14 +25,14 @@ public abstract class AbstractModule
 
   protected DcMotor createMotor( String name )
   {
-    DcMotor motor = hardwareMap.get( DcMotor.class, name );
+    DcMotor motor = hardwareMap.dcMotor.get( name );
     motors.add( motor );
     return motor;
   }
 
   protected CRServo createCRServo( String name )
   {
-    CRServo servo = hardwareMap.get( CRServo.class, name );
+    CRServo servo = hardwareMap.crservo.get( name );
     motors.add( servo );
     return servo;
   }
@@ -42,11 +42,17 @@ public abstract class AbstractModule
     if( motor == null )
     { return; }
 
-    motor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-    motor.setMode( runMode );
-    motor.setDirection( direction );
-    motor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
     motor.setPower( 0 );
+    motor.setDirection( direction );
+    motor.setTargetPosition( 0 );
+
+    motor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+
+    // Reset the motor encoder so that it reads zero ticks
+    motor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+
+    // Turn the motor back on
+    motor.setMode( runMode );
   }
 
   public void setZeroPowerBehavior( DcMotor.ZeroPowerBehavior val )

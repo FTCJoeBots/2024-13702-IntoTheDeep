@@ -30,6 +30,110 @@ public class DriveSystem extends AbstractModule
   private static YawPitchRollAngles orientation = new YawPitchRollAngles( AngleUnit.DEGREES, 0, 0, 0, 0 );
   private static ElapsedTime orientationTime = new ElapsedTime();
 
+  public enum CurrentAction
+  {
+    ROTATE,
+    DOING_NOTHING
+  }
+
+  public enum RotateDirection
+  {
+    RIGHT,
+    LEFT
+  }
+
+  public enum PresetDirection
+  {
+    FOREWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT,
+    DOWN_LEFT,
+    DOWN_RIGHT,
+    UP_LEFT,
+    UP_RIGHT
+  }
+
+  private double ANGLE_THRESHOLD = 2.0;
+  private double BREAKING_DISTANCE = 30;
+
+  private CurrentAction currentAction = CurrentAction.DOING_NOTHING;
+  private RotateDirection targetDirection = RotateDirection.RIGHT;
+  private double targetAngle = 0;
+
+  public void turnAround( RotateDirection direction )
+  {
+    double currAngle = angleForHeading( pose.heading.toDouble() );
+    double nextAngle = ( currAngle + 180 ) % 360;
+    turnToAngle( direction, nextAngle );
+  }
+
+  public void faceDirection( PresetDirection direction )
+  {
+    double currentAngle = angleForHeading( pose.heading.toDouble() );
+
+    double nextHeading = headingForDirection( direction );
+    double nextAngle = angleForHeading( nextHeading );
+
+    RotateDirection rotateDirection = quickestDirection( currentAngle, nextAngle );
+    turnToAngle( rotateDirection, nextAngle );
+  }
+
+  private RotateDirection quickestDirection( double currentAngle, double nextAngle )
+  {
+    double right = nextAngle - currentAngle;
+    if( right < 0 )
+    {
+      right += 360;
+    }
+
+    double left = 360 - right;
+
+    if( right < left )
+    { return RotateDirection.RIGHT; }
+    else
+    { return RotateDirection.LEFT; }
+  }
+
+  //converts [-180, 180] to [0, 360]
+  private double angleForHeading( double heading )
+  {
+    return heading + 180;
+  }
+
+  //returns a value between [ -180, 180 ]
+  private double headingForDirection( PresetDirection direction )
+  {
+    switch( direction )
+    {
+      case FOREWARD:
+        return 0;
+      case BACKWARD:
+        return 180;
+      case LEFT:
+        return -90;
+      case RIGHT:
+        return 90;
+      case DOWN_LEFT:
+        return -135;
+      case DOWN_RIGHT:
+        return 135;
+      case UP_LEFT:
+        return -45;
+      case UP_RIGHT:
+        return 45;
+      default:
+        return 0;
+    }
+  }
+
+  private void turnToAngle( RotateDirection direction, double angle )
+  {
+    currentAction = CurrentAction.ROTATE;
+    targetDirection = direction;
+    targetAngle = angle;
+  }
+
   public DriveSystem( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( hardwareMap, telemetry );
@@ -59,6 +163,7 @@ public class DriveSystem extends AbstractModule
 
   private void initState()
   {
+    //do not use the motor encoder for built-in velocity control
     final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
     initMotor( frontLeftMotor, runMode, DcMotorSimple.Direction.FORWARD );
     initMotor( frontRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
@@ -81,8 +186,49 @@ public class DriveSystem extends AbstractModule
     public double backRight = 0;
   }
 
+  private double computeRotateSpeed( double angleDifference )
+  {
+    if( angleDifference > BREAKING_DISTANCE )
+    { return  1; }
+    else
+    { return angleDifference / BREAKING_DISTANCE; }
+  }
+
   public void move( double forward, double strafe, double rotate )
   {
+    if( rotate != 0 )
+    {
+      currentAction = CurrentAction.DOING_NOTHING;
+    }
+    else if( currentAction == CurrentAction.ROTATE )
+    {
+      double currAngle = angleForHeading( pose.heading.toDouble() );
+      double angleDifference = targetAngle - currAngle;
+
+      if( angleDifference < 0 )
+      {
+        angleDifference += 360;
+      }
+
+      if( angleDifference > 180 )
+      {
+        angleDifference = 360 - angleDifference;
+      }
+
+      if( angleDifference < ANGLE_THRESHOLD )
+      {
+        currentAction = CurrentAction.DOING_NOTHING;
+      }
+      else if( targetDirection == RotateDirection.RIGHT )
+      {
+        rotate = computeRotateSpeed( angleDifference );
+      }
+      else
+      {
+        rotate = -computeRotateSpeed( angleDifference );
+      }
+    }
+
     MotorValues speeds = new MotorValues();
     speeds.frontLeft = forward + strafe + rotate;
     speeds.frontRight = forward - strafe - rotate;

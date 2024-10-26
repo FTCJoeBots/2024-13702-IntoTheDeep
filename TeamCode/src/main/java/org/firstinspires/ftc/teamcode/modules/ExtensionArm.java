@@ -125,7 +125,7 @@ public class ExtensionArm extends AbstractModule
     if( extensionArmMotor == null )
     { return; }
 
-    initMotor( extensionArmMotor, DcMotor.RunMode.RUN_USING_ENCODER, DcMotorSimple.Direction.FORWARD );
+    initMotor( extensionArmMotor, DcMotor.RunMode.RUN_USING_ENCODER, DcMotorSimple.Direction.REVERSE );
     extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
   }
 }

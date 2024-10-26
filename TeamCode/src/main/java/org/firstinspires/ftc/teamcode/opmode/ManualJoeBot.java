@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.modules.DriveSystem;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 
 import java.util.EnumSet;
@@ -184,6 +185,45 @@ public class ManualJoeBot extends OpMode
     //==================
     //Drive
     //==================
+    if( gamepads.buttonPressed( Participant.DRIVER, Button.RIGHT_BUMPER ) )
+    {
+      robot.drive().turnAround( DriveSystem.RotateDirection.RIGHT );
+    }
+    else if( gamepads.buttonPressed( Participant.DRIVER, Button.LEFT_BUMPER ) )
+    {
+      robot.drive().turnAround( DriveSystem.RotateDirection.LEFT );
+    }
+    else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_UP))
+    {
+      robot.drive().faceDirection( DriveSystem.PresetDirection.FOREWARD );
+    }
+    else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_DOWN))
+    {
+      robot.drive().faceDirection( DriveSystem.PresetDirection.BACKWARD );
+    }
+    else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_LEFT))
+    {
+      robot.drive().faceDirection( DriveSystem.PresetDirection.LEFT );
+    }
+    else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_RIGHT))
+    {
+      robot.drive().faceDirection( DriveSystem.PresetDirection.RIGHT );
+    }
+    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_LEFT, Button.DPAD_DOWN ) ) )
+    {
+      robot.drive().faceDirection( DriveSystem.PresetDirection.DOWN_LEFT );
+    }
+    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_RIGHT, Button.DPAD_DOWN ) ) )
+    {
+      robot.drive().faceDirection( DriveSystem.PresetDirection.DOWN_RIGHT );
+    }
+    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_LEFT, Button.DPAD_UP ) ) )
+    {
+      robot.drive().faceDirection( DriveSystem.PresetDirection.UP_LEFT);
+    }
+    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_RIGHT, Button.DPAD_UP ) ) )
+    { robot.drive().faceDirection( DriveSystem.PresetDirection.UP_RIGHT ); }
+
     final double forward = gamepad1.left_stick_y;
     final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
     final double rotate = gamepad1.left_trigger - gamepad1.right_trigger;

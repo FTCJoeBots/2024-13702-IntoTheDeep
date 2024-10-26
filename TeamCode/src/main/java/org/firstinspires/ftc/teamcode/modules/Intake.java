@@ -30,7 +30,7 @@ public class Intake extends AbstractModule
 
   private double distance = Double.NaN;
 
-  public static final double SLOW_SPEED = 0.1;
+  public static final double SLOW_SPEED = 0.3;
   public static final double FAST_SPEED = 1;
   public static final double STOP_SPEED = 0;
 
@@ -124,7 +124,7 @@ public class Intake extends AbstractModule
     // Get a reference to our sensor object. It's recommended to use NormalizedColorSensor over
     // ColorSensor, because NormalizedColorSensor consistently gives values between 0 and 1, while
     // the values you get from ColorSensor are dependent on the specific sensor you're using.
-    colorSensor = hardwareMap.get( NormalizedColorSensor.class, "color" );
+    colorSensor = hardwareMap.get( NormalizedColorSensor.class, "colorSensor" );
   }
 
   private void initState()
@@ -261,10 +261,10 @@ public class Intake extends AbstractModule
     /* If this color sensor also has a distance sensor, display the measured distance.
      * Note that the reported distance is only useful at very close range, and is impacted by
      * ambient light and surface reflectivity. */
-    //    if (colorSensor != null &&
-    //    colorSensor instanceof DistanceSensor ) {
-    //      telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance( DistanceUnit.CM));
-    //    }
+    if( colorSensor != null && colorSensor instanceof DistanceSensor )
+    {
+      telemetry.addData( "Distance (cm)", "%.3f", distance );
+    }
 
     switch( getObservedObject() )
     {
