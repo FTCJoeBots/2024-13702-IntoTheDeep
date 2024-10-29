@@ -16,7 +16,7 @@ public abstract class AbstractModule
   protected Telemetry telemetry = null;
   private List<DcMotorSimple> motors = null;
 
-  AbstractModule( HardwareMap hardwareMap, Telemetry telemetry )
+  public AbstractModule( HardwareMap hardwareMap, Telemetry telemetry )
   {
     this.hardwareMap = hardwareMap;
     this.telemetry = telemetry;

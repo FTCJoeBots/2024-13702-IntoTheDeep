@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.modules.DriveSystem;
+import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
@@ -12,7 +12,7 @@ public class JoeBot
   private ExtensionArm m_extensionArm = null;
   private Lift m_lift = null;
   private Intake m_intake = null;
-  private DriveSystem m_drive = null;
+  private Drive m_drive = null;
 
   public JoeBot( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -22,7 +22,7 @@ public class JoeBot
       m_extensionArm = new ExtensionArm( hardwareMap, telemetry );
       m_lift = new Lift( hardwareMap, telemetry );
       m_intake = new Intake( hardwareMap, telemetry );
-      m_drive = new DriveSystem( hardwareMap, telemetry );
+      m_drive = new Drive( hardwareMap, telemetry );
     }
   }
 
@@ -35,7 +35,7 @@ public class JoeBot
   public Intake intake()
   { return m_intake; }
 
-  public DriveSystem drive()
+  public Drive drive()
   { return m_drive; }
 
   public void stop()

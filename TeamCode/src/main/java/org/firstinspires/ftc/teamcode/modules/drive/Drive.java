@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.modules;
+package org.firstinspires.ftc.teamcode.modules.drive;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Time;
@@ -13,10 +13,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.roadrunner.ThreeDeadWheelLocalizer;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
-public class DriveSystem extends AbstractModule
+public class Drive extends AbstractModule
 {
   private DcMotor frontLeftMotor = null;
   private DcMotor frontRightMotor = null;
@@ -36,24 +37,6 @@ public class DriveSystem extends AbstractModule
     DOING_NOTHING
   }
 
-  public enum RotateDirection
-  {
-    RIGHT,
-    LEFT
-  }
-
-  public enum PresetDirection
-  {
-    FOREWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT,
-    DOWN_LEFT,
-    DOWN_RIGHT,
-    UP_LEFT,
-    UP_RIGHT
-  }
-
   private double ANGLE_THRESHOLD = 2.0;
   private double BREAKING_DISTANCE = 30;
 
@@ -61,7 +44,7 @@ public class DriveSystem extends AbstractModule
   private RotateDirection targetDirection = RotateDirection.RIGHT;
   private double targetAngle = 0;
 
-  public DriveSystem( HardwareMap hardwareMap, Telemetry telemetry )
+  public Drive( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( hardwareMap, telemetry );
     initObjects();
@@ -97,68 +80,20 @@ public class DriveSystem extends AbstractModule
 
   public void turnAround( RotateDirection direction )
   {
-    double currAngle = angleForHeading( pose.heading.toDouble() );
+    double currAngle = AngleTools.angleForHeading( pose.heading.toDouble() );
     double nextAngle = ( currAngle + 180 ) % 360;
     turnToAngle( direction, nextAngle );
   }
 
   public void faceDirection( PresetDirection direction )
   {
-    double currentAngle = angleForHeading( pose.heading.toDouble() );
+    double currentAngle = AngleTools.angleForHeading( pose.heading.toDouble() );
 
-    double nextHeading = headingForDirection( direction );
-    double nextAngle = angleForHeading( nextHeading );
+    double nextHeading = AngleTools.headingForDirection( direction );
+    double nextAngle = AngleTools.angleForHeading( nextHeading );
 
-    RotateDirection rotateDirection = quickestDirection( currentAngle, nextAngle );
+    RotateDirection rotateDirection = AngleTools.quickestDirection( currentAngle, nextAngle );
     turnToAngle( rotateDirection, nextAngle );
-  }
-
-  private RotateDirection quickestDirection( double currentAngle, double nextAngle )
-  {
-    double right = nextAngle - currentAngle;
-    if( right < 0 )
-    {
-      right += 360;
-    }
-
-    double left = 360 - right;
-
-    if( right < left )
-    { return RotateDirection.RIGHT; }
-    else
-    { return RotateDirection.LEFT; }
-  }
-
-  //converts [-180, 180] to [0, 360]
-  private double angleForHeading( double heading )
-  {
-    return heading + 180;
-  }
-
-  //returns a value between [ -180, 180 ]
-  private double headingForDirection( PresetDirection direction )
-  {
-    switch( direction )
-    {
-      case FOREWARD:
-        return 0;
-      case BACKWARD:
-        return 180;
-      case LEFT:
-        return -90;
-      case RIGHT:
-        return 90;
-      case DOWN_LEFT:
-        return -135;
-      case DOWN_RIGHT:
-        return 135;
-      case UP_LEFT:
-        return -45;
-      case UP_RIGHT:
-        return 45;
-      default:
-        return 0;
-    }
   }
 
   private void turnToAngle( RotateDirection direction, double angle )
@@ -178,14 +113,6 @@ public class DriveSystem extends AbstractModule
     setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
   }
 
-  private class MotorValues
-  {
-    public double frontLeft = 0;
-    public double frontRight = 0;
-    public double backLeft = 0;
-    public double backRight = 0;
-  }
-
   private double computeRotateSpeed( double angleDifference )
   {
     if( angleDifference > BREAKING_DISTANCE )
@@ -202,7 +129,7 @@ public class DriveSystem extends AbstractModule
     }
     else if( currentAction == CurrentAction.ROTATE )
     {
-      double currAngle = angleForHeading( pose.heading.toDouble() );
+      double currAngle = AngleTools.angleForHeading( pose.heading.toDouble() );
       double angleDifference = targetAngle - currAngle;
 
       if( angleDifference < 0 )
