@@ -186,6 +186,8 @@ public class ManualJoeBot extends OpMode
     //==================
     //Drive
     //==================
+
+    //Turn around
     if( gamepads.buttonPressed( Participant.DRIVER, Button.RIGHT_BUMPER ) )
     {
       robot.drive().turnAround( RotateDirection.RIGHT );
@@ -193,6 +195,32 @@ public class ManualJoeBot extends OpMode
     else if( gamepads.buttonPressed( Participant.DRIVER, Button.LEFT_BUMPER ) )
     {
       robot.drive().turnAround( RotateDirection.LEFT );
+    }
+
+    //Standard directions
+    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_LEFT, Button.DPAD_UP ) ) )
+    {
+      robot.drive().faceDirection( PresetDirection.UP_LEFT);
+    }
+    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_LEFT, Button.DPAD_DOWN ) ) )
+    {
+      robot.drive().faceDirection( PresetDirection.DOWN_LEFT );
+    }
+    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_RIGHT, Button.DPAD_UP ) ) )
+    {
+      robot.drive().faceDirection( PresetDirection.UP_RIGHT );
+    }
+    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_RIGHT, Button.DPAD_DOWN ) ) )
+    {
+      robot.drive().faceDirection( PresetDirection.DOWN_RIGHT );
+    }
+    else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_LEFT))
+    {
+      robot.drive().faceDirection( PresetDirection.LEFT );
+    }
+    else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_RIGHT ) )
+    {
+      robot.drive().faceDirection( PresetDirection.RIGHT );
     }
     else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_UP))
     {
@@ -202,28 +230,6 @@ public class ManualJoeBot extends OpMode
     {
       robot.drive().faceDirection( PresetDirection.BACKWARD );
     }
-    else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_LEFT))
-    {
-      robot.drive().faceDirection( PresetDirection.LEFT );
-    }
-    else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_RIGHT))
-    {
-      robot.drive().faceDirection( PresetDirection.RIGHT );
-    }
-    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_LEFT, Button.DPAD_DOWN ) ) )
-    {
-      robot.drive().faceDirection( PresetDirection.DOWN_LEFT );
-    }
-    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_RIGHT, Button.DPAD_DOWN ) ) )
-    {
-      robot.drive().faceDirection( PresetDirection.DOWN_RIGHT );
-    }
-    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_LEFT, Button.DPAD_UP ) ) )
-    {
-      robot.drive().faceDirection( PresetDirection.UP_LEFT);
-    }
-    else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_RIGHT, Button.DPAD_UP ) ) )
-    { robot.drive().faceDirection( PresetDirection.UP_RIGHT ); }
 
     final double forward = gamepad1.left_stick_y;
     final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
@@ -231,9 +237,7 @@ public class ManualJoeBot extends OpMode
     robot.drive().move( forward, strafe, rotate );
 
     //Cycle through telemetry
-    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.RIGHT_STICK ) ||
-        gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.GUIDE ) ||
-        gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.START ) )
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.GUIDE ) )
     {
       Module[] modules = Module.values();
 
