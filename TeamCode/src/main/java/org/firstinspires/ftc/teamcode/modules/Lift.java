@@ -9,14 +9,26 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Lift extends AbstractModule
 {
   public static final double SLOW_SPEED = 0.1;
-  public static final double FAST_SPEED = 1;
+  public static final double FAST_SPEED = 0.5;
 
-  public static final int LIFTMANUALINC = 30;
+  public static final int MANUAL_POSITION_ADJUST = 100;
 
   //Preset positions we can extend the arm to
   public enum Position
   {
-    HIGHEST( 360 ), HIGH_BASKET( 200 ), LOW_BASKET( 100 ), FLOOR( 0 );
+    FLOOR( 0 ),
+    SAMPLE_FLOOR( 172 ),
+    SPECIMEN_FLOOR( 347 ),
+    HIGH_BASKET( 9545 ),
+    LOW_BASKET( 5846 ),
+    ABOVE_HIGH_SPECIMEN_BAR( 6324 ),
+    ABOVE_LOW_SPECIMEN_BAR( 3548 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 5691 ),
+    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 2996 ),
+    ABOVE_HIGH_HANG_BAR( 8060 ),
+    ABOVE_LOW_HANG_BAR( 4663 ),
+    HANG_FROM_HIGH_HANG_BAR ( 7216 ),
+    HANG_FROM_LOW_HANG_BAR( 3889 );
 
     Position( int value )
     {
@@ -52,11 +64,11 @@ public class Lift extends AbstractModule
   private void turnMotor( DcMotor motor, DcMotorSimple.Direction direction, double speed )
   {
     int liftCurPosition = motor.getCurrentPosition();
-    int liftNewPosition = liftCurPosition + ( direction == DcMotorSimple.Direction.FORWARD ? 1 : -1 ) * LIFTMANUALINC;
+    int liftNewPosition = liftCurPosition + ( direction == DcMotorSimple.Direction.FORWARD ? 1 : -1 ) * MANUAL_POSITION_ADJUST;
 
-    if( liftNewPosition > Position.HIGHEST.value )
+    if( liftNewPosition > Position.HIGH_BASKET.value )
     {
-      liftNewPosition = Position.HIGHEST.value;
+      liftNewPosition = Position.HIGH_BASKET.value;
     }
 
     if( liftNewPosition < Position.FLOOR.value )
@@ -109,8 +121,8 @@ public class Lift extends AbstractModule
 
   public void climb()
   {
-    setMotorPosition( leftMotor, Position.HIGHEST.value, SLOW_SPEED );
-    setMotorPosition( rightMotor, Position.HIGHEST.value, SLOW_SPEED );
+    setMotorPosition( leftMotor, Position.ABOVE_LOW_HANG_BAR.value, SLOW_SPEED );
+    setMotorPosition( rightMotor, Position.ABOVE_LOW_HANG_BAR.value, SLOW_SPEED );
   }
 
   //Prints out the extension arm motor position

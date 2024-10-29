@@ -11,12 +11,15 @@ public class ExtensionArm extends AbstractModule
   private DcMotor extensionArmMotor = null;
 
   //Relative position for manually extending and contracting the arm
-  private static final int MANUAL_POSITION_ADJUST = 10;
+  private static final int MANUAL_POSITION_ADJUST = 100;
 
   //Preset positions we can extend the arm to
   private enum Position
   {
-    RETRACTED( 0 ), EXTENDED( 100 );
+    FULLY_RETRACTED( 0 ),
+    RETRACTED_WITH_SAMPLE( 47 ),
+    FULLY_EXTENDED( 2876 ),
+    EXTEND_TO_HANG( 834 );
 
     Position( int value )
     {
@@ -29,7 +32,10 @@ public class ExtensionArm extends AbstractModule
   //Various speeds for extending and retracting the arm
   private enum Speed
   {
-    EXTEND( 0.5 ), RETRACT( 0.5 ), MANUAL_EXTEND( 0.1 ), MANUAL_RETRACT( 0.1 );
+    EXTEND( 0.5 ),
+    RETRACT( 0.5 ),
+    MANUAL_EXTEND( 0.1 ),
+    MANUAL_RETRACT( 0.1 );
 
     Speed( double value )
     {
@@ -48,12 +54,12 @@ public class ExtensionArm extends AbstractModule
 
   public void fullyExtend()
   {
-    setTargetPositionAndPower( Position.EXTENDED.value, Speed.EXTEND.value );
+    setTargetPositionAndPower( Position.FULLY_EXTENDED.value, Speed.EXTEND.value );
   }
 
   public void fullyRetract()
   {
-    setTargetPositionAndPower( Position.RETRACTED.value, Speed.RETRACT.value );
+    setTargetPositionAndPower( Position.FULLY_RETRACTED.value, Speed.RETRACT.value );
   }
 
   //Extends the arm slightly
@@ -66,8 +72,8 @@ public class ExtensionArm extends AbstractModule
     int nextPosition = currPosition + MANUAL_POSITION_ADJUST;
 
     //Prevent the extension arm from extending too far
-    if( nextPosition > Position.EXTENDED.value )
-    { nextPosition = Position.EXTENDED.value; }
+    if( nextPosition > Position.FULLY_EXTENDED.value )
+    { nextPosition = Position.FULLY_EXTENDED.value; }
 
     setTargetPositionAndPower( nextPosition, Speed.MANUAL_EXTEND.value );
   }
@@ -91,8 +97,8 @@ public class ExtensionArm extends AbstractModule
     int nextPosition = currPosition - MANUAL_POSITION_ADJUST;
 
     //Prevent the extension arm from retracting too far
-    if( nextPosition < Position.RETRACTED.value )
-    { nextPosition = Position.RETRACTED.value; }
+    if( nextPosition < Position.FULLY_RETRACTED.value )
+    { nextPosition = Position.FULLY_RETRACTED.value; }
 
     setTargetPositionAndPower( nextPosition, Speed.MANUAL_RETRACT.value );
   }
