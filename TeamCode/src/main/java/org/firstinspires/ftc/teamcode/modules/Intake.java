@@ -83,8 +83,10 @@ public class Intake extends AbstractModule
     if( !colorKnown )
     { updateState(); }
 
+    //tape on ground is 8.8
+    //samples are 5.5
     if( Double.valueOf( distance ).isNaN() ||
-        distance > 10 )
+        distance > 7 )
     {
       return ObservedObject.NOTHING;
     }
