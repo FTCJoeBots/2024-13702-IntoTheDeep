@@ -32,10 +32,10 @@ public class ExtensionArm extends AbstractModule
   //Various speeds for extending and retracting the arm
   private enum Speed
   {
-    EXTEND( 0.5 ),
-    RETRACT( 0.5 ),
-    MANUAL_EXTEND( 0.1 ),
-    MANUAL_RETRACT( 0.1 );
+    EXTEND( 0.9 ),
+    RETRACT( 0.9 ),
+    MANUAL_EXTEND( 0.3 ),
+    MANUAL_RETRACT( 0.3 );
 
     Speed( double value )
     {
@@ -75,7 +75,8 @@ public class ExtensionArm extends AbstractModule
     if( nextPosition > Position.FULLY_EXTENDED.value )
     { nextPosition = Position.FULLY_EXTENDED.value; }
 
-    setTargetPositionAndPower( nextPosition, Speed.MANUAL_EXTEND.value );
+    if( nextPosition >= extensionArmMotor.getTargetPosition() )
+    { setTargetPositionAndPower( nextPosition, Speed.MANUAL_EXTEND.value ); }
   }
 
   private void setTargetPositionAndPower( int position, double power )
@@ -100,7 +101,8 @@ public class ExtensionArm extends AbstractModule
     if( nextPosition < Position.FULLY_RETRACTED.value )
     { nextPosition = Position.FULLY_RETRACTED.value; }
 
-    setTargetPositionAndPower( nextPosition, Speed.MANUAL_RETRACT.value );
+    if( nextPosition < extensionArmMotor.getTargetPosition() )
+    { setTargetPositionAndPower( nextPosition, Speed.MANUAL_RETRACT.value ); }
   }
 
   //Prints out the extension arm motor position
@@ -131,7 +133,7 @@ public class ExtensionArm extends AbstractModule
     if( extensionArmMotor == null )
     { return; }
 
-    initMotor( extensionArmMotor, DcMotor.RunMode.RUN_USING_ENCODER, DcMotorSimple.Direction.REVERSE );
+    initMotor( extensionArmMotor, DcMotor.RunMode.RUN_TO_POSITION, DcMotorSimple.Direction.REVERSE );
     extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
   }
 }
