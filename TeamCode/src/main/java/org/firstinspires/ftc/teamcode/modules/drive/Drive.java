@@ -31,6 +31,12 @@ public class Drive extends AbstractModule
   private static YawPitchRollAngles orientation = new YawPitchRollAngles( AngleUnit.DEGREES, 0, 0, 0, 0 );
   private static ElapsedTime orientationTime = new ElapsedTime();
 
+  public enum Perspective
+  {
+    ROBOT,
+    DRIVER
+  }
+
   public enum CurrentAction
   {
     ROTATE,
@@ -41,6 +47,15 @@ public class Drive extends AbstractModule
   private double BREAKING_DISTANCE = 30;
 
   private CurrentAction currentAction = CurrentAction.DOING_NOTHING;
+  private Perspective perspective = Perspective.ROBOT;
+
+  public void togglePerspective()
+  {
+    perspective = perspective == Perspective.ROBOT ?
+      Perspective.DRIVER :
+      Perspective.ROBOT;
+  }
+
   private RotateDirection targetDirection = RotateDirection.RIGHT;
   private double targetAngle = 0;
 
@@ -78,6 +93,16 @@ public class Drive extends AbstractModule
     }
   }
 
+  public void resetPose()
+  {
+    pose = new Pose2d( 0, 0, 0 );
+
+    if( inertialMeasurementUnit != null )
+    { inertialMeasurementUnit.resetYaw(); }
+
+    telemetry.log().add( "Reset Position" );
+  }
+
   public void turnAround( RotateDirection direction )
   {
     double currAngle = AngleTools.angleForHeading( pose.heading.toDouble() );
@@ -88,11 +113,17 @@ public class Drive extends AbstractModule
   public void faceDirection( PresetDirection direction )
   {
     double currentAngle = AngleTools.angleForHeading( pose.heading.toDouble() );
+    telemetry.log().add( String.format( "currentAngle: %f", currentAngle ) );
 
     double nextHeading = AngleTools.headingForDirection( direction );
+    telemetry.log().add( String.format( "nextHeading: %f", nextHeading ) );
+
     double nextAngle = AngleTools.angleForHeading( nextHeading );
+    telemetry.log().add( String.format( "nextAngle: %f", nextAngle ) );
 
     RotateDirection rotateDirection = AngleTools.quickestDirection( currentAngle, nextAngle );
+    telemetry.log().add( String.format( "rotateDirection: %s", rotateDirection ) );
+
     turnToAngle( rotateDirection, nextAngle );
   }
 
@@ -123,6 +154,17 @@ public class Drive extends AbstractModule
 
   public void move( double forward, double strafe, double rotate )
   {
+    if( perspective == Perspective.DRIVER )
+    {
+      double heading = pose.heading.toDouble();
+
+      double rotX = strafe * Math.cos(-heading) - forward * Math.sin(-heading);
+      double rotY = strafe * Math.sin(-heading) + forward * Math.cos(-heading);
+
+      forward = rotY;
+      strafe = rotX;
+    }
+
     if( rotate != 0 )
     {
       currentAction = CurrentAction.DOING_NOTHING;
@@ -230,6 +272,7 @@ public class Drive extends AbstractModule
   @Override
   public void printTelemetry()
   {
+    telemetry.addLine( String.format( "%s", perspective ) );
 //    telemetry.addLine( String.format( "Front Left Power: %s", frontLeftMotor.getPower() ) );
 //    telemetry.addLine( String.format( "Front Right Power: %s", frontRightMotor.getPower() ) );
 //    telemetry.addLine( String.format( "Back Left Power: %s", backLeftMotor.getPower() ) );
