@@ -110,6 +110,8 @@ public class Gamepads
         return gamepad.guide;
       case START:
         return gamepad.start;
+      case BACK:
+        return gamepad.back;
     }
 
     return false;
