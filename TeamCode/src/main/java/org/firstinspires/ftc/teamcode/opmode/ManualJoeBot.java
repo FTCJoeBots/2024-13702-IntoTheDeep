@@ -178,17 +178,21 @@ public class ManualJoeBot extends OpMode
     }
 
     //Pull in sample
-    if( gamepad2.left_stick_y > 0 )
+    if( gamepad2.left_stick_y > 0 &&
+        //prevent sucking in a sample if the lift is in the air
+        //to avoid dumping into the robot
+        robot.lift().liftPosition() > 200 )
     {
-      robot.intake().pullInSample();
+      robot.intake().pullSampleBack();
     }
     //Spit out sample
     else if ( gamepad2.left_stick_y < 0 )
     {
-      robot.intake().spitOutSample();
+      robot.intake().pushSampleForward();
     }
     //Stop
-    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.LEFT_STICK ) )
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.LEFT_STICK ) ||
+             gamepads.buttonPressed( Participant.OPERATOR, Button.B ) )
     {
       robot.intake().stop();
     }

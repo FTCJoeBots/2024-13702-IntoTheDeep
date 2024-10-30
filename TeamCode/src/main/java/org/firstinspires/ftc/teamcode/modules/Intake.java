@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -30,14 +31,26 @@ public class Intake extends AbstractModule
 
   private double distance = Double.NaN;
 
-  public static final double SLOW_SPEED = 0.3;
-  public static final double FAST_SPEED = 1;
-  public static final double STOP_SPEED = 0;
+  private ElapsedTime time = null;
+
+  private static final double SPIT_OUT_SPEED = 1;
+  private static final double PULL_IN_SPEED = 0.2;
+  private static final double STOP_SPEED = 0;
+  private static final double DELAY = 100;
+
+  public enum Direction
+  {
+    PULL,
+    PUSH
+  }
 
   public enum CurrentAction
   {
-    PULLING_IN,
-    SPITTING_OUT,
+    PULL_IN_SAMPLE_FROM_IN_FRONT,
+    PULL_IN_SAMPLE_FROM_BEHIND,
+    TURN_OFF_AFTER_DELAY,
+    SPIT_OUT_SAMPLE_IN_FRONT,
+    SPIT_OUT_SAMPLE_BEHIND,
     DOING_NOTHING
   }
 
@@ -56,7 +69,7 @@ public class Intake extends AbstractModule
     colorKnown = false;
   }
 
-  public void updateState()
+  public void updateColorAndDistance()
   {
     if( colorSensor == null )
     { return; }
@@ -81,7 +94,7 @@ public class Intake extends AbstractModule
     { return ObservedObject.NOTHING; }
 
     if( !colorKnown )
-    { updateState(); }
+    { updateColorAndDistance(); }
 
     //tape on ground is 8.8
     //samples are 5.5
@@ -120,6 +133,8 @@ public class Intake extends AbstractModule
 
   private void initObjects()
   {
+    time = new ElapsedTime();
+
     leftServo = createCRServo( "leftIntakeServo" );
     rightServo = createCRServo( "rightIntakeServo" );
 
@@ -134,9 +149,15 @@ public class Intake extends AbstractModule
     initServo( leftServo, DcMotorSimple.Direction.FORWARD );
     initServo( rightServo, DcMotorSimple.Direction.REVERSE );
 
-    // Tell the sensor our desired gain value)
     if( colorSensor != null )
     {
+      if( colorSensor instanceof SwitchableLight )
+      {
+        ( ( SwitchableLight ) colorSensor ).enableLight( true );
+      }
+
+      // Tell the sensor our desired gain value)
+      //
       // You can give the sensor a gain value, will be multiplied by the sensor's raw value before the
       // normalized color values are calculated. Color sensors (especially the REV Color Sensor V3)
       // can give very low values (depending on the lighting conditions), which only use a small part
@@ -167,33 +188,56 @@ public class Intake extends AbstractModule
     { rightServo.setPower( speed ); }
   }
 
-  private void toggleColorSensorLight( boolean on )
+  public void pullSampleBack()
   {
-    if( colorSensor != null &&
-        colorSensor instanceof SwitchableLight )
+    turnOnServos( Direction.PULL );
+  }
+
+  public void pushSampleForward()
+  {
+    turnOnServos( Direction.PUSH );
+  }
+
+  private void turnOnServos( Direction direction )
+  {
+    if( direction == Direction.PULL &&
+        ( currentAction == CurrentAction.PULL_IN_SAMPLE_FROM_IN_FRONT ||
+          currentAction == CurrentAction.SPIT_OUT_SAMPLE_BEHIND ) )
+    { return; }
+
+    if( direction == Direction.PUSH &&
+      ( currentAction == CurrentAction.SPIT_OUT_SAMPLE_IN_FRONT ||
+        currentAction == CurrentAction.PULL_IN_SAMPLE_FROM_BEHIND ) )
+    { return; }
+
+    boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
+
+    if( direction == Direction.PULL )
     {
-      ( ( SwitchableLight ) colorSensor ).enableLight( on );
+      currentAction = sampleDetected ?
+                      CurrentAction.SPIT_OUT_SAMPLE_BEHIND :
+                      CurrentAction.PULL_IN_SAMPLE_FROM_IN_FRONT;
     }
+    else
+    {
+      currentAction = sampleDetected ?
+                      CurrentAction.SPIT_OUT_SAMPLE_IN_FRONT :
+                      CurrentAction.PULL_IN_SAMPLE_FROM_BEHIND;
+    }
+
+    int    multiplier = direction == Direction.PULL ? -1 : 1;
+    double speed      = sampleDetected ? SPIT_OUT_SPEED : PULL_IN_SPEED;
+
+    setServoSpeed( multiplier * speed );
   }
 
-  public void pullInSample()
-  {
-    toggleColorSensorLight( true );
-    setServoSpeed( FAST_SPEED );
-    currentAction = CurrentAction.PULLING_IN;
-  }
-
-  public void spitOutSample()
-  {
-    toggleColorSensorLight( true );
-    setServoSpeed( -SLOW_SPEED );
-    currentAction = CurrentAction.SPITTING_OUT;
-  }
-
+  //every time we clip in auto shift over a bit
+  //reset position by overhsooting and tap wall when returning to basekt or human player pickup
+  //auto rasie and then lower the extension arm to avoid bashing it into the middle. this would trigger
+  //when extension arm is at 0
   @Override
   public void stop()
   {
-    toggleColorSensorLight( false );
     currentAction = CurrentAction.DOING_NOTHING;
     super.stop();
   }
@@ -207,20 +251,39 @@ public class Intake extends AbstractModule
 
     switch( currentAction )
     {
-      case PULLING_IN:
+      case PULL_IN_SAMPLE_FROM_IN_FRONT:
         if( sampleDetected )
         {
           stop();
           return true;
         }
         break;
-      case SPITTING_OUT:
+
+      //delay turning off servos until after the sample has a chance to be pulled in
+      case PULL_IN_SAMPLE_FROM_BEHIND:
+        if( sampleDetected )
+        {
+          currentAction = CurrentAction.TURN_OFF_AFTER_DELAY;
+          time.reset();
+        }
+        break;
+
+      case TURN_OFF_AFTER_DELAY:
+        if( time.milliseconds() >= DELAY )
+        {
+          stop();
+          return true;
+        }
+
+      case SPIT_OUT_SAMPLE_IN_FRONT:
+      case SPIT_OUT_SAMPLE_BEHIND:
         if( !sampleDetected )
         {
           stop();
           return true;
         }
         break;
+
       case DOING_NOTHING:
         break;
     }
@@ -252,7 +315,7 @@ public class Intake extends AbstractModule
     { return; }
 
     if ( !colorKnown )
-    { updateState(); }
+    { updateColorAndDistance(); }
 
     // Update the hsvValues array by passing it to Color.colorToHSV()
     Color.colorToHSV( colors.toColor(), hsvValues );
@@ -283,6 +346,8 @@ public class Intake extends AbstractModule
         telemetry.addLine( "No sample");
         break;
     }
+
+    telemetry.addData( "Current Action:", "%s", currentAction );
   }
 
 }
