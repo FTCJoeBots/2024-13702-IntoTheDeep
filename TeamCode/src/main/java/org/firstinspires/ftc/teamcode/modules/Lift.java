@@ -8,10 +8,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends AbstractModule
 {
-  public static final double SLOW_SPEED = 0.1;
-  public static final double FAST_SPEED = 0.5;
+  public static final double SLOW_SPEED = 0.2;
+  public static final double FAST_SPEED = 0.8;
 
-  public static final int MANUAL_POSITION_ADJUST = 100;
+  public static final int MANUAL_POSITION_ADJUST = 80;
+
+  private int liftCurPosition = 0;
 
   //Preset positions we can extend the arm to
   public enum Position
@@ -56,14 +58,26 @@ public class Lift extends AbstractModule
 
   private void initState()
   {
-    final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_USING_ENCODER;
+    final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_TO_POSITION;
     initMotor( leftMotor, runMode, DcMotorSimple.Direction.FORWARD );
     initMotor( rightMotor, runMode, DcMotorSimple.Direction.REVERSE );
   }
 
+  public int liftPosition()
+  {
+    int leftPosition  = leftMotor.getCurrentPosition();
+    int rightPosition = rightMotor.getCurrentPosition();
+
+    return Math.round( ( leftPosition + rightPosition ) / 2.0f );
+  }
+
+  private void cacheLiftPosition()
+  {
+    liftCurPosition = liftPosition();
+  }
+
   private void turnMotor( DcMotor motor, DcMotorSimple.Direction direction, double speed )
   {
-    int liftCurPosition = motor.getCurrentPosition();
     int liftNewPosition = liftCurPosition + ( direction == DcMotorSimple.Direction.FORWARD ? 1 : -1 ) * MANUAL_POSITION_ADJUST;
 
     if( liftNewPosition > Position.HIGH_BASKET.value )
@@ -90,18 +104,21 @@ public class Lift extends AbstractModule
 
   public void fastLift()
   {
+    cacheLiftPosition();
     turnMotor( leftMotor, DcMotorSimple.Direction.FORWARD, FAST_SPEED );
     turnMotor( rightMotor, DcMotorSimple.Direction.FORWARD, FAST_SPEED );
   }
 
   public void fastDrop()
   {
+    cacheLiftPosition();
     turnMotor( leftMotor, DcMotorSimple.Direction.REVERSE, FAST_SPEED );
     turnMotor( rightMotor, DcMotorSimple.Direction.REVERSE, FAST_SPEED );
   }
 
   public void slowLift()
   {
+    cacheLiftPosition();
     turnMotor( leftMotor, DcMotorSimple.Direction.FORWARD, SLOW_SPEED );
     turnMotor( rightMotor, DcMotorSimple.Direction.FORWARD, SLOW_SPEED );
   }
@@ -109,6 +126,7 @@ public class Lift extends AbstractModule
   //manual down
   public void slowDrop()
   {
+    cacheLiftPosition();
     turnMotor( leftMotor, DcMotorSimple.Direction.REVERSE, SLOW_SPEED );
     turnMotor( rightMotor, DcMotorSimple.Direction.REVERSE, SLOW_SPEED );
   }
