@@ -17,7 +17,7 @@ public class Gamepads
   {
     if( ( participant == Participant.DRIVER ||
           participant == Participant.DRIVER_OR_OPERATOR ) &&
-      buttonDown( gamepad1, button ) )
+        buttonDown( gamepad1, button ) )
     { return true; }
 
     return ( participant == Participant.OPERATOR ||
@@ -25,7 +25,19 @@ public class Gamepads
            buttonDown( gamepad2, button );
   }
 
-  public boolean buttonsDown( Gamepad gamepad, Set<Button> buttons )
+  public boolean buttonsDown( Participant participant, Set<Button> buttons )
+  {
+    if( ( participant == Participant.DRIVER ||
+      participant == Participant.DRIVER_OR_OPERATOR ) &&
+      buttonsDown( gamepad1, buttons ) )
+    { return true; }
+
+    return ( participant == Participant.OPERATOR ||
+      participant == Participant.DRIVER_OR_OPERATOR ) &&
+      buttonsDown( gamepad2, buttons );
+  }
+
+  private boolean buttonsDown( Gamepad gamepad, Set<Button> buttons )
   {
     for( Button button : buttons )
     {
@@ -38,23 +50,16 @@ public class Gamepads
 
   public boolean buttonPressed( Participant participant, Button button )
   {
-    if( participant == Participant.DRIVER ||
-        participant == Participant.DRIVER_OR_OPERATOR )
-    {
-      if( buttonDown( gamepad1, button ) &&
-         !buttonDown( previousButtons1, button ) )
-      { return true; }
-    }
+    if( ( participant == Participant.DRIVER ||
+          participant == Participant.DRIVER_OR_OPERATOR ) &&
+        buttonDown( gamepad1, button ) &&
+        !buttonDown( previousButtons1, button ) )
+    { return true; }
 
-    if( participant == Participant.OPERATOR ||
-        participant == Participant.DRIVER_OR_OPERATOR )
-    {
-      if( buttonDown( gamepad2, button ) &&
-          !buttonDown( previousButtons2, button ) )
-      { return true; }
-    }
-
-    return false;
+    return ( participant == Participant.OPERATOR ||
+             participant == Participant.DRIVER_OR_OPERATOR ) &&
+           buttonDown( gamepad2, button ) &&
+           !buttonDown( previousButtons2, button );
   }
 
   public boolean buttonsPressed( Participant participant, Set<Button> buttons )
