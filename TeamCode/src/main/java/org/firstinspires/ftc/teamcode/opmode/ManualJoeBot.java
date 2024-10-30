@@ -187,6 +187,11 @@ public class ManualJoeBot extends OpMode
     //Drive
     //==================
 
+    if( gamepads.buttonPressed( Participant.DRIVER, Button.BACK ) )
+    {
+      robot.drive().resetPose();
+    }
+
     //Turn around
     if( gamepads.buttonPressed( Participant.DRIVER, Button.RIGHT_BUMPER ) )
     {
@@ -230,6 +235,12 @@ public class ManualJoeBot extends OpMode
     {
       robot.drive().faceDirection( PresetDirection.BACKWARD );
     }
+
+    if( gamepads.buttonPressed( Participant.DRIVER, Button.LEFT_STICK ) )
+    {
+      robot.drive().togglePerspective();
+    }
+
 
     final double forward = gamepad1.left_stick_y;
     final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
