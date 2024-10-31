@@ -48,12 +48,12 @@ public class AutoJoeBot extends OpMode
   JoeBot robot = null;
   Gamepads gamepads = null;
 
-  private enum State
-  {
-    LIFT_IS_DOWN, LIFT_IS_UP
-  }
+//  private enum State
+//  {
+//    LIFT_IS_DOWN, LIFT_IS_UP
+//  }
 
-  private State state = State.LIFT_IS_DOWN;
+//  private State state = State.LIFT_IS_DOWN;
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -98,6 +98,9 @@ public class AutoJoeBot extends OpMode
       module.clearBulkCache();
     }
 
+    robot.runTestLiftSequence();
+
+    /*
     //Move the lift in the opposite direction once it has stopped moving
     if( !robot.lift().isMoving() )
     {
@@ -111,7 +114,7 @@ public class AutoJoeBot extends OpMode
         robot.lift().travelTo( Lift.Position.FLOOR );
         state = State.LIFT_IS_DOWN;
       }
-    }
+    }*/
 
   }
 }
