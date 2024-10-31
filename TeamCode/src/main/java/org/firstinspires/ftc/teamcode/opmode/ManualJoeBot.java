@@ -22,11 +22,11 @@ public class ManualJoeBot extends OpMode
     DRIVE, INTAKE, LIFT, EXTENSION_ARM
   }
 
-  ElapsedTime time = null;
+  private ElapsedTime time = null;
   private Module currentModule = Module.DRIVE;
-  List<LynxModule> hubs;
-  JoeBot robot = null;
-  Gamepads gamepads = null;
+  private List<LynxModule> hubs;
+  private JoeBot robot = null;
+  private Gamepads gamepads = null;
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -45,7 +45,7 @@ public class ManualJoeBot extends OpMode
     robot = new JoeBot( hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
 
-    telemetry.addLine( "Initialized" );
+    telemetry.addLine( "Initialized Manual" );
     telemetry.update();
   }
 
