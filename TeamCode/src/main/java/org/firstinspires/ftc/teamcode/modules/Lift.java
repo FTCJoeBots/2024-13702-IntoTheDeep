@@ -63,7 +63,7 @@ public class Lift extends AbstractModule
   }
 
   private Action currentAction = Action.STOPPED;
-  private double currentPower = 0;
+  private double targetPower = 0;
 
   public Lift( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -120,14 +120,36 @@ public class Lift extends AbstractModule
     return turnMotors( DcMotorSimple.Direction.REVERSE, SLOW_SPEED_DOWN );
   }
 
+  private double adjustPower( int targetPosition, double power )
+  {
+    targetPower = power;
+
+    //it is smoother if we coast downwards until we get
+    //close to our target position
+    int liftCurPosition = liftPosition();
+
+    if( targetPosition < liftCurPosition &&
+      liftCurPosition > MINIMUM_COAST_HEIGHT &&
+      Math.abs( targetPosition - liftCurPosition ) > FAR_AWAY )
+    {
+      return COAST;
+    }
+    else
+    {
+      return power;
+    }
+  }
+
   public boolean travelTo( Position position )
   {
-    double speed = liftPosition() < position.value ?
+    double power = liftPosition() < position.value ?
                    FAST_SPEED_UP :
                    FAST_SPEED_DOWN;
 
-    setMotorPosition( leftMotor, position.value, speed );
-    setMotorPosition( rightMotor, position.value, speed );
+    power = adjustPower( position.value, power );
+
+    setMotorPosition( leftMotor, position.value, power );
+    setMotorPosition( rightMotor, position.value, power );
     currentAction = Action.MOVING;
 
     //TODO - only return true if actually doing something
@@ -169,12 +191,12 @@ public class Lift extends AbstractModule
     { stop(); }
 
     //switch from floating to using power once we get close to our target position
-    else if( currentPower == 0 &&
+    else if( targetPower == 0 &&
              ( liftPosition() <= MINIMUM_COAST_HEIGHT ||
                Math.min( leftDiff, rightDiff ) < FAR_AWAY ) )
     {
-      leftMotor.setPower( currentPower );
-      rightMotor.setPower( currentPower );
+      leftMotor.setPower( targetPower );
+      rightMotor.setPower( targetPower );
     }
   }
 
@@ -227,16 +249,7 @@ public class Lift extends AbstractModule
     if( liftNewPosition != leftMotor.getCurrentPosition() ||
         liftNewPosition != rightMotor.getCurrentPosition() )
     {
-      currentPower = power;
-
-      //it is smoother if we coast downwards until we get
-      //close to our target position
-      if( direction == DcMotorSimple.Direction.REVERSE &&
-          liftCurPosition > MINIMUM_COAST_HEIGHT &&
-          Math.abs( liftNewPosition - liftCurPosition ) > FAR_AWAY )
-      {
-        power = COAST;
-      }
+      power = adjustPower( liftNewPosition, power );
 
       setMotorPosition( leftMotor, liftNewPosition, power );
       setMotorPosition( rightMotor, liftNewPosition, power );
