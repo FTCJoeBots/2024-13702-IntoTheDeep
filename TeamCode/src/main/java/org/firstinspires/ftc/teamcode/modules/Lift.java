@@ -84,61 +84,9 @@ public class Lift extends AbstractModule
     int leftPosition  = leftMotor.getCurrentPosition();
     return leftPosition;
 
-  }
-
-  private boolean turnMotors( DcMotorSimple.Direction direction, double power )
-  {
-    if( power <= 0 )
-    {
-      stop();
-      return false;
-    }
-
-    int liftCurPosition = liftPosition();
-    int liftNewPosition = direction == DcMotorSimple.Direction.FORWARD ?
-                          liftCurPosition + ADJUST_UP :
-                          liftCurPosition - ADJUST_DOWN;
-
-    //Prevent moving too far
-    if( liftNewPosition > Position.HIGH_BASKET.value )
-    {
-      liftNewPosition = Position.HIGH_BASKET.value;
-    }
-    else if( liftNewPosition < Position.FLOOR.value )
-    {
-      liftNewPosition = Position.FLOOR.value;
-    }
-
-    // Ensure we continue to lift to preset position as we release buttons
-    if( currentAction == Action.MOVING )
-    {
-      if( direction == DcMotorSimple.Direction.FORWARD && liftNewPosition <= leftMotor.getTargetPosition() )
-      { return false; }
-
-      if( direction == DcMotorSimple.Direction.REVERSE && liftNewPosition >= leftMotor.getTargetPosition() )
-      { return false; }
-    }
-
-    if( liftNewPosition != leftMotor.getCurrentPosition() ||
-        liftNewPosition != rightMotor.getCurrentPosition() )
-    {
-      setMotorPosition( leftMotor, liftNewPosition, power );
-      setMotorPosition( rightMotor, liftNewPosition, power );
-      Action cachedAction = currentAction;
-      currentAction = Action.MOVING;
-      return currentAction != cachedAction;
-    }
-    else
-    { return false; }
-  }
-
-  private void setMotorPosition( DcMotor motor, int position, double power )
-  {
-    if( motor == null )
-    { return; }
-
-    motor.setTargetPosition( position );
-    motor.setPower( power );
+//    int rightPosition = rightMotor.getCurrentPosition();
+//
+//    return Math.round( ( leftPosition + rightPosition ) / 2.0f );
   }
 
   public boolean fastLift()
@@ -156,7 +104,6 @@ public class Lift extends AbstractModule
     return turnMotors( DcMotorSimple.Direction.FORWARD, SLOW_SPEED_UP );
   }
 
-  //manual down
   public boolean slowDrop()
   {
     return turnMotors( DcMotorSimple.Direction.REVERSE, SLOW_SPEED_DOWN );
@@ -225,4 +172,60 @@ public class Lift extends AbstractModule
     if( rightMotor != null )
     { telemetry.addLine( String.format( "Right Lift Motor: %s", rightMotor.getCurrentPosition() ) ); }
   }
+
+  private boolean turnMotors( DcMotorSimple.Direction direction, double power )
+  {
+    if( power <= 0 )
+    {
+      stop();
+      return false;
+    }
+
+    int liftCurPosition = liftPosition();
+    int liftNewPosition = direction == DcMotorSimple.Direction.FORWARD ?
+      liftCurPosition + ADJUST_UP :
+      liftCurPosition - ADJUST_DOWN;
+
+    //Prevent moving too far
+    if( liftNewPosition > Position.HIGH_BASKET.value )
+    {
+      liftNewPosition = Position.HIGH_BASKET.value;
+    }
+    else if( liftNewPosition < Position.FLOOR.value )
+    {
+      liftNewPosition = Position.FLOOR.value;
+    }
+
+    // Ensure we continue to lift to preset position as we release buttons
+    if( currentAction == Action.MOVING )
+    {
+      if( direction == DcMotorSimple.Direction.FORWARD && liftNewPosition <= leftMotor.getTargetPosition() )
+      { return false; }
+
+      if( direction == DcMotorSimple.Direction.REVERSE && liftNewPosition >= leftMotor.getTargetPosition() )
+      { return false; }
+    }
+
+    if( liftNewPosition != leftMotor.getCurrentPosition() ||
+      liftNewPosition != rightMotor.getCurrentPosition() )
+    {
+      setMotorPosition( leftMotor, liftNewPosition, power );
+      setMotorPosition( rightMotor, liftNewPosition, power );
+      Action cachedAction = currentAction;
+      currentAction = Action.MOVING;
+      return currentAction != cachedAction;
+    }
+    else
+    { return false; }
+  }
+
+  private void setMotorPosition( DcMotor motor, int position, double power )
+  {
+    if( motor == null )
+    { return; }
+
+    motor.setTargetPosition( position );
+    motor.setPower( power );
+  }
+
 }
