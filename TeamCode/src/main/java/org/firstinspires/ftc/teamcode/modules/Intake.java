@@ -32,11 +32,16 @@ public class Intake extends AbstractModule
   private double distance = Double.NaN;
 
   private ElapsedTime time = null;
+  private int delay = 0;
 
   private static final double SPIT_OUT_SPEED = 1;
   private static final double PULL_IN_SPEED = 0.2;
   private static final double STOP_SPEED = 0;
-  private static final double DELAY = 100;
+
+  //continue running the servos briefly after we see the sample
+  //to ensure it is *centered* within the intake
+  private static final int CENTER_DELAY = 200;
+  private static final int EJECT_DELAY = 400;
 
   public enum Direction
   {
@@ -114,10 +119,13 @@ public class Intake extends AbstractModule
 
     float hue = hsvValues[ 0 ];
 
-     if( hue < 15 || hue > 325 )
+    //~20
+     if( hue < 25 || hue > 325 )
     { return ObservedObject.RED_SAMPLE; }
-    else if( hue > 30 && hue < 75 )
+     //~85
+    else if( hue > 70 && hue < 100 )
     { return ObservedObject.YELLOW_SAMPLE; }
+    //~210
     else if( hue > 195 && hue < 265 )
     { return ObservedObject.BLUE_SAMPLE; }
 
@@ -167,6 +175,8 @@ public class Intake extends AbstractModule
       // actually looking at. For this reason, it's better to err on the side of a lower gain
       // (but always greater than  or equal to 1).
       colorSensor.setGain( 2 );
+
+      updateColorAndDistance();
     }
   }
 
@@ -252,37 +262,35 @@ public class Intake extends AbstractModule
     switch( currentAction )
     {
       case PULL_IN_SAMPLE_FROM_IN_FRONT:
-        if( sampleDetected )
-        {
-          stop();
-          return true;
-        }
-        break;
-
-      //delay turning off servos until after the sample has a chance to be pulled in
       case PULL_IN_SAMPLE_FROM_BEHIND:
+        //ensure sample is centered before turning off servos
         if( sampleDetected )
         {
           currentAction = CurrentAction.TURN_OFF_AFTER_DELAY;
           time.reset();
+          delay = CENTER_DELAY;
+          return true;
+        }
+        break;
+
+      case SPIT_OUT_SAMPLE_IN_FRONT:
+      case SPIT_OUT_SAMPLE_BEHIND:
+        //ensure sample is full ejected before turning off servos
+        if( !sampleDetected )
+        {
+          currentAction = CurrentAction.TURN_OFF_AFTER_DELAY;
+          time.reset();
+          delay = EJECT_DELAY;
+          return false;
         }
         break;
 
       case TURN_OFF_AFTER_DELAY:
-        if( time.milliseconds() >= DELAY )
+        if( time.milliseconds() >= delay )
         {
           stop();
-          return true;
+          return false;
         }
-
-      case SPIT_OUT_SAMPLE_IN_FRONT:
-      case SPIT_OUT_SAMPLE_BEHIND:
-        if( !sampleDetected )
-        {
-          stop();
-          return true;
-        }
-        break;
 
       case DOING_NOTHING:
         break;
@@ -293,7 +301,6 @@ public class Intake extends AbstractModule
 
   //Prints out the extension arm motor position
   @Override
-
   public void printTelemetry()
   {
     printServo( "Left Intake Servo", leftServo );
@@ -317,37 +324,9 @@ public class Intake extends AbstractModule
     if ( !colorKnown )
     { updateColorAndDistance(); }
 
-    // Update the hsvValues array by passing it to Color.colorToHSV()
-    Color.colorToHSV( colors.toColor(), hsvValues );
-
-    //    telemetry.addLine().addData( "Red", "%.3f", colors.red ).addData( "Green", "%.3f", colors.green ).addData( "Blue", "%.3f", colors.blue );
     telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] );
-
-    /* If this color sensor also has a distance sensor, display the measured distance.
-     * Note that the reported distance is only useful at very close range, and is impacted by
-     * ambient light and surface reflectivity. */
-    if( colorSensor != null && colorSensor instanceof DistanceSensor )
-    {
-      telemetry.addData( "Distance (cm)", "%.3f", distance );
-    }
-
-    switch( getObservedObject() )
-    {
-      case RED_SAMPLE:
-        telemetry.addLine( "Red sample");
-        break;
-      case BLUE_SAMPLE:
-        telemetry.addLine( "Blue sample");
-        break;
-      case YELLOW_SAMPLE:
-        telemetry.addLine( "Yellow sample");
-        break;
-      case NOTHING:
-        telemetry.addLine( "No sample");
-        break;
-    }
-
+    telemetry.addData( "Distance (cm)", "%.3f", distance );
+    telemetry.addData( "Observed:", "%s", getObservedObject() );
     telemetry.addData( "Current Action:", "%s", currentAction );
   }
-
 }

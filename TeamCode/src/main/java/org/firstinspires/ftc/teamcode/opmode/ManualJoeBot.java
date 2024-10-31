@@ -82,8 +82,11 @@ public class ManualJoeBot extends OpMode
     //==================
     //Extension Arm
     //==================
+    robot.extensionArm().updateState();
+
     //Fully extend - B + Y
-    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.Y ) ) )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.Y ) ) &&
+        !robot.lift().isHigh() )
     {
       robot.extensionArm().fullyExtend();
       addMessage( "Fully extend arm" );
@@ -92,8 +95,9 @@ public class ManualJoeBot extends OpMode
     else if( gamepad2.y )
 //    else if( gamepads.buttonDown( Participant.OPERATOR, Button.Y ) )
     {
-      robot.extensionArm().manuallyExtend();
-      addMessage( "Manually extend arm" );
+      boolean liftIsHigh = robot.lift().isHigh();
+      if( robot.extensionArm().manuallyExtend( liftIsHigh ) )
+      { addMessage( "Manually extend arm" ); }
     }
 
     //Full retract - B + A
@@ -106,30 +110,32 @@ public class ManualJoeBot extends OpMode
     else if( gamepad2.a )
 //    else if( gamepads.buttonDown( Participant.OPERATOR, Button.A ) )
     {
-      robot.extensionArm().manuallyRetract();
-      addMessage( "Manually retract arm" );
+      if( robot.extensionArm().manuallyRetract() )
+      { addMessage( "Manually retract arm" ); }
     }
 
     //==================
     //Lift
     //==================
+    robot.lift().updateState();
+
     //High basket - x + dpad_up
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) )
     {
-      robot.lift().travelTo( Lift.Position.HIGH_BASKET );
-      addMessage( "Move Lift to High Basket" );
+      if( robot.lift().travelTo( Lift.Position.HIGH_BASKET ) )
+      { addMessage( "Move Lift to High Basket" ); }
     }
     //Low basket - x + dpad_down
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) )
     {
-      robot.lift().travelTo( Lift.Position.LOW_BASKET );
-      addMessage( "Move Lift to Low Basket" );
+      if( robot.lift().travelTo( Lift.Position.LOW_BASKET ) )
+      { addMessage( "Move Lift to Low Basket" ); }
     }
     //Move lift to bottom - x + a
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.A, Button.X ) ) )
     {
-      robot.lift().travelTo( Lift.Position.FLOOR );
-      addMessage( "Move Lift to Floor" );
+      if( robot.lift().travelTo( Lift.Position.FLOOR ) )
+      { addMessage( "Move Lift to Floor" ); }
     }
     //Climbing - x + dpad_right
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_RIGHT, Button.X ) ) )
@@ -138,32 +144,32 @@ public class ManualJoeBot extends OpMode
       addMessage( "Climb" );
     }
     //Raise lift slow (high torque) - dpad_up + b
-    else if( gamepad2.dpad_up && gamepad2.b )
+    else if( gamepad2.dpad_up && gamepad2.b && !gamepad2.x )
 //    else if( gamepads.buttonsDown( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.B ) ) )
     {
-      robot.lift().slowLift();
-      telemetry.addLine( "Raise lift slow" );
+      if( robot.lift().slowLift() )
+      { telemetry.addLine( "Raise lift slow" ); }
     }
     //Lower lift slow (high torque) - dpad_down + b
-    else if( gamepad2.dpad_down && gamepad2.b )
+    else if( gamepad2.dpad_down && gamepad2.b && !gamepad2.x )
 //    else if( gamepads.buttonsDown( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.B ) ) )
     {
-      robot.lift().slowDrop();
-      telemetry.addLine( "Lower lift slow" );
+      if( robot.lift().slowDrop() )
+      { telemetry.addLine( "Lower lift slow" ); }
     }
     //Raise lift fast - dpad_up
-    else if( gamepad2.dpad_up )
+    else if( gamepad2.dpad_up && !gamepad2.x )
     //    else if( gamepads.buttonDown( Participant.OPERATOR, Button.DPAD_UP ) )
     {
-      robot.lift().fastLift();
-      telemetry.addLine( "Raise lift fast" );
+      if( robot.lift().fastLift() )
+      { telemetry.addLine( "Raise lift fast" ); }
     }
     //Lower lift fast- dpad_down
-    else if( gamepad2.dpad_down )
+    else if( gamepad2.dpad_down && !gamepad2.x )
 //    else if( gamepads.buttonDown( Participant.OPERATOR, Button.DPAD_DOWN ) )
     {
-      robot.lift().fastDrop();
-      telemetry.addLine( "Lower lift fast" );
+      if( robot.lift().fastDrop() )
+      { telemetry.addLine( "Lower lift fast" ); }
     }
 
     //==================
@@ -181,7 +187,7 @@ public class ManualJoeBot extends OpMode
     if( gamepad2.left_stick_y > 0 &&
         //prevent sucking in a sample if the lift is in the air
         //to avoid dumping into the robot
-        robot.lift().liftPosition() > 200 )
+        robot.lift().liftPosition() < 200 )
     {
       robot.intake().pullSampleBack();
     }
