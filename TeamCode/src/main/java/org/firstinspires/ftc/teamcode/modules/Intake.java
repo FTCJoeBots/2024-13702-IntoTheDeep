@@ -32,6 +32,7 @@ public class Intake extends AbstractModule
   private double distance = Double.NaN;
 
   private ElapsedTime time = null;
+  private int delay = 0;
 
   private static final double SPIT_OUT_SPEED = 1;
   private static final double PULL_IN_SPEED = 0.2;
@@ -39,7 +40,8 @@ public class Intake extends AbstractModule
 
   //continue running the servos briefly after we see the sample
   //to ensure it is *centered* within the intake
-  private static final double DELAY = 250;
+  private static final int CENTER_DELAY = 200;
+  private static final int EJECT_DELAY = 400;
 
   public enum Direction
   {
@@ -266,6 +268,7 @@ public class Intake extends AbstractModule
         {
           currentAction = CurrentAction.TURN_OFF_AFTER_DELAY;
           time.reset();
+          delay = CENTER_DELAY;
           return true;
         }
         break;
@@ -277,12 +280,13 @@ public class Intake extends AbstractModule
         {
           currentAction = CurrentAction.TURN_OFF_AFTER_DELAY;
           time.reset();
+          delay = EJECT_DELAY;
           return false;
         }
         break;
 
       case TURN_OFF_AFTER_DELAY:
-        if( time.milliseconds() >= DELAY )
+        if( time.milliseconds() >= delay )
         {
           stop();
           return false;
@@ -297,7 +301,6 @@ public class Intake extends AbstractModule
 
   //Prints out the extension arm motor position
   @Override
-
   public void printTelemetry()
   {
     printServo( "Left Intake Servo", leftServo );
@@ -326,5 +329,4 @@ public class Intake extends AbstractModule
     telemetry.addData( "Observed:", "%s", getObservedObject() );
     telemetry.addData( "Current Action:", "%s", currentAction );
   }
-
 }
