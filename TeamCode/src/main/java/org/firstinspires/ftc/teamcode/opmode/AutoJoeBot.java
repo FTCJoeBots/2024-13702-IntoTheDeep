@@ -41,7 +41,6 @@ import org.firstinspires.ftc.teamcode.modules.Lift;
 import java.util.List;
 
 @Autonomous( name = "Auto Joe Bot", group = "Robot" )
-@Disabled
 public class AutoJoeBot extends OpMode
 {
   ElapsedTime time = null;
