@@ -8,12 +8,14 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends AbstractModule
 {
-  public static final double SLOW_SPEED = 0.2;
-  public static final double FAST_SPEED = 0.8;
+  public static final double SLOW_SPEED_UP = 0.4;
+  public static final double SLOW_SPEED_DOWN = 0.15;
 
-  public static final int MANUAL_POSITION_ADJUST = 80;
+  public static final double FAST_SPEED_UP = 1.0;
+  public static final double FAST_SPEED_DOWN = 1.0;
 
-  private int liftCurPosition = 0;
+  public static final int ADJUST_UP   = 400;
+  public static final int ADJUST_DOWN = 200;
 
   //Preset positions we can extend the arm to
   public enum Position
@@ -30,7 +32,8 @@ public class Lift extends AbstractModule
     ABOVE_HIGH_HANG_BAR( 8060 ),
     ABOVE_LOW_HANG_BAR( 4663 ),
     HANG_FROM_HIGH_HANG_BAR ( 7216 ),
-    HANG_FROM_LOW_HANG_BAR( 3889 );
+    HANG_FROM_LOW_HANG_BAR( 3889 ),
+    HIGH_UP( 2000 );
 
     Position( int value )
     {
@@ -42,6 +45,14 @@ public class Lift extends AbstractModule
 
   DcMotor leftMotor = null;
   DcMotor rightMotor = null;
+
+  private enum Action
+  {
+    MOVING,
+    STOPPED
+  }
+
+  private Action currentAction = Action.STOPPED;
 
   public Lift( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -63,34 +74,62 @@ public class Lift extends AbstractModule
     initMotor( rightMotor, runMode, DcMotorSimple.Direction.REVERSE );
   }
 
+  public boolean isHigh()
+  {
+    return liftPosition() > Position.HIGH_UP.value;
+  }
+
   public int liftPosition()
   {
     int leftPosition  = leftMotor.getCurrentPosition();
-    int rightPosition = rightMotor.getCurrentPosition();
+    return leftPosition;
 
-    return Math.round( ( leftPosition + rightPosition ) / 2.0f );
   }
 
-  private void cacheLiftPosition()
+  private boolean turnMotors( DcMotorSimple.Direction direction, double power )
   {
-    liftCurPosition = liftPosition();
-  }
+    if( power <= 0 )
+    {
+      stop();
+      return false;
+    }
 
-  private void turnMotor( DcMotor motor, DcMotorSimple.Direction direction, double speed )
-  {
-    int liftNewPosition = liftCurPosition + ( direction == DcMotorSimple.Direction.FORWARD ? 1 : -1 ) * MANUAL_POSITION_ADJUST;
+    int liftCurPosition = liftPosition();
+    int liftNewPosition = direction == DcMotorSimple.Direction.FORWARD ?
+                          liftCurPosition + ADJUST_UP :
+                          liftCurPosition - ADJUST_DOWN;
 
+    //Prevent moving too far
     if( liftNewPosition > Position.HIGH_BASKET.value )
     {
       liftNewPosition = Position.HIGH_BASKET.value;
     }
-
-    if( liftNewPosition < Position.FLOOR.value )
+    else if( liftNewPosition < Position.FLOOR.value )
     {
       liftNewPosition = Position.FLOOR.value;
     }
 
-    setMotorPosition( motor, liftNewPosition, speed );
+    // Ensure we continue to lift to preset position as we release buttons
+    if( currentAction == Action.MOVING )
+    {
+      if( direction == DcMotorSimple.Direction.FORWARD && liftNewPosition <= leftMotor.getTargetPosition() )
+      { return false; }
+
+      if( direction == DcMotorSimple.Direction.REVERSE && liftNewPosition >= leftMotor.getTargetPosition() )
+      { return false; }
+    }
+
+    if( liftNewPosition != leftMotor.getCurrentPosition() ||
+        liftNewPosition != rightMotor.getCurrentPosition() )
+    {
+      setMotorPosition( leftMotor, liftNewPosition, power );
+      setMotorPosition( rightMotor, liftNewPosition, power );
+      Action cachedAction = currentAction;
+      currentAction = Action.MOVING;
+      return currentAction != cachedAction;
+    }
+    else
+    { return false; }
   }
 
   private void setMotorPosition( DcMotor motor, int position, double power )
@@ -102,51 +141,84 @@ public class Lift extends AbstractModule
     motor.setPower( power );
   }
 
-  public void fastLift()
+  public boolean fastLift()
   {
-    cacheLiftPosition();
-    turnMotor( leftMotor, DcMotorSimple.Direction.FORWARD, FAST_SPEED );
-    turnMotor( rightMotor, DcMotorSimple.Direction.FORWARD, FAST_SPEED );
+    return turnMotors( DcMotorSimple.Direction.FORWARD, FAST_SPEED_UP );
   }
 
-  public void fastDrop()
+  public boolean fastDrop()
   {
-    cacheLiftPosition();
-    turnMotor( leftMotor, DcMotorSimple.Direction.REVERSE, FAST_SPEED );
-    turnMotor( rightMotor, DcMotorSimple.Direction.REVERSE, FAST_SPEED );
+    return turnMotors( DcMotorSimple.Direction.REVERSE, FAST_SPEED_DOWN );
   }
 
-  public void slowLift()
+  public boolean slowLift()
   {
-    cacheLiftPosition();
-    turnMotor( leftMotor, DcMotorSimple.Direction.FORWARD, SLOW_SPEED );
-    turnMotor( rightMotor, DcMotorSimple.Direction.FORWARD, SLOW_SPEED );
+    return turnMotors( DcMotorSimple.Direction.FORWARD, SLOW_SPEED_UP );
   }
 
   //manual down
-  public void slowDrop()
+  public boolean slowDrop()
   {
-    cacheLiftPosition();
-    turnMotor( leftMotor, DcMotorSimple.Direction.REVERSE, SLOW_SPEED );
-    turnMotor( rightMotor, DcMotorSimple.Direction.REVERSE, SLOW_SPEED );
+    return turnMotors( DcMotorSimple.Direction.REVERSE, SLOW_SPEED_DOWN );
   }
 
-  public void travelTo( Position position )
+  public boolean travelTo( Position position )
   {
-    setMotorPosition( leftMotor, position.value, FAST_SPEED );
-    setMotorPosition( rightMotor, position.value, FAST_SPEED );
+    double speed = liftPosition() < position.value ?
+                   FAST_SPEED_UP :
+                   FAST_SPEED_DOWN;
+
+    setMotorPosition( leftMotor, position.value, speed );
+    setMotorPosition( rightMotor, position.value, speed );
+    currentAction = Action.MOVING;
+
+    //TODO - only return true if actually doing something
+    return true;
   }
 
   public void climb()
   {
-    setMotorPosition( leftMotor, Position.ABOVE_LOW_HANG_BAR.value, SLOW_SPEED );
-    setMotorPosition( rightMotor, Position.ABOVE_LOW_HANG_BAR.value, SLOW_SPEED );
+    int position = Position.ABOVE_LOW_HANG_BAR.value;
+    double speed = liftPosition() < position ?
+                   SLOW_SPEED_UP :
+                   SLOW_SPEED_DOWN;
+
+    setMotorPosition( leftMotor, Position.ABOVE_LOW_HANG_BAR.value, speed );
+    setMotorPosition( rightMotor, Position.ABOVE_LOW_HANG_BAR.value, speed );
+  }
+
+  public void stop()
+  {
+    leftMotor.setTargetPosition( leftMotor.getCurrentPosition() );
+    leftMotor.setPower( 1 );
+    rightMotor.setTargetPosition( rightMotor.getCurrentPosition() );
+    rightMotor.setPower( 1 );
+//    super.stop();
+    currentAction = Action.STOPPED;
+  }
+
+  public void
+  updateState()
+  {
+    if( currentAction == Action.MOVING &&
+        Math.abs( leftMotor.getCurrentPosition() - leftMotor.getTargetPosition() ) <= 1 &&
+        Math.abs( rightMotor.getCurrentPosition() - rightMotor.getTargetPosition() ) <= 1 )
+    {
+//      telemetry.log().add( String.format( "LTP: %s", leftMotor.getTargetPosition() ) );
+//      telemetry.log().add( String.format( "LCP: %s", leftMotor.getCurrentPosition() ) );
+//      telemetry.log().add( String.format( "RTP: %s", rightMotor.getTargetPosition() ) );
+//      telemetry.log().add( String.format( "RCP: %s", rightMotor.getCurrentPosition() ) );
+      stop();
+//      telemetry.log().add( "Lift Stopped" );
+    }
   }
 
   //Prints out the extension arm motor position
   @Override
   public void printTelemetry()
   {
+    telemetry.addLine( String.format( "Lift Action: %s", currentAction ) );
+
     if( leftMotor != null )
     { telemetry.addLine( String.format( "Left Lift Motor: %s", leftMotor.getCurrentPosition() ) ); }
 

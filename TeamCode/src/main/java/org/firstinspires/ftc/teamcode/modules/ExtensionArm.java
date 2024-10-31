@@ -19,7 +19,8 @@ public class ExtensionArm extends AbstractModule
     FULLY_RETRACTED( 0 ),
     RETRACTED_WITH_SAMPLE( 47 ),
     FULLY_EXTENDED( 2876 ),
-    EXTEND_TO_HANG( 834 );
+    EXTEND_TO_HANG( 834 ),
+    MAX_EXTENSION_WHILE_HIGH( 1000 );
 
     Position( int value )
     {
@@ -45,11 +46,29 @@ public class ExtensionArm extends AbstractModule
     public final double value;
   }
 
+  private enum Action
+  {
+    MOVING,
+    STOPPED
+  }
+
+  private Action currentAction = Action.STOPPED;
+
   public ExtensionArm( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( hardwareMap, telemetry );
     initObjects();
     initState();
+  }
+
+  public void updateState()
+  {
+    if( currentAction == Action.MOVING &&
+      Math.abs( extensionArmMotor.getCurrentPosition() - extensionArmMotor.getTargetPosition() ) <= 1 )
+    {
+      stop();
+      telemetry.log().add( "Extension Arm Stopped" );
+    }
   }
 
   public void fullyExtend()
@@ -62,64 +81,87 @@ public class ExtensionArm extends AbstractModule
     setTargetPositionAndPower( Position.FULLY_RETRACTED.value, Speed.RETRACT.value );
   }
 
-  //Extends the arm slightly
-  public void manuallyExtend()
+  public boolean manuallyExtend( boolean liftIsHigh )
   {
-    if( extensionArmMotor == null )
-    { return; }
+    int nextPosition = extensionArmMotor.getCurrentPosition() + MANUAL_POSITION_ADJUST;
 
-    final int currPosition = extensionArmMotor.getCurrentPosition();
-    int nextPosition = currPosition + MANUAL_POSITION_ADJUST;
+    if( liftIsHigh )
+    { nextPosition = Math.min( nextPosition, Position.MAX_EXTENSION_WHILE_HIGH.value ); }
 
-    //Prevent the extension arm from extending too far
-    if( nextPosition > Position.FULLY_EXTENDED.value )
-    { nextPosition = Position.FULLY_EXTENDED.value; }
+    // Ensure we continue to extend fully
+    if( currentAction != Action.MOVING ||
+        nextPosition > extensionArmMotor.getTargetPosition() )
+    {
+      Action cachedAction = currentAction;
+      setTargetPositionAndPower( nextPosition, Speed.MANUAL_EXTEND.value );
+      return currentAction != cachedAction;
+    }
+    else
+    {
+      return false;
+    }
+  }
 
-    if( nextPosition >= extensionArmMotor.getTargetPosition() )
-    { setTargetPositionAndPower( nextPosition, Speed.MANUAL_EXTEND.value ); }
+  public boolean manuallyRetract()
+  {
+    int nextPosition = extensionArmMotor.getCurrentPosition() - MANUAL_POSITION_ADJUST;
+
+    // Ensure we continue to retract fully
+    if( currentAction != Action.MOVING ||
+        nextPosition < extensionArmMotor.getTargetPosition() )
+    {
+      Action cachedAction = currentAction;
+      setTargetPositionAndPower( nextPosition, Speed.MANUAL_RETRACT.value );
+      return currentAction != cachedAction;
+    }
+    else
+    {
+      return false;
+    }
   }
 
   private void setTargetPositionAndPower( int position, double power )
   {
-    if( extensionArmMotor == null )
-    { return; }
+    if( power <= 0 )
+    {
+      stop();
+      return;
+    }
 
-    extensionArmMotor.setTargetPosition( position );
-    extensionArmMotor.setPower( power );
+    //Prevent moving too far
+    if( position > Position.FULLY_EXTENDED.value )
+    {
+      position = Position.FULLY_EXTENDED.value;
+    }
+    else if( position < Position.FULLY_RETRACTED.value )
+    {
+      position = Position.FULLY_RETRACTED.value;
+    }
+
+    if( position != extensionArmMotor.getCurrentPosition() )
+    {
+      extensionArmMotor.setTargetPosition( position );
+      extensionArmMotor.setPower( power );
+      currentAction = Action.MOVING;
+    }
   }
 
-  //Retracts the arm slightly
-  public void manuallyRetract()
+  public void stop()
   {
-    if( extensionArmMotor == null )
-    { return; }
-
-    final int currPosition = extensionArmMotor.getCurrentPosition();
-    int nextPosition = currPosition - MANUAL_POSITION_ADJUST;
-
-    //Prevent the extension arm from retracting too far
-    if( nextPosition < Position.FULLY_RETRACTED.value )
-    { nextPosition = Position.FULLY_RETRACTED.value; }
-
-    if( nextPosition < extensionArmMotor.getTargetPosition() )
-    { setTargetPositionAndPower( nextPosition, Speed.MANUAL_RETRACT.value ); }
+    super.stop();
+    currentAction = Action.STOPPED;
   }
 
   //Prints out the extension arm motor position
   @Override
   public void printTelemetry()
   {
-    if( extensionArmMotor == null )
-    { return; }
-
-    telemetry.addLine( String.format( "Extension Arm: %s", getMotorPosition() ) );
+    telemetry.addLine( String.format( "Extension Arm Action: %s", currentAction ) );
+    telemetry.addLine( String.format( "Extension Arm Position: %s", getMotorPosition() ) );
   }
 
   public int getMotorPosition()
   {
-    if( extensionArmMotor == null )
-    { return 0; }
-
     return extensionArmMotor.getCurrentPosition();
   }
 
@@ -130,9 +172,6 @@ public class ExtensionArm extends AbstractModule
 
   private void initState()
   {
-    if( extensionArmMotor == null )
-    { return; }
-
     initMotor( extensionArmMotor, DcMotor.RunMode.RUN_TO_POSITION, DcMotorSimple.Direction.REVERSE );
     extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
   }
