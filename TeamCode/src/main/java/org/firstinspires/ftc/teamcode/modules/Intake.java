@@ -321,36 +321,9 @@ public class Intake extends AbstractModule
     if ( !colorKnown )
     { updateColorAndDistance(); }
 
-    // Update the hsvValues array by passing it to Color.colorToHSV()
-    Color.colorToHSV( colors.toColor(), hsvValues );
-
-    //    telemetry.addLine().addData( "Red", "%.3f", colors.red ).addData( "Green", "%.3f", colors.green ).addData( "Blue", "%.3f", colors.blue );
     telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] );
-
-    /* If this color sensor also has a distance sensor, display the measured distance.
-     * Note that the reported distance is only useful at very close range, and is impacted by
-     * ambient light and surface reflectivity. */
-    if( colorSensor != null && colorSensor instanceof DistanceSensor )
-    {
-      telemetry.addData( "Distance (cm)", "%.3f", distance );
-    }
-
-    switch( getObservedObject() )
-    {
-      case RED_SAMPLE:
-        telemetry.addLine( "Red sample");
-        break;
-      case BLUE_SAMPLE:
-        telemetry.addLine( "Blue sample");
-        break;
-      case YELLOW_SAMPLE:
-        telemetry.addLine( "Yellow sample");
-        break;
-      case NOTHING:
-        telemetry.addLine( "No sample");
-        break;
-    }
-
+    telemetry.addData( "Distance (cm)", "%.3f", distance );
+    telemetry.addData( "Observed:", "%s", getObservedObject() );
     telemetry.addData( "Current Action:", "%s", currentAction );
   }
 
