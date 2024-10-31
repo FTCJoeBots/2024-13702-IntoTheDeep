@@ -8,14 +8,24 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends AbstractModule
 {
-  public static final double SLOW_SPEED_UP = 0.4;
-  public static final double SLOW_SPEED_DOWN = 0.15;
+  private static final double COAST = 0;
+  private static final double SLOW_SPEED_UP = 0.4;
+  private static final double SLOW_SPEED_DOWN = 0.15;
 
-  public static final double FAST_SPEED_UP = 1.0;
-  public static final double FAST_SPEED_DOWN = 1.0;
+  private static final double FAST_SPEED_UP = 1.0;
+  private static final double FAST_SPEED_DOWN = 1.0;
 
-  public static final int ADJUST_UP   = 400;
-  public static final int ADJUST_DOWN = 200;
+  private static final int ADJUST_UP   = 200;
+  private static final int ADJUST_DOWN = 200;
+
+  //coast down until we are close to our target
+  private static final int FAR_AWAY = 1000;
+
+  //only coast down above a minimum height since
+  //gravity does not seem to cause the lift as we get close
+  //to the bottom and it is necessary to use the motors to pull the lift
+  //the rest of the way down.
+  private static final int MINIMUM_COAST_HEIGHT = 3000;
 
   //Preset positions we can extend the arm to
   public enum Position
@@ -53,6 +63,7 @@ public class Lift extends AbstractModule
   }
 
   private Action currentAction = Action.STOPPED;
+  private double currentPower = 0;
 
   public Lift( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -94,14 +105,14 @@ public class Lift extends AbstractModule
     return turnMotors( DcMotorSimple.Direction.FORWARD, FAST_SPEED_UP );
   }
 
-  public boolean fastDrop()
-  {
-    return turnMotors( DcMotorSimple.Direction.REVERSE, FAST_SPEED_DOWN );
-  }
-
   public boolean slowLift()
   {
     return turnMotors( DcMotorSimple.Direction.FORWARD, SLOW_SPEED_UP );
+  }
+
+  public boolean fastDrop()
+  {
+    return turnMotors( DcMotorSimple.Direction.REVERSE, FAST_SPEED_DOWN );
   }
 
   public boolean slowDrop()
@@ -136,27 +147,34 @@ public class Lift extends AbstractModule
 
   public void stop()
   {
+    //set motors to hold the current position with full power to avoid slipping
     leftMotor.setTargetPosition( leftMotor.getCurrentPosition() );
     leftMotor.setPower( 1 );
     rightMotor.setTargetPosition( rightMotor.getCurrentPosition() );
     rightMotor.setPower( 1 );
-//    super.stop();
     currentAction = Action.STOPPED;
   }
 
-  public void
-  updateState()
+  public void updateState()
   {
-    if( currentAction == Action.MOVING &&
-        Math.abs( leftMotor.getCurrentPosition() - leftMotor.getTargetPosition() ) <= 1 &&
-        Math.abs( rightMotor.getCurrentPosition() - rightMotor.getTargetPosition() ) <= 1 )
+    if( currentAction != Action.MOVING )
+    { return; }
+
+    int leftDiff = Math.abs( leftMotor.getCurrentPosition() - leftMotor.getTargetPosition() );
+    int rightDiff = Math.abs( rightMotor.getCurrentPosition() - rightMotor.getTargetPosition() );
+
+    //stop once we get close to our target position
+    if( leftDiff <= 1 &&
+      rightDiff <= 1 )
+    { stop(); }
+
+    //switch from floating to using power once we get close to our target position
+    else if( currentPower == 0 &&
+             ( liftPosition() <= MINIMUM_COAST_HEIGHT ||
+               Math.min( leftDiff, rightDiff ) < FAR_AWAY ) )
     {
-//      telemetry.log().add( String.format( "LTP: %s", leftMotor.getTargetPosition() ) );
-//      telemetry.log().add( String.format( "LCP: %s", leftMotor.getCurrentPosition() ) );
-//      telemetry.log().add( String.format( "RTP: %s", rightMotor.getTargetPosition() ) );
-//      telemetry.log().add( String.format( "RCP: %s", rightMotor.getCurrentPosition() ) );
-      stop();
-//      telemetry.log().add( "Lift Stopped" );
+      leftMotor.setPower( currentPower );
+      rightMotor.setPower( currentPower );
     }
   }
 
@@ -183,8 +201,8 @@ public class Lift extends AbstractModule
 
     int liftCurPosition = liftPosition();
     int liftNewPosition = direction == DcMotorSimple.Direction.FORWARD ?
-      liftCurPosition + ADJUST_UP :
-      liftCurPosition - ADJUST_DOWN;
+                          liftCurPosition + ADJUST_UP :
+                          liftCurPosition - ADJUST_DOWN;
 
     //Prevent moving too far
     if( liftNewPosition > Position.HIGH_BASKET.value )
@@ -207,8 +225,19 @@ public class Lift extends AbstractModule
     }
 
     if( liftNewPosition != leftMotor.getCurrentPosition() ||
-      liftNewPosition != rightMotor.getCurrentPosition() )
+        liftNewPosition != rightMotor.getCurrentPosition() )
     {
+      currentPower = power;
+
+      //it is smoother if we coast downwards until we get
+      //close to our target position
+      if( direction == DcMotorSimple.Direction.REVERSE &&
+          liftCurPosition > MINIMUM_COAST_HEIGHT &&
+          Math.abs( liftNewPosition - liftCurPosition ) > FAR_AWAY )
+      {
+        power = COAST;
+      }
+
       setMotorPosition( leftMotor, liftNewPosition, power );
       setMotorPosition( rightMotor, liftNewPosition, power );
       Action cachedAction = currentAction;
