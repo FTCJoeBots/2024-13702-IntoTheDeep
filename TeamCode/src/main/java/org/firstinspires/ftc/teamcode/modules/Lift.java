@@ -90,6 +90,11 @@ public class Lift extends AbstractModule
     return liftPosition() > Position.HIGH_UP.value;
   }
 
+  public boolean isMoving()
+  {
+    return currentAction == Action.MOVING;
+  }
+
   public int liftPosition()
   {
     int leftPosition  = leftMotor.getCurrentPosition();

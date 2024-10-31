@@ -137,6 +137,17 @@ public class ManualJoeBot extends OpMode
       if( robot.lift().travelTo( Lift.Position.FLOOR ) )
       { addMessage( "Move Lift to Floor" ); }
     }
+
+    //###
+    //Test running a series of actions, this will block driving and currently cannot be
+    //terminated manually
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_LEFT, Button.X ) ) )
+    {
+      addMessage( "Running Test Lift Sequence" );
+      robot.runTestLiftSequence();
+    }
+    //###
+
     //Climbing - x + dpad_right
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_RIGHT, Button.X ) ) )
     {

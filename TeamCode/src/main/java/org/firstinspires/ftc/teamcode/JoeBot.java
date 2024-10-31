@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.actions.MoveLift;
 import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
@@ -44,5 +47,17 @@ public class JoeBot
     lift.stop();
     intake.stop();
     drive.stop();
+  }
+
+  public void runTestLiftSequence()
+  {
+    Actions.runBlocking(
+      new SequentialAction(
+        new MoveLift( lift, Lift.Position.LOW_BASKET ),
+        new MoveLift( lift, Lift.Position.FLOOR ),
+        new MoveLift( lift, Lift.Position.HIGH_BASKET ),
+        new MoveLift( lift, Lift.Position.FLOOR )
+      )
+    );
   }
 }
