@@ -14,11 +14,12 @@ public class ExtensionArm extends AbstractModule
   private static final int MANUAL_POSITION_ADJUST = 100;
 
   //Preset positions we can extend the arm to
-  private enum Position
+  public enum Position
   {
     FULLY_RETRACTED( 0 ),
     RETRACTED_WITH_SAMPLE( 47 ),
     FULLY_EXTENDED( 2876 ),
+    EXREND_TO_DUMP_IN_BASKET( 100 ),
     EXTEND_TO_HANG( 834 ),
     MAX_EXTENSION_WHILE_HIGH( 1000 );
 
@@ -33,10 +34,8 @@ public class ExtensionArm extends AbstractModule
   //Various speeds for extending and retracting the arm
   private enum Speed
   {
-    EXTEND( 0.9 ),
-    RETRACT( 0.9 ),
-    MANUAL_EXTEND( 0.3 ),
-    MANUAL_RETRACT( 0.3 );
+    FAST( 1.0 ),
+    MANUAL( 0.5 );
 
     Speed( double value )
     {
@@ -61,6 +60,11 @@ public class ExtensionArm extends AbstractModule
     initState();
   }
 
+  public boolean isMoving()
+  {
+    return currentAction == Action.MOVING;
+  }
+
   public void updateState()
   {
     if( currentAction == Action.MOVING &&
@@ -73,12 +77,17 @@ public class ExtensionArm extends AbstractModule
 
   public void fullyExtend()
   {
-    setTargetPositionAndPower( Position.FULLY_EXTENDED.value, Speed.EXTEND.value );
+    setTargetPositionAndPower( Position.FULLY_EXTENDED.value, Speed.FAST.value );
   }
 
   public void fullyRetract()
   {
-    setTargetPositionAndPower( Position.FULLY_RETRACTED.value, Speed.RETRACT.value );
+    setTargetPositionAndPower( Position.FULLY_RETRACTED.value, Speed.FAST.value );
+  }
+
+  public void travelTo( Position position )
+  {
+    setTargetPositionAndPower( position.value, Speed.FAST.value );
   }
 
   public boolean manuallyExtend( boolean liftIsHigh )
@@ -93,7 +102,7 @@ public class ExtensionArm extends AbstractModule
         nextPosition > extensionArmMotor.getTargetPosition() )
     {
       Action cachedAction = currentAction;
-      setTargetPositionAndPower( nextPosition, Speed.MANUAL_EXTEND.value );
+      setTargetPositionAndPower( nextPosition, Speed.MANUAL.value );
       return currentAction != cachedAction;
     }
     else
@@ -111,7 +120,7 @@ public class ExtensionArm extends AbstractModule
         nextPosition < extensionArmMotor.getTargetPosition() )
     {
       Action cachedAction = currentAction;
-      setTargetPositionAndPower( nextPosition, Speed.MANUAL_RETRACT.value );
+      setTargetPositionAndPower( nextPosition, Speed.MANUAL.value );
       return currentAction != cachedAction;
     }
     else

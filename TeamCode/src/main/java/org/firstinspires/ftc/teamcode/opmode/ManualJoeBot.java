@@ -122,14 +122,16 @@ public class ManualJoeBot extends OpMode
     //High basket - x + dpad_up
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) )
     {
+//      robot.placeSampleInBasket( Lift.Position.HIGH_BASKET );
+
       if( robot.lift().travelTo( Lift.Position.HIGH_BASKET ) )
       { addMessage( "Move Lift to High Basket" ); }
     }
     //Low basket - x + dpad_down
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) )
     {
-      if( robot.lift().travelTo( Lift.Position.LOW_BASKET ) )
-      { addMessage( "Move Lift to Low Basket" ); }
+      robot.placeSampleInBasket( Lift.Position.LOW_BASKET );
+      addMessage( "Move Lift to Low Basket" );
     }
     //Move lift to bottom - x + a
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.A, Button.X ) ) )
@@ -137,16 +139,6 @@ public class ManualJoeBot extends OpMode
       if( robot.lift().travelTo( Lift.Position.FLOOR ) )
       { addMessage( "Move Lift to Floor" ); }
     }
-
-    //###
-    //Test running a series of actions, this will block driving and currently cannot be
-    //terminated manually
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_LEFT, Button.X ) ) )
-    {
-      addMessage( "Running Test Lift Sequence" );
-      robot.runTestLiftSequence();
-    }
-    //###
 
     //Climbing - x + dpad_right
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_RIGHT, Button.X ) ) )

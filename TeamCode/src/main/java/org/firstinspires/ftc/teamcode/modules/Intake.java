@@ -49,7 +49,7 @@ public class Intake extends AbstractModule
     PUSH
   }
 
-  public enum CurrentAction
+  public enum Action
   {
     PULL_IN_SAMPLE_FROM_IN_FRONT,
     PULL_IN_SAMPLE_FROM_BEHIND,
@@ -59,7 +59,7 @@ public class Intake extends AbstractModule
     DOING_NOTHING
   }
 
-  private CurrentAction currentAction = CurrentAction.DOING_NOTHING;
+  private Action currentAction = Action.DOING_NOTHING;
 
   public enum ObservedObject
   {
@@ -67,6 +67,21 @@ public class Intake extends AbstractModule
     BLUE_SAMPLE,
     YELLOW_SAMPLE,
     NOTHING
+  }
+
+  public boolean isMoving()
+  {
+    return currentAction != Action.DOING_NOTHING;
+  }
+
+  public void pullSampleBack()
+  {
+    turnOnServos( Direction.PULL );
+  }
+
+  public void pushSampleForward()
+  {
+    turnOnServos( Direction.PUSH );
   }
 
   public void resetColor()
@@ -198,26 +213,16 @@ public class Intake extends AbstractModule
     { rightServo.setPower( speed ); }
   }
 
-  public void pullSampleBack()
-  {
-    turnOnServos( Direction.PULL );
-  }
-
-  public void pushSampleForward()
-  {
-    turnOnServos( Direction.PUSH );
-  }
-
   private void turnOnServos( Direction direction )
   {
     if( direction == Direction.PULL &&
-        ( currentAction == CurrentAction.PULL_IN_SAMPLE_FROM_IN_FRONT ||
-          currentAction == CurrentAction.SPIT_OUT_SAMPLE_BEHIND ) )
+        ( currentAction == Action.PULL_IN_SAMPLE_FROM_IN_FRONT ||
+          currentAction == Action.SPIT_OUT_SAMPLE_BEHIND ) )
     { return; }
 
     if( direction == Direction.PUSH &&
-      ( currentAction == CurrentAction.SPIT_OUT_SAMPLE_IN_FRONT ||
-        currentAction == CurrentAction.PULL_IN_SAMPLE_FROM_BEHIND ) )
+      ( currentAction == Action.SPIT_OUT_SAMPLE_IN_FRONT ||
+        currentAction == Action.PULL_IN_SAMPLE_FROM_BEHIND ) )
     { return; }
 
     boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
@@ -225,14 +230,14 @@ public class Intake extends AbstractModule
     if( direction == Direction.PULL )
     {
       currentAction = sampleDetected ?
-                      CurrentAction.SPIT_OUT_SAMPLE_BEHIND :
-                      CurrentAction.PULL_IN_SAMPLE_FROM_IN_FRONT;
+                      Action.SPIT_OUT_SAMPLE_BEHIND :
+                      Action.PULL_IN_SAMPLE_FROM_IN_FRONT;
     }
     else
     {
       currentAction = sampleDetected ?
-                      CurrentAction.SPIT_OUT_SAMPLE_IN_FRONT :
-                      CurrentAction.PULL_IN_SAMPLE_FROM_BEHIND;
+                      Action.SPIT_OUT_SAMPLE_IN_FRONT :
+                      Action.PULL_IN_SAMPLE_FROM_BEHIND;
     }
 
     int    multiplier = direction == Direction.PULL ? -1 : 1;
@@ -248,13 +253,13 @@ public class Intake extends AbstractModule
   @Override
   public void stop()
   {
-    currentAction = CurrentAction.DOING_NOTHING;
+    currentAction = Action.DOING_NOTHING;
     super.stop();
   }
 
   public Boolean actUponColor()
   {
-    if( currentAction == CurrentAction.DOING_NOTHING )
+    if( currentAction == Action.DOING_NOTHING )
     { return false; }
 
     boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
@@ -266,7 +271,7 @@ public class Intake extends AbstractModule
         //ensure sample is centered before turning off servos
         if( sampleDetected )
         {
-          currentAction = CurrentAction.TURN_OFF_AFTER_DELAY;
+          currentAction = Action.TURN_OFF_AFTER_DELAY;
           time.reset();
           delay = CENTER_DELAY;
           return true;
@@ -278,7 +283,7 @@ public class Intake extends AbstractModule
         //ensure sample is full ejected before turning off servos
         if( !sampleDetected )
         {
-          currentAction = CurrentAction.TURN_OFF_AFTER_DELAY;
+          currentAction = Action.TURN_OFF_AFTER_DELAY;
           time.reset();
           delay = EJECT_DELAY;
           return false;

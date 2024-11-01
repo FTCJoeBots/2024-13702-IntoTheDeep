@@ -4,7 +4,9 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
+import org.firstinspires.ftc.teamcode.actions.OperateIntake;
 import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
@@ -49,13 +51,14 @@ public class JoeBot
     drive.stop();
   }
 
-  public void runTestLiftSequence()
+  public void placeSampleInBasket( Lift.Position position )
   {
     Actions.runBlocking(
       new SequentialAction(
-        new MoveLift( lift, Lift.Position.LOW_BASKET ),
-        new MoveLift( lift, Lift.Position.FLOOR ),
-        new MoveLift( lift, Lift.Position.HIGH_BASKET ),
+        new MoveLift( lift, position ),
+        new MoveExtensionArm( extensionArm, ExtensionArm.Position.EXREND_TO_DUMP_IN_BASKET ),
+        new OperateIntake( intake, Intake.Direction.PUSH ),
+        new MoveExtensionArm( extensionArm, ExtensionArm.Position.FULLY_RETRACTED ),
         new MoveLift( lift, Lift.Position.FLOOR )
       )
     );
