@@ -63,4 +63,20 @@ public class JoeBot
       )
     );
   }
+
+  public void hangSpecimen( boolean highBar )
+  {
+    //TODO
+  }
+
+  public void grabSample( boolean isSpecimen )
+  {
+    //TODO
+  }
+
+  public void climb()
+  {
+    //TODO
+  }
+
 }
