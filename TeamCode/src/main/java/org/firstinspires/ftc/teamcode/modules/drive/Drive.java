@@ -43,8 +43,8 @@ public class Drive extends AbstractModule
     DOING_NOTHING
   }
 
-  private double ANGLE_THRESHOLD = 2.0;
-  private double BREAKING_DISTANCE = 30;
+  private double ANGLE_THRESHOLD = 5;
+  private double BREAKING_DISTANCE = 20;
 
   private CurrentAction currentAction = CurrentAction.DOING_NOTHING;
   private Perspective perspective = Perspective.ROBOT;
@@ -146,10 +146,12 @@ public class Drive extends AbstractModule
 
   private double computeRotateSpeed( double angleDifference )
   {
-    if( angleDifference > BREAKING_DISTANCE )
-    { return  1; }
-    else
-    { return angleDifference / BREAKING_DISTANCE; }
+    double speed = 0.2;
+
+    if( angleDifference < BREAKING_DISTANCE )
+    { speed = speed * ( angleDifference / BREAKING_DISTANCE ); }
+
+    return speed;
   }
 
   public void move( double forward, double strafe, double rotate )
