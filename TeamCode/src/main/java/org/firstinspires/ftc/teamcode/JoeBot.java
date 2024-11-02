@@ -56,7 +56,7 @@ public class JoeBot
     Actions.runBlocking(
       new SequentialAction(
         new MoveLift( lift, position ),
-        new MoveExtensionArm( extensionArm, ExtensionArm.Position.EXREND_TO_DUMP_IN_BASKET ),
+        new MoveExtensionArm( extensionArm, ExtensionArm.Position.EXTEND_TO_DUMP_IN_BASKET ),
         new OperateIntake( intake, Intake.Direction.PUSH ),
         new MoveExtensionArm( extensionArm, ExtensionArm.Position.FULLY_RETRACTED ),
         new MoveLift( lift, Lift.Position.FLOOR )
