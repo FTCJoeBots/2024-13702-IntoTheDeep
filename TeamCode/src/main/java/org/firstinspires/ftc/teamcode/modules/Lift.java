@@ -19,13 +19,15 @@ public class Lift extends AbstractModule
   private static final int ADJUST_DOWN = 200;
 
   //coast down until we are close to our target
-  private static final int FAR_AWAY = 1000;
+  //IMPORTANT: this value should be less than ADJUST_DOWN or else we never will coast
+  //when manually moving the lift down
+  private static final int FAR_AWAY = 100;
 
   //only coast down above a minimum height since
   //gravity does not seem to cause the lift as we get close
   //to the bottom and it is necessary to use the motors to pull the lift
   //the rest of the way down.
-  private static final int MINIMUM_COAST_HEIGHT = 3000;
+  private static final int MINIMUM_COAST_HEIGHT = 1500;
 
   //Preset positions we can extend the arm to
   public enum Position
@@ -34,8 +36,9 @@ public class Lift extends AbstractModule
     CLIMB( 0 ),
     SAMPLE_FLOOR( 172 ),
     SPECIMEN_FLOOR( 347 ),
-    HIGH_BASKET( 9545 ),
-    LOW_BASKET( 5846 ),
+    MAX_LIFT( 10000 ),
+    HIGH_BASKET( 10000 ),
+    LOW_BASKET( 6088 ),
     ABOVE_HIGH_SPECIMEN_BAR( 6324 ),
     ABOVE_LOW_SPECIMEN_BAR( 3548 ),
     SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 5691 ),
@@ -93,6 +96,7 @@ public class Lift extends AbstractModule
 
   public boolean isMoving()
   {
+    telemetry.log().add( String.format( "currentAction: %s", currentAction ) );
     return currentAction == Action.MOVING;
   }
 
@@ -134,14 +138,25 @@ public class Lift extends AbstractModule
     //close to our target position
     int liftCurPosition = liftPosition();
 
+    telemetry.addLine( String.format( "liftCurPosition: %s", liftCurPosition ) );
+    telemetry.addLine( String.format( "targetPosition: %s", targetPosition ) );
+    telemetry.addLine( String.format( "MINIMUM_COAST_HEIGHT: %s", MINIMUM_COAST_HEIGHT ) );
+    telemetry.addLine( String.format( "FAR_AWAY: %s", FAR_AWAY ) );
+
     if( targetPosition < liftCurPosition &&
       liftCurPosition > MINIMUM_COAST_HEIGHT &&
       Math.abs( targetPosition - liftCurPosition ) > FAR_AWAY )
     {
+      telemetry.addLine( "coasting!" );
+      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
       return COAST;
     }
     else
     {
+       telemetry.addLine( String.format( "using power: %f", power ) );
+      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
       return power;
     }
   }
@@ -182,10 +197,16 @@ public class Lift extends AbstractModule
     int leftDiff = Math.abs( leftMotor.getCurrentPosition() - leftMotor.getTargetPosition() );
     int rightDiff = Math.abs( rightMotor.getCurrentPosition() - rightMotor.getTargetPosition() );
 
+    int diff = Math.min( leftDiff, rightDiff );
+
     //stop once we get close to our target position
-    if( leftDiff <= 1 &&
-      rightDiff <= 1 )
-    { stop(); }
+    telemetry.log().add( String.format( "lift diff: %s", diff ) );
+
+    if( diff <= 20 )
+    {
+      telemetry.log().add( "close enough, auto stop" );
+      stop();
+    }
 
     //switch from floating to using power once we get close to our target position
     else if( targetPower == 0 &&
@@ -224,9 +245,9 @@ public class Lift extends AbstractModule
                           liftCurPosition - ADJUST_DOWN;
 
     //Prevent moving too far
-    if( liftNewPosition > Position.HIGH_BASKET.value )
+    if( liftNewPosition > Position.MAX_LIFT.value )
     {
-      liftNewPosition = Position.HIGH_BASKET.value;
+      liftNewPosition = Position.MAX_LIFT.value;
     }
     else if( liftNewPosition < Position.FLOOR.value )
     {

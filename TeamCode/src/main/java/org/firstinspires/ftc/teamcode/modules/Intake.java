@@ -35,12 +35,13 @@ public class Intake extends AbstractModule
   private int delay = 0;
 
   private static final double SPIT_OUT_SPEED = 1;
-  private static final double PULL_IN_SPEED = 0.2;
+  private static final double PULL_IN_SPEED = 0.25; //0.2;
   private static final double STOP_SPEED = 0;
 
   //continue running the servos briefly after we see the sample
   //to ensure it is *centered* within the intake
-  private static final int CENTER_DELAY = 200;
+//  private static final int CENTER_DELAY = 200;
+  private static final int CENTER_DELAY = 0;
   private static final int EJECT_DELAY = 400;
 
   public enum Direction
@@ -72,6 +73,11 @@ public class Intake extends AbstractModule
   public boolean isMoving()
   {
     return currentAction != Action.DOING_NOTHING;
+  }
+
+  public boolean hasSample()
+  {
+    return getObservedObject() != Intake.ObservedObject.NOTHING;
   }
 
   public void pullSampleBack()
@@ -225,7 +231,7 @@ public class Intake extends AbstractModule
         currentAction == Action.PULL_IN_SAMPLE_FROM_BEHIND ) )
     { return; }
 
-    boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
+    boolean sampleDetected = hasSample();
 
     if( direction == Direction.PULL )
     {
@@ -257,12 +263,12 @@ public class Intake extends AbstractModule
     super.stop();
   }
 
-  public Boolean actUponColor()
+  public Boolean updateState()
   {
     if( currentAction == Action.DOING_NOTHING )
     { return false; }
 
-    boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
+    boolean sampleDetected = hasSample();
 
     switch( currentAction )
     {

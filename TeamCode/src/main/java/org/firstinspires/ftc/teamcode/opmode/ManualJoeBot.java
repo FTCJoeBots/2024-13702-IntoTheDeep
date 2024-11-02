@@ -38,10 +38,10 @@ public class ManualJoeBot extends OpMode
 
     //setup bulk reads
     hubs = hardwareMap.getAll( LynxModule.class );
-    for( LynxModule module : hubs )
-    {
-      module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
-    }
+//    for( LynxModule module : hubs )
+//    {
+//      module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
+//    }
 
     robot = new JoeBot( hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
@@ -72,11 +72,12 @@ public class ManualJoeBot extends OpMode
   @Override
   public void loop()
   {
-    //Clear the BulkCache once per control cycle
-    for( LynxModule module : hubs )
-    {
-      module.clearBulkCache();
-    }
+    //TODO - we need to do this in our motions! or do not use blokcing call so this happens automatically!
+//    //Clear the BulkCache once per control cycle
+//    for( LynxModule module : hubs )
+//    {
+//      module.clearBulkCache();
+//    }
 
     robot.drive().updateLocation();
 
@@ -90,7 +91,7 @@ public class ManualJoeBot extends OpMode
         !robot.lift().isHigh() )
     {
       robot.extensionArm().fullyExtend();
-      addMessage( "Fully extend arm" );
+//      addMessage( "Fully extend arm" );
     }
     //Manually extend - Y
     else if( gamepad2.y )
@@ -98,21 +99,25 @@ public class ManualJoeBot extends OpMode
     {
       boolean liftIsHigh = robot.lift().isHigh();
       if( robot.extensionArm().manuallyExtend( liftIsHigh ) )
-      { addMessage( "Manually extend arm" ); }
+      {
+//        addMessage( "Manually extend arm" );
+      }
     }
 
     //Full retract - B + A
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
     {
       robot.extensionArm().fullyRetract();
-      addMessage( "Fully retract arm" );
+//      addMessage( "Fully retract arm" );
     }
     //Manually retract - A
     else if( gamepad2.a )
 //    else if( gamepads.buttonDown( Participant.OPERATOR, Button.A ) )
     {
       if( robot.extensionArm().manuallyRetract() )
-      { addMessage( "Manually retract arm" ); }
+      {
+//        addMessage( "Manually retract arm" );
+      }
     }
 
     //==================
@@ -125,8 +130,7 @@ public class ManualJoeBot extends OpMode
     {
       if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
       {
-        robot.placeSampleInBasket( JoeBot.Basket.HIGH_BASKET );
-        addMessage( "Place Sample in High Basket" );
+        robot.placeSampleInBasket( telemetry, JoeBot.Basket.HIGH_BASKET );
       }
       else if( robot.lift().travelTo( Lift.Position.HIGH_BASKET ) )
       { addMessage( "Move Lift to High Basket" ); }
@@ -136,8 +140,7 @@ public class ManualJoeBot extends OpMode
     {
       if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
       {
-        robot.placeSampleInBasket( JoeBot.Basket.LOW_BASKET );
-        addMessage( "Place Sample in Low Basket" );
+        robot.placeSampleInBasket( telemetry, JoeBot.Basket.LOW_BASKET );
       }
       else if( robot.lift().travelTo( Lift.Position.LOW_BASKET ) )
       { addMessage( "Move Lift to Low Basket" ); }
@@ -152,21 +155,18 @@ public class ManualJoeBot extends OpMode
     //Hang specimen from high bar - x + dpad_left
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) )
     {
-      robot.hangSpecimen( JoeBot.Bar.HIGH_BAR );
-      addMessage( "Hang Specimen from High Bar" );
+      robot.hangSpecimen( telemetry, JoeBot.Bar.HIGH_BAR );
     }
     //Hang specimen from low bar - x + dpad_right
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) )
     {
-      robot.hangSpecimen( JoeBot.Bar.LOW_BAR );
-      addMessage( "Climb" );
+      robot.hangSpecimen( telemetry, JoeBot.Bar.LOW_BAR );
     }
 
     //Climbing - x + start
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.START, Button.X ) ) )
     {
-      robot.climb();
-      addMessage( "Climb" );
+      robot.climb( telemetry );
     }
     //Raise lift slow (high torque) - dpad_up + b
     else if( gamepad2.dpad_up && gamepad2.b && !gamepad2.x )
@@ -202,7 +202,7 @@ public class ManualJoeBot extends OpMode
     //==================
     robot.intake().resetColor();
 
-    if( robot.intake().actUponColor() )
+    if( robot.intake().updateState() )
     {
       gamepad1.rumbleBlips( 3 );
       gamepad2.rumbleBlips( 3 );
@@ -212,7 +212,8 @@ public class ManualJoeBot extends OpMode
     if( gamepad2.left_stick_y > 0 &&
         //prevent sucking in a sample if the lift is in the air
         //to avoid dumping into the robot
-        robot.lift().liftPosition() < 200 )
+        ( !robot.intake().hasSample() ||
+          robot.lift().liftPosition() < 1000 ) )
     {
       robot.intake().pullSampleBack();
     }

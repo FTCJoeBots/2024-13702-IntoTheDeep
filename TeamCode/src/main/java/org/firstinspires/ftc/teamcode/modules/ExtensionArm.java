@@ -19,7 +19,7 @@ public class ExtensionArm extends AbstractModule
     FULLY_RETRACTED( 0 ),
     RETRACTED_WITH_SAMPLE( 47 ),
     FULLY_EXTENDED( 2876 ),
-    EXTEND_TO_DUMP_IN_BASKET( 100 ),
+    EXTEND_TO_DUMP_IN_BASKET( 800 ),
     EXTEND_TO_HANG_SAMPLE( 834 ),
     EXTEND_TO_CLIMB( 834 ),
     MAX_EXTENSION_WHILE_HIGH( 1000 );
@@ -72,7 +72,7 @@ public class ExtensionArm extends AbstractModule
       Math.abs( extensionArmMotor.getCurrentPosition() - extensionArmMotor.getTargetPosition() ) <= 1 )
     {
       stop();
-      telemetry.log().add( "Extension Arm Stopped" );
+//      telemetry.log().add( "Extension Arm Stopped" );
     }
   }
 
@@ -89,6 +89,11 @@ public class ExtensionArm extends AbstractModule
   public void travelTo( Position position )
   {
     setTargetPositionAndPower( position.value, Speed.FAST.value );
+  }
+
+  public void travelTo( int position )
+  {
+    setTargetPositionAndPower( position, Speed.FAST.value );
   }
 
   public boolean manuallyExtend( boolean liftIsHigh )

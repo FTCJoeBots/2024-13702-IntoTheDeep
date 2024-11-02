@@ -57,18 +57,24 @@ public class JoeBot
     LOW_BASKET
   }
 
-  public void placeSampleInBasket( Basket basket )
+  public void placeSampleInBasket( Telemetry telemetry, Basket basket )
   {
+    telemetry.log().add( String.format( "placeSampleInBasket: %s", basket ) );
+
+    final int currentPosition = extensionArm.getMotorPosition();
+    final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_DUMP_IN_BASKET.value;
+
     Actions.runBlocking(
       new SequentialAction(
-        new MoveLift( lift,
+        new MoveLift( telemetry, lift,
                       basket == Basket.HIGH_BASKET ?
                         Lift.Position.HIGH_BASKET :
                         Lift.Position.LOW_BASKET ),
-        new MoveExtensionArm( extensionArm, ExtensionArm.Position.EXTEND_TO_DUMP_IN_BASKET ),
-        new OperateIntake( intake, Intake.Direction.PUSH ),
-        new MoveExtensionArm( extensionArm, ExtensionArm.Position.FULLY_RETRACTED ),
-        new MoveLift( lift, Lift.Position.FLOOR )
+        new MoveExtensionArm( telemetry, extensionArm, extendedPosition ),
+        //TODO wait until max time on this step, why?
+        new OperateIntake( telemetry, intake, Intake.Direction.PUSH ),
+        new MoveExtensionArm( telemetry, extensionArm, ExtensionArm.Position.FULLY_RETRACTED.value ),
+        new MoveLift( telemetry, lift, Lift.Position.FLOOR )
       )
     );
   }
@@ -79,20 +85,28 @@ public class JoeBot
     LOW_BAR
   }
 
-  public void hangSpecimen( Bar bar )
+  //TODO - we're getting stuck moving the arm back down - probably becuase we're hitting ther bar
+  //need to put a tieme out on that aciton, souold be fast and just stop after X ms
+  public void hangSpecimen( Telemetry telemetry, Bar bar )
   {
+    final int currentPosition = extensionArm.getMotorPosition();
+    final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE.value;
+
+    telemetry.log().add( String.format( "hangSpecimen: %s", bar ) );
     Actions.runBlocking(
       new SequentialAction(
-        new MoveLift( lift,
+        new MoveLift( telemetry, lift,
           bar == Bar.HIGH_BAR ?
                         Lift.Position.ABOVE_HIGH_SPECIMEN_BAR :
                         Lift.Position.ABOVE_LOW_SPECIMEN_BAR ),
-        new MoveExtensionArm( extensionArm, ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE ),
-        new MoveLift( lift,
-                      bar == Bar.LOW_BAR ?
-                        Lift.Position.HANG_FROM_HIGH_HANG_BAR :
-                        Lift.Position.HANG_FROM_LOW_HANG_BAR ),
-        new MoveExtensionArm( extensionArm, ExtensionArm.Position.FULLY_RETRACTED )
+        new MoveExtensionArm( telemetry, extensionArm, extendedPosition ),
+        new MoveLift( telemetry, lift,
+                      bar == Bar.HIGH_BAR ?
+                        Lift.Position.SPECIMEN_CLIPPED_ONTO_HIGH_BAR :
+                        Lift.Position.SPECIMEN_CLIPPED_ONTO_LOW_BAR,
+                        500 ),
+        new MoveExtensionArm( telemetry, extensionArm, ExtensionArm.Position.FULLY_RETRACTED.value ),
+        new MoveLift( telemetry, lift, Lift.Position.FLOOR )
       )
     );
   }
@@ -108,13 +122,14 @@ public class JoeBot
   }
   */
 
-  public void climb()
+  public void climb( Telemetry telemetry )
   {
+    telemetry.log().add( "climb" );
     Actions.runBlocking(
       new SequentialAction(
-        new MoveLift( lift, Lift.Position.ABOVE_LOW_HANG_BAR ),
-        new MoveExtensionArm( extensionArm, ExtensionArm.Position.EXTEND_TO_CLIMB ),
-        new MoveLift( lift, Lift.Position.CLIMB )
+        new MoveLift( telemetry, lift, Lift.Position.ABOVE_LOW_HANG_BAR ),
+        new MoveExtensionArm( telemetry, extensionArm, ExtensionArm.Position.EXTEND_TO_CLIMB.value ),
+        new MoveLift( telemetry, lift, Lift.Position.CLIMB )
       )
     );
   }
