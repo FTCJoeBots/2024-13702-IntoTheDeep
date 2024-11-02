@@ -31,6 +31,7 @@ public class Lift extends AbstractModule
   public enum Position
   {
     FLOOR( 0 ),
+    CLIMB( 0 ),
     SAMPLE_FLOOR( 172 ),
     SPECIMEN_FLOOR( 347 ),
     HIGH_BASKET( 9545 ),
@@ -151,7 +152,9 @@ public class Lift extends AbstractModule
                    FAST_SPEED_UP :
                    FAST_SPEED_DOWN;
 
-    power = adjustPower( position.value, power );
+    //always use power to climbing
+    if( position != Position.CLIMB )
+    { power = adjustPower( position.value, power ); }
 
     setMotorPosition( leftMotor, position.value, power );
     setMotorPosition( rightMotor, position.value, power );
@@ -159,17 +162,6 @@ public class Lift extends AbstractModule
 
     //TODO - only return true if actually doing something
     return true;
-  }
-
-  public void climb()
-  {
-    int position = Position.ABOVE_LOW_HANG_BAR.value;
-    double speed = liftPosition() < position ?
-                   SLOW_SPEED_UP :
-                   SLOW_SPEED_DOWN;
-
-    setMotorPosition( leftMotor, Position.ABOVE_LOW_HANG_BAR.value, speed );
-    setMotorPosition( rightMotor, Position.ABOVE_LOW_HANG_BAR.value, speed );
   }
 
   public void stop()

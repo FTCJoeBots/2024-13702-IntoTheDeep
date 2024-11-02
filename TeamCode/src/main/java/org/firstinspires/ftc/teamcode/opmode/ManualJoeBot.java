@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.drive.PresetDirection;
 import org.firstinspires.ftc.teamcode.modules.drive.RotateDirection;
 import org.firstinspires.ftc.teamcode.modules.Lift;
@@ -122,16 +123,24 @@ public class ManualJoeBot extends OpMode
     //High basket - x + dpad_up
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) )
     {
-//      robot.placeSampleInBasket( Lift.Position.HIGH_BASKET );
-
-      if( robot.lift().travelTo( Lift.Position.HIGH_BASKET ) )
+      if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
+      {
+        robot.placeSampleInBasket( JoeBot.Basket.HIGH_BASKET );
+        addMessage( "Place Sample in High Basket" );
+      }
+      else if( robot.lift().travelTo( Lift.Position.HIGH_BASKET ) )
       { addMessage( "Move Lift to High Basket" ); }
     }
     //Low basket - x + dpad_down
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) )
     {
-      robot.placeSampleInBasket( Lift.Position.LOW_BASKET );
-      addMessage( "Move Lift to Low Basket" );
+      if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
+      {
+        robot.placeSampleInBasket( JoeBot.Basket.LOW_BASKET );
+        addMessage( "Place Sample in Low Basket" );
+      }
+      else if( robot.lift().travelTo( Lift.Position.LOW_BASKET ) )
+      { addMessage( "Move Lift to Low Basket" ); }
     }
     //Move lift to bottom - x + a
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.A, Button.X ) ) )
@@ -140,10 +149,23 @@ public class ManualJoeBot extends OpMode
       { addMessage( "Move Lift to Floor" ); }
     }
 
-    //Climbing - x + dpad_right
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_RIGHT, Button.X ) ) )
+    //Hang specimen from high bar - x + dpad_left
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) )
     {
-      robot.lift().climb();
+      robot.hangSpecimen( JoeBot.Bar.HIGH_BAR );
+      addMessage( "Hang Specimen from High Bar" );
+    }
+    //Hang specimen from low bar - x + dpad_right
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) )
+    {
+      robot.hangSpecimen( JoeBot.Bar.LOW_BAR );
+      addMessage( "Climb" );
+    }
+
+    //Climbing - x + start
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.START, Button.X ) ) )
+    {
+      robot.climb();
       addMessage( "Climb" );
     }
     //Raise lift slow (high torque) - dpad_up + b

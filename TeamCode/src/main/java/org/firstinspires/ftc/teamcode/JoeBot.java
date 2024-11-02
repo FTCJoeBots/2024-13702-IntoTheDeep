@@ -21,7 +21,7 @@ public class JoeBot
 
   public JoeBot( HardwareMap hardwareMap, Telemetry telemetry )
   {
-    //avoid recreating modules to avoid reseting encoders in between autonomus and tele op
+    //avoid recreating modules to avoid resetting encoders in between autonomous and tele op
     if( extensionArm == null )
     {
       extensionArm = new ExtensionArm( hardwareMap, telemetry );
@@ -51,11 +51,20 @@ public class JoeBot
     drive.stop();
   }
 
-  public void placeSampleInBasket( Lift.Position position )
+  public enum Basket
+  {
+    HIGH_BASKET,
+    LOW_BASKET
+  }
+
+  public void placeSampleInBasket( Basket basket )
   {
     Actions.runBlocking(
       new SequentialAction(
-        new MoveLift( lift, position ),
+        new MoveLift( lift,
+                      basket == Basket.HIGH_BASKET ?
+                        Lift.Position.HIGH_BASKET :
+                        Lift.Position.LOW_BASKET ),
         new MoveExtensionArm( extensionArm, ExtensionArm.Position.EXTEND_TO_DUMP_IN_BASKET ),
         new OperateIntake( intake, Intake.Direction.PUSH ),
         new MoveExtensionArm( extensionArm, ExtensionArm.Position.FULLY_RETRACTED ),
@@ -64,19 +73,50 @@ public class JoeBot
     );
   }
 
-  public void hangSpecimen( boolean highBar )
+  public enum Bar
   {
-    //TODO
+    HIGH_BAR,
+    LOW_BAR
   }
 
+  public void hangSpecimen( Bar bar )
+  {
+    Actions.runBlocking(
+      new SequentialAction(
+        new MoveLift( lift,
+          bar == Bar.HIGH_BAR ?
+                        Lift.Position.ABOVE_HIGH_SPECIMEN_BAR :
+                        Lift.Position.ABOVE_LOW_SPECIMEN_BAR ),
+        new MoveExtensionArm( extensionArm, ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE ),
+        new MoveLift( lift,
+                      bar == Bar.LOW_BAR ?
+                        Lift.Position.HANG_FROM_HIGH_HANG_BAR :
+                        Lift.Position.HANG_FROM_LOW_HANG_BAR ),
+        new MoveExtensionArm( extensionArm, ExtensionArm.Position.FULLY_RETRACTED )
+      )
+    );
+  }
+
+  /*
   public void grabSample( boolean isSpecimen )
   {
-    //TODO
+    Actions.runBlocking(
+      new SequentialAction(
+        //TODO
+      )
+    );
   }
+  */
 
   public void climb()
   {
-    //TODO
+    Actions.runBlocking(
+      new SequentialAction(
+        new MoveLift( lift, Lift.Position.ABOVE_LOW_HANG_BAR ),
+        new MoveExtensionArm( extensionArm, ExtensionArm.Position.EXTEND_TO_CLIMB ),
+        new MoveLift( lift, Lift.Position.CLIMB )
+      )
+    );
   }
 
 }
