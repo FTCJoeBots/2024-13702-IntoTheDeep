@@ -285,17 +285,17 @@ public class ManualJoeBot extends OpMode
 
     switch( currentModule )
     {
-      case DRIVE:
-        robot.drive().printTelemetry();
-        break;
-      case INTAKE:
-        robot.intake().printTelemetry();
-        break;
       case LIFT:
         robot.lift().printTelemetry();
         break;
       case EXTENSION_ARM:
         robot.extensionArm().printTelemetry();
+        break;
+      case INTAKE:
+        robot.intake().printTelemetry();
+        break;
+      case DRIVE:
+        robot.drive().printTelemetry();
         break;
     }
 
