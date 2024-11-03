@@ -35,12 +35,13 @@ public class Intake extends AbstractModule
   private int delay = 0;
 
   private static final double SPIT_OUT_SPEED = 1;
-  private static final double PULL_IN_SPEED = 0.2;
+  private static final double PULL_IN_SPEED = 0.25; //0.2;
   private static final double STOP_SPEED = 0;
 
   //continue running the servos briefly after we see the sample
   //to ensure it is *centered* within the intake
-  private static final int CENTER_DELAY = 200;
+//  private static final int CENTER_DELAY = 200;
+  private static final int CENTER_DELAY = 0;
   private static final int EJECT_DELAY = 400;
 
   public enum Direction
@@ -49,7 +50,7 @@ public class Intake extends AbstractModule
     PUSH
   }
 
-  public enum CurrentAction
+  public enum Action
   {
     PULL_IN_SAMPLE_FROM_IN_FRONT,
     PULL_IN_SAMPLE_FROM_BEHIND,
@@ -59,7 +60,7 @@ public class Intake extends AbstractModule
     DOING_NOTHING
   }
 
-  private CurrentAction currentAction = CurrentAction.DOING_NOTHING;
+  private Action currentAction = Action.DOING_NOTHING;
 
   public enum ObservedObject
   {
@@ -67,6 +68,26 @@ public class Intake extends AbstractModule
     BLUE_SAMPLE,
     YELLOW_SAMPLE,
     NOTHING
+  }
+
+  public boolean isMoving()
+  {
+    return currentAction != Action.DOING_NOTHING;
+  }
+
+  public boolean hasSample()
+  {
+    return getObservedObject() != Intake.ObservedObject.NOTHING;
+  }
+
+  public void pullSampleBack()
+  {
+    turnOnServos( Direction.PULL );
+  }
+
+  public void pushSampleForward()
+  {
+    turnOnServos( Direction.PUSH );
   }
 
   public void resetColor()
@@ -198,41 +219,31 @@ public class Intake extends AbstractModule
     { rightServo.setPower( speed ); }
   }
 
-  public void pullSampleBack()
-  {
-    turnOnServos( Direction.PULL );
-  }
-
-  public void pushSampleForward()
-  {
-    turnOnServos( Direction.PUSH );
-  }
-
   private void turnOnServos( Direction direction )
   {
     if( direction == Direction.PULL &&
-        ( currentAction == CurrentAction.PULL_IN_SAMPLE_FROM_IN_FRONT ||
-          currentAction == CurrentAction.SPIT_OUT_SAMPLE_BEHIND ) )
+        ( currentAction == Action.PULL_IN_SAMPLE_FROM_IN_FRONT ||
+          currentAction == Action.SPIT_OUT_SAMPLE_BEHIND ) )
     { return; }
 
     if( direction == Direction.PUSH &&
-      ( currentAction == CurrentAction.SPIT_OUT_SAMPLE_IN_FRONT ||
-        currentAction == CurrentAction.PULL_IN_SAMPLE_FROM_BEHIND ) )
+      ( currentAction == Action.SPIT_OUT_SAMPLE_IN_FRONT ||
+        currentAction == Action.PULL_IN_SAMPLE_FROM_BEHIND ) )
     { return; }
 
-    boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
+    boolean sampleDetected = hasSample();
 
     if( direction == Direction.PULL )
     {
       currentAction = sampleDetected ?
-                      CurrentAction.SPIT_OUT_SAMPLE_BEHIND :
-                      CurrentAction.PULL_IN_SAMPLE_FROM_IN_FRONT;
+                      Action.SPIT_OUT_SAMPLE_BEHIND :
+                      Action.PULL_IN_SAMPLE_FROM_IN_FRONT;
     }
     else
     {
       currentAction = sampleDetected ?
-                      CurrentAction.SPIT_OUT_SAMPLE_IN_FRONT :
-                      CurrentAction.PULL_IN_SAMPLE_FROM_BEHIND;
+                      Action.SPIT_OUT_SAMPLE_IN_FRONT :
+                      Action.PULL_IN_SAMPLE_FROM_BEHIND;
     }
 
     int    multiplier = direction == Direction.PULL ? -1 : 1;
@@ -241,23 +252,20 @@ public class Intake extends AbstractModule
     setServoSpeed( multiplier * speed );
   }
 
-  //every time we clip in auto shift over a bit
-  //reset position by overhsooting and tap wall when returning to basekt or human player pickup
-  //auto rasie and then lower the extension arm to avoid bashing it into the middle. this would trigger
-  //when extension arm is at 0
   @Override
   public void stop()
   {
-    currentAction = CurrentAction.DOING_NOTHING;
+    currentAction = Action.DOING_NOTHING;
     super.stop();
   }
 
-  public Boolean actUponColor()
+  public void updateState()
   {
-    if( currentAction == CurrentAction.DOING_NOTHING )
-    { return false; }
+    if( currentAction == Action.DOING_NOTHING )
+    { return; }
 
-    boolean sampleDetected = getObservedObject() != ObservedObject.NOTHING;
+    resetColor();
+    boolean sampleDetected = hasSample();
 
     switch( currentAction )
     {
@@ -266,10 +274,9 @@ public class Intake extends AbstractModule
         //ensure sample is centered before turning off servos
         if( sampleDetected )
         {
-          currentAction = CurrentAction.TURN_OFF_AFTER_DELAY;
+          currentAction = Action.TURN_OFF_AFTER_DELAY;
           time.reset();
           delay = CENTER_DELAY;
-          return true;
         }
         break;
 
@@ -278,25 +285,19 @@ public class Intake extends AbstractModule
         //ensure sample is full ejected before turning off servos
         if( !sampleDetected )
         {
-          currentAction = CurrentAction.TURN_OFF_AFTER_DELAY;
+          currentAction = Action.TURN_OFF_AFTER_DELAY;
           time.reset();
           delay = EJECT_DELAY;
-          return false;
         }
         break;
 
       case TURN_OFF_AFTER_DELAY:
         if( time.milliseconds() >= delay )
-        {
-          stop();
-          return false;
-        }
+        { stop(); }
 
       case DOING_NOTHING:
         break;
     }
-
-    return false;
   }
 
   //Prints out the extension arm motor position

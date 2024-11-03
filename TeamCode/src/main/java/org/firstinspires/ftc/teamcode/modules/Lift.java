@@ -8,41 +8,52 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends AbstractModule
 {
-  private static final double COAST = 0;
+  private static final double FAST_SPEED_UP = 1.0;
+  private static final double FAST_SPEED_DOWN = 1.0;
+
   private static final double SLOW_SPEED_UP = 0.4;
   private static final double SLOW_SPEED_DOWN = 0.15;
 
-  private static final double FAST_SPEED_UP = 1.0;
-  private static final double FAST_SPEED_DOWN = 1.0;
+  private static final double COAST = 0;
 
   private static final int ADJUST_UP   = 200;
   private static final int ADJUST_DOWN = 200;
 
   //coast down until we are close to our target
-  private static final int FAR_AWAY = 1000;
+  //IMPORTANT: this value should be less than ADJUST_DOWN or else we never will coast
+  //when manually moving the lift down
+  private static final int FAR_AWAY = 100;
 
   //only coast down above a minimum height since
   //gravity does not seem to cause the lift as we get close
   //to the bottom and it is necessary to use the motors to pull the lift
   //the rest of the way down.
-  private static final int MINIMUM_COAST_HEIGHT = 3000;
+  private static final int MINIMUM_COAST_HEIGHT = 1500;
 
   //Preset positions we can extend the arm to
   public enum Position
   {
     FLOOR( 0 ),
+    MAX_LIFT( 10000 ),
+
     SAMPLE_FLOOR( 172 ),
     SPECIMEN_FLOOR( 347 ),
-    HIGH_BASKET( 9545 ),
-    LOW_BASKET( 5846 ),
+
+    //putting samples in baskets
+    HIGH_BASKET( 10000 ),
+    LOW_BASKET( 6088 ),
+
+    //hanging specimens
     ABOVE_HIGH_SPECIMEN_BAR( 6324 ),
     ABOVE_LOW_SPECIMEN_BAR( 3548 ),
     SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 5691 ),
     SPECIMEN_CLIPPED_ONTO_LOW_BAR( 2996 ),
-    ABOVE_HIGH_HANG_BAR( 8060 ),
+
+    //climbing
     ABOVE_LOW_HANG_BAR( 4663 ),
-    HANG_FROM_HIGH_HANG_BAR ( 7216 ),
     HANG_FROM_LOW_HANG_BAR( 3889 ),
+
+    //height above which we should limit extending the extension arm to avoid tipping over
     HIGH_UP( 2000 );
 
     Position( int value )
@@ -90,9 +101,15 @@ public class Lift extends AbstractModule
     return liftPosition() > Position.HIGH_UP.value;
   }
 
+  public boolean isMoving()
+  {
+    telemetry.log().add( String.format( "currentAction: %s", currentAction ) );
+    return currentAction == Action.MOVING;
+  }
+
   public int liftPosition()
   {
-    int leftPosition  = leftMotor.getCurrentPosition();
+    int leftPosition = leftMotor.getCurrentPosition();
     return leftPosition;
 
 //    int rightPosition = rightMotor.getCurrentPosition();
@@ -132,39 +149,31 @@ public class Lift extends AbstractModule
       liftCurPosition > MINIMUM_COAST_HEIGHT &&
       Math.abs( targetPosition - liftCurPosition ) > FAR_AWAY )
     {
+      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
       return COAST;
     }
     else
     {
+      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
       return power;
     }
   }
 
-  public boolean travelTo( Position position )
+  public void travelTo( Position position )
   {
     double power = liftPosition() < position.value ?
                    FAST_SPEED_UP :
                    FAST_SPEED_DOWN;
 
-    power = adjustPower( position.value, power );
+    //always use power to climb
+    if( position != Position.HANG_FROM_LOW_HANG_BAR )
+    { power = adjustPower( position.value, power ); }
 
     setMotorPosition( leftMotor, position.value, power );
     setMotorPosition( rightMotor, position.value, power );
     currentAction = Action.MOVING;
-
-    //TODO - only return true if actually doing something
-    return true;
-  }
-
-  public void climb()
-  {
-    int position = Position.ABOVE_LOW_HANG_BAR.value;
-    double speed = liftPosition() < position ?
-                   SLOW_SPEED_UP :
-                   SLOW_SPEED_DOWN;
-
-    setMotorPosition( leftMotor, Position.ABOVE_LOW_HANG_BAR.value, speed );
-    setMotorPosition( rightMotor, Position.ABOVE_LOW_HANG_BAR.value, speed );
   }
 
   public void stop()
@@ -185,10 +194,16 @@ public class Lift extends AbstractModule
     int leftDiff = Math.abs( leftMotor.getCurrentPosition() - leftMotor.getTargetPosition() );
     int rightDiff = Math.abs( rightMotor.getCurrentPosition() - rightMotor.getTargetPosition() );
 
+    int diff = Math.min( leftDiff, rightDiff );
+
     //stop once we get close to our target position
-    if( leftDiff <= 1 &&
-      rightDiff <= 1 )
-    { stop(); }
+    telemetry.log().add( String.format( "lift diff: %s", diff ) );
+
+    if( diff <= 20 )
+    {
+      telemetry.log().add( "close enough, auto stop" );
+      stop();
+    }
 
     //switch from floating to using power once we get close to our target position
     else if( targetPower == 0 &&
@@ -227,9 +242,9 @@ public class Lift extends AbstractModule
                           liftCurPosition - ADJUST_DOWN;
 
     //Prevent moving too far
-    if( liftNewPosition > Position.HIGH_BASKET.value )
+    if( liftNewPosition > Position.MAX_LIFT.value )
     {
-      liftNewPosition = Position.HIGH_BASKET.value;
+      liftNewPosition = Position.MAX_LIFT.value;
     }
     else if( liftNewPosition < Position.FLOOR.value )
     {

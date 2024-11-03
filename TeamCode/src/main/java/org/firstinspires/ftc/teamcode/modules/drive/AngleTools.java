@@ -4,18 +4,18 @@ public class AngleTools
 {
   public static RotateDirection quickestDirection( double currentAngle, double nextAngle )
   {
-    double right = nextAngle - currentAngle;
-    if( right < 0 )
+    double left = nextAngle - currentAngle;
+    if( left < 0 )
     {
-      right += 360;
+      left += 360;
     }
 
-    double left = 360 - right;
+    double right = 360 - left;
 
-    if( right < left )
-    { return RotateDirection.RIGHT; }
-    else
+    if( left <= right )
     { return RotateDirection.LEFT; }
+    else
+    { return RotateDirection.RIGHT; }
   }
 
   //converts [-180, 180] to [0, 360]
@@ -34,17 +34,17 @@ public class AngleTools
       case BACKWARD:
         return 180;
       case LEFT:
-        return -90;
-      case RIGHT:
         return 90;
+      case RIGHT:
+        return -90;
       case DOWN_LEFT:
-        return -135;
-      case DOWN_RIGHT:
         return 135;
+      case DOWN_RIGHT:
+        return -135;
       case UP_LEFT:
-        return -45;
-      case UP_RIGHT:
         return 45;
+      case UP_RIGHT:
+        return -45;
       default:
         return 0;
     }
