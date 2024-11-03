@@ -14,7 +14,7 @@ public class MoveExtensionArm extends AbstractAction implements Action
 
   public MoveExtensionArm( Telemetry telemetry, ExtensionArm extensionArm, int position )
   {
-    super( telemetry );
+    super( telemetry, 2000 );
     this.extensionArm = extensionArm;
     this.position = position;
   }
@@ -22,11 +22,11 @@ public class MoveExtensionArm extends AbstractAction implements Action
   @Override
   public boolean run( @NonNull TelemetryPacket packet )
   {
-    if( !initialized )
+    if( !isInitialized() )
     {
       telemetry.log().add( String.format( "MoveExtensionArm: %s", position ) );
       extensionArm.travelTo( position );
-      super.intialize();
+      super.initialize();
     }
 
     extensionArm.updateState();

@@ -57,6 +57,14 @@ public class JoeBot
     LOW_BASKET
   }
 
+  public void updateState()
+  {
+    drive.updateState();
+    lift.updateState();
+    extensionArm.updateState();
+    intake.updateState();
+  }
+
   public void placeSampleInBasket( Telemetry telemetry, Basket basket )
   {
     telemetry.log().add( String.format( "placeSampleInBasket: %s", basket ) );
@@ -71,8 +79,7 @@ public class JoeBot
                         Lift.Position.HIGH_BASKET :
                         Lift.Position.LOW_BASKET ),
         new MoveExtensionArm( telemetry, extensionArm, extendedPosition ),
-        //TODO wait until max time on this step, why?
-        new OperateIntake( telemetry, intake, Intake.Direction.PUSH ),
+        new OperateIntake( telemetry, intake, Intake.Direction.PUSH, 500 ),
         new MoveExtensionArm( telemetry, extensionArm, ExtensionArm.Position.FULLY_RETRACTED.value ),
         new MoveLift( telemetry, lift, Lift.Position.FLOOR )
       )
@@ -85,8 +92,6 @@ public class JoeBot
     LOW_BAR
   }
 
-  //TODO - we're getting stuck moving the arm back down - probably becuase we're hitting ther bar
-  //need to put a tieme out on that aciton, souold be fast and just stop after X ms
   public void hangSpecimen( Telemetry telemetry, Bar bar )
   {
     final int currentPosition = extensionArm.getMotorPosition();
@@ -129,7 +134,7 @@ public class JoeBot
       new SequentialAction(
         new MoveLift( telemetry, lift, Lift.Position.ABOVE_LOW_HANG_BAR ),
         new MoveExtensionArm( telemetry, extensionArm, ExtensionArm.Position.EXTEND_TO_CLIMB.value ),
-        new MoveLift( telemetry, lift, Lift.Position.CLIMB )
+        new MoveLift( telemetry, lift, Lift.Position.HANG_FROM_LOW_HANG_BAR )
       )
     );
   }

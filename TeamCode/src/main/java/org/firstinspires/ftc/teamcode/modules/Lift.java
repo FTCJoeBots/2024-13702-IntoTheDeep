@@ -8,12 +8,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends AbstractModule
 {
-  private static final double COAST = 0;
+  private static final double FAST_SPEED_UP = 1.0;
+  private static final double FAST_SPEED_DOWN = 1.0;
+
   private static final double SLOW_SPEED_UP = 0.4;
   private static final double SLOW_SPEED_DOWN = 0.15;
 
-  private static final double FAST_SPEED_UP = 1.0;
-  private static final double FAST_SPEED_DOWN = 1.0;
+  private static final double COAST = 0;
 
   private static final int ADJUST_UP   = 200;
   private static final int ADJUST_DOWN = 200;
@@ -33,20 +34,26 @@ public class Lift extends AbstractModule
   public enum Position
   {
     FLOOR( 0 ),
-    CLIMB( 0 ),
+    MAX_LIFT( 10000 ),
+
     SAMPLE_FLOOR( 172 ),
     SPECIMEN_FLOOR( 347 ),
-    MAX_LIFT( 10000 ),
+
+    //putting samples in baskets
     HIGH_BASKET( 10000 ),
     LOW_BASKET( 6088 ),
+
+    //hanging specimens
     ABOVE_HIGH_SPECIMEN_BAR( 6324 ),
     ABOVE_LOW_SPECIMEN_BAR( 3548 ),
     SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 5691 ),
     SPECIMEN_CLIPPED_ONTO_LOW_BAR( 2996 ),
-    ABOVE_HIGH_HANG_BAR( 8060 ),
+
+    //climbing
     ABOVE_LOW_HANG_BAR( 4663 ),
-    HANG_FROM_HIGH_HANG_BAR ( 7216 ),
     HANG_FROM_LOW_HANG_BAR( 3889 ),
+
+    //height above which we should limit extending the extension arm to avoid tipping over
     HIGH_UP( 2000 );
 
     Position( int value )
@@ -102,7 +109,7 @@ public class Lift extends AbstractModule
 
   public int liftPosition()
   {
-    int leftPosition  = leftMotor.getCurrentPosition();
+    int leftPosition = leftMotor.getCurrentPosition();
     return leftPosition;
 
 //    int rightPosition = rightMotor.getCurrentPosition();
@@ -138,45 +145,35 @@ public class Lift extends AbstractModule
     //close to our target position
     int liftCurPosition = liftPosition();
 
-    telemetry.addLine( String.format( "liftCurPosition: %s", liftCurPosition ) );
-    telemetry.addLine( String.format( "targetPosition: %s", targetPosition ) );
-    telemetry.addLine( String.format( "MINIMUM_COAST_HEIGHT: %s", MINIMUM_COAST_HEIGHT ) );
-    telemetry.addLine( String.format( "FAR_AWAY: %s", FAR_AWAY ) );
-
     if( targetPosition < liftCurPosition &&
       liftCurPosition > MINIMUM_COAST_HEIGHT &&
       Math.abs( targetPosition - liftCurPosition ) > FAR_AWAY )
     {
-      telemetry.addLine( "coasting!" );
       leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
       rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
       return COAST;
     }
     else
     {
-       telemetry.addLine( String.format( "using power: %f", power ) );
       leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
       rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
       return power;
     }
   }
 
-  public boolean travelTo( Position position )
+  public void travelTo( Position position )
   {
     double power = liftPosition() < position.value ?
                    FAST_SPEED_UP :
                    FAST_SPEED_DOWN;
 
-    //always use power to climbing
-    if( position != Position.CLIMB )
+    //always use power to climb
+    if( position != Position.HANG_FROM_LOW_HANG_BAR )
     { power = adjustPower( position.value, power ); }
 
     setMotorPosition( leftMotor, position.value, power );
     setMotorPosition( rightMotor, position.value, power );
     currentAction = Action.MOVING;
-
-    //TODO - only return true if actually doing something
-    return true;
   }
 
   public void stop()

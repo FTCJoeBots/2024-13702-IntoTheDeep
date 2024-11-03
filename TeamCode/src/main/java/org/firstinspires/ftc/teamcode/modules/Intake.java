@@ -252,10 +252,6 @@ public class Intake extends AbstractModule
     setServoSpeed( multiplier * speed );
   }
 
-  //every time we clip in auto shift over a bit
-  //reset position by overhsooting and tap wall when returning to basekt or human player pickup
-  //auto rasie and then lower the extension arm to avoid bashing it into the middle. this would trigger
-  //when extension arm is at 0
   @Override
   public void stop()
   {
@@ -263,11 +259,12 @@ public class Intake extends AbstractModule
     super.stop();
   }
 
-  public Boolean updateState()
+  public void updateState()
   {
     if( currentAction == Action.DOING_NOTHING )
-    { return false; }
+    { return; }
 
+    resetColor();
     boolean sampleDetected = hasSample();
 
     switch( currentAction )
@@ -280,7 +277,6 @@ public class Intake extends AbstractModule
           currentAction = Action.TURN_OFF_AFTER_DELAY;
           time.reset();
           delay = CENTER_DELAY;
-          return true;
         }
         break;
 
@@ -292,22 +288,16 @@ public class Intake extends AbstractModule
           currentAction = Action.TURN_OFF_AFTER_DELAY;
           time.reset();
           delay = EJECT_DELAY;
-          return false;
         }
         break;
 
       case TURN_OFF_AFTER_DELAY:
         if( time.milliseconds() >= delay )
-        {
-          stop();
-          return false;
-        }
+        { stop(); }
 
       case DOING_NOTHING:
         break;
     }
-
-    return false;
   }
 
   //Prints out the extension arm motor position

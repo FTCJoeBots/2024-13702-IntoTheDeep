@@ -13,9 +13,9 @@ public class OperateIntake extends AbstractAction implements Action
   private Intake intake = null;
   private Intake.Direction direction;
 
-  public OperateIntake( Telemetry telemetry, Intake intake, Intake.Direction direction )
+  public OperateIntake( Telemetry telemetry, Intake intake, Intake.Direction direction, int maxTime )
   {
-    super( telemetry, 400 );
+    super( telemetry, maxTime );
     this.intake = intake;
     this.direction = direction;
   }
@@ -23,7 +23,7 @@ public class OperateIntake extends AbstractAction implements Action
   @Override
   public boolean run( @NonNull TelemetryPacket packet )
   {
-    if( !initialized )
+    if( !isInitialized() )
     {
       if( direction == Intake.Direction.PULL  )
       {
@@ -36,7 +36,7 @@ public class OperateIntake extends AbstractAction implements Action
         intake.pushSampleForward();
       }
 
-      super.intialize();
+      super.initialize();
     }
 
     intake.updateState();

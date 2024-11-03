@@ -13,41 +13,6 @@ public class Gamepads
     storeLastButtons();
   }
 
-  public boolean buttonDown( Participant participant, Button button )
-  {
-    if( ( participant == Participant.DRIVER ||
-          participant == Participant.DRIVER_OR_OPERATOR ) &&
-        buttonDown( gamepad1, button ) )
-    { return true; }
-
-    return ( participant == Participant.OPERATOR ||
-             participant == Participant.DRIVER_OR_OPERATOR ) &&
-           buttonDown( gamepad2, button );
-  }
-
-  public boolean buttonsDown( Participant participant, Set<Button> buttons )
-  {
-    if( ( participant == Participant.DRIVER ||
-      participant == Participant.DRIVER_OR_OPERATOR ) &&
-      buttonsDown( gamepad1, buttons ) )
-    { return true; }
-
-    return ( participant == Participant.OPERATOR ||
-      participant == Participant.DRIVER_OR_OPERATOR ) &&
-      buttonsDown( gamepad2, buttons );
-  }
-
-  private boolean buttonsDown( Gamepad gamepad, Set<Button> buttons )
-  {
-    for( Button button : buttons )
-    {
-      if( !buttonDown( gamepad, button ) )
-      { return false; }
-    }
-
-    return true;
-  }
-
   public boolean buttonPressed( Participant participant, Button button )
   {
     if( ( participant == Participant.DRIVER ||

@@ -29,28 +29,17 @@ public class MoveLift extends AbstractAction implements Action
     this.position = position;
   }
 
-  private void initialize()
-  {
-    telemetry.log().add( String.format( "MoveLift: %s", position ) );
-    lift.travelTo( position );
-    super.intialize();
-  }
-
-  //TODO - add logging to file so we can figure out what is going on
   @Override
   public boolean run( @NonNull TelemetryPacket packet )
   {
-    if( !initialized )
+    if( !isInitialized() )
     {
-      initialize();
+      telemetry.log().add( String.format( "MoveLift: %s", position ) );
+      lift.travelTo( position );
+      super.initialize();
     }
 
-    telemetry.log().add( String.format( "lift moving?: %s", lift.isMoving() ) );
-    telemetry.log().add( String.format( "lift pos: %s", lift.liftPosition() ) );
-    telemetry.update();
-
     lift.updateState();
-
     return !timeExceeded() &&
            lift.isMoving();
   }

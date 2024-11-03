@@ -7,10 +7,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public abstract class AbstractAction
 {
   protected Telemetry telemetry = null;
+  private boolean initialized = false;
+
+  //maximum time the action can run for in milliseconds
   private int maxTime = 5000;
   private ElapsedTime time = null;
-
-  protected boolean initialized = false;
 
   public AbstractAction( Telemetry telemetry )
   {
@@ -24,10 +25,15 @@ public abstract class AbstractAction
     time = new ElapsedTime();
   }
 
-  protected void intialize()
+  protected boolean isInitialized()
+  { return initialized; }
+
+  protected void initialize()
   {
     if( time != null )
     { time.reset(); }
+
+    initialized = true;
   }
 
   protected boolean timeExceeded()

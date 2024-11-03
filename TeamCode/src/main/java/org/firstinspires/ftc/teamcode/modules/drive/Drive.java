@@ -241,7 +241,7 @@ public class Drive extends AbstractModule
     backRightMotor.setPower( powers.backRight );
   }
 
-  public void updateLocation()
+  public void updateState()
   {
     updatePose();
     updateHeading();
