@@ -116,7 +116,7 @@ public class ManualJoeBot extends OpMode
     {
       if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
       {
-        robot.placeSampleInBasket( telemetry, JoeBot.Basket.HIGH_BASKET );
+        robot.placeSampleInBasket( JoeBot.Basket.HIGH_BASKET );
       }
       else
       {
@@ -129,7 +129,7 @@ public class ManualJoeBot extends OpMode
     {
       if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
       {
-        robot.placeSampleInBasket( telemetry, JoeBot.Basket.LOW_BASKET );
+        robot.placeSampleInBasket( JoeBot.Basket.LOW_BASKET );
       }
       else
       {
@@ -147,18 +147,18 @@ public class ManualJoeBot extends OpMode
     //Hang specimen from high bar - x + dpad_left
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) )
     {
-      robot.hangSpecimen( telemetry, JoeBot.Bar.HIGH_BAR );
+      robot.hangSpecimen( JoeBot.Bar.HIGH_BAR );
     }
     //Hang specimen from low bar - x + dpad_right
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) )
     {
-      robot.hangSpecimen( telemetry, JoeBot.Bar.LOW_BAR );
+      robot.hangSpecimen( JoeBot.Bar.LOW_BAR );
     }
 
     //Climbing - x + start
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.START, Button.X ) ) )
     {
-      robot.climb( telemetry );
+      robot.climb();
     }
     //Raise lift slow (high torque) - dpad_up + b
     else if( gamepad2.dpad_up && gamepad2.b && !gamepad2.x )

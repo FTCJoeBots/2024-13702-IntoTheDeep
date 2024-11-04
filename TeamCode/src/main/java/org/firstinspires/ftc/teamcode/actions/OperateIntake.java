@@ -5,18 +5,17 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.modules.Intake;
 
 public class OperateIntake extends AbstractAction implements Action
 {
-  private Intake intake = null;
   private Intake.Direction direction;
 
-  public OperateIntake( Telemetry telemetry, Intake intake, Intake.Direction direction, int maxTime )
+  public OperateIntake( JoeBot robot, Intake.Direction direction, int maxTime )
   {
-    super( telemetry, maxTime );
-    this.intake = intake;
+    super( robot, maxTime );
+    this.robot = robot;
     this.direction = direction;
   }
 
@@ -27,20 +26,26 @@ public class OperateIntake extends AbstractAction implements Action
     {
       if( direction == Intake.Direction.PULL  )
       {
-        telemetry.log().add( "OperateIntake: pullSampleBack" );
-        intake.pullSampleBack();
+        robot.telemetry().log().add( "OperateIntake: pullSampleBack" );
+        robot.intake().pullSampleBack();
       }
       else
       {
-        telemetry.log().add( "OperateIntake: pushSampleForward" );
-        intake.pushSampleForward();
+        robot.telemetry().log().add( "OperateIntake: pushSampleForward" );
+        robot.intake().pushSampleForward();
       }
 
       super.initialize();
     }
 
-    intake.updateState();
-    return !timeExceeded() &&
-           intake.isMoving();
+    robot.intake().updateState();
+
+    //stop if it is taking too long
+    if( timeExceeded() )
+    {
+      robot.intake().stop();
+    }
+
+    return robot.intake().isMoving();
   }
 }

@@ -19,6 +19,7 @@ public class ExtensionArm extends AbstractModule
     FULLY_RETRACTED( 0 ),
     RETRACTED_WITH_SAMPLE( 47 ),
     FULLY_EXTENDED( 2876 ),
+    EXTEND_TO_GRAB_SAMPLE( 400 ),
     EXTEND_TO_DUMP_IN_BASKET( 800 ),
     EXTEND_TO_HANG_SAMPLE( 834 ),
     EXTEND_TO_CLIMB( 834 ),

@@ -4,28 +4,26 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 
 public class MoveLift extends AbstractAction implements Action
 {
-  private Lift lift = null;
   private Lift.Position position;
 
-  public MoveLift( Telemetry telemetry, Lift lift, Lift.Position position )
+  public MoveLift( JoeBot robot, Lift.Position position )
   {
-    super( telemetry );
-    this.lift = lift;
+    super( robot );
+    this.robot = robot;
     this.position = position;
   }
 
-  public MoveLift( Telemetry telemetry,
-                   Lift lift,
+  public MoveLift( JoeBot robot,
                    Lift.Position position,
                    int maxTime )
   {
-    super( telemetry, maxTime );
-    this.lift = lift;
+    super( robot, maxTime );
+    this.robot = robot;
     this.position = position;
   }
 
@@ -34,13 +32,19 @@ public class MoveLift extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      telemetry.log().add( String.format( "MoveLift: %s", position ) );
-      lift.travelTo( position );
+      robot.telemetry().log().add( String.format( "MoveLift: %s", position ) );
+      robot.lift().travelTo( position );
       super.initialize();
     }
 
-    lift.updateState();
-    return !timeExceeded() &&
-           lift.isMoving();
+    robot.lift().updateState();
+
+    //stop if it is taking too long
+    if( timeExceeded() )
+    {
+      robot.lift().stop();
+    }
+
+    return robot.lift().isMoving();
   }
 }
