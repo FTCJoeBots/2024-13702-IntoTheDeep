@@ -2,25 +2,25 @@ package org.firstinspires.ftc.teamcode.actions;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.JoeBot;
 
 public abstract class AbstractAction
 {
-  protected Telemetry telemetry = null;
+  protected JoeBot robot = null;
   private boolean initialized = false;
 
   //maximum time the action can run for in milliseconds
   private int maxTime = 5000;
   private ElapsedTime time = null;
 
-  public AbstractAction( Telemetry telemetry )
+  public AbstractAction( JoeBot robot )
   {
-    this.telemetry = telemetry;
+    this.robot = robot;
   }
 
-  public AbstractAction( Telemetry telemetry, int maxTime )
+  public AbstractAction( JoeBot robot, int maxTime )
   {
-    this.telemetry = telemetry;
+    this.robot = robot;
     this.maxTime = maxTime;
     time = new ElapsedTime();
   }

@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.actions.GrabSample;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
 import org.firstinspires.ftc.teamcode.actions.OperateIntake;
@@ -13,7 +14,8 @@ import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 
 public class JoeBot
-{ 
+{
+  private Telemetry telemetry = null;
   private ExtensionArm extensionArm = null;
   private Lift lift = null;
   private Intake intake = null;
@@ -21,15 +23,15 @@ public class JoeBot
 
   public JoeBot( HardwareMap hardwareMap, Telemetry telemetry )
   {
-    //avoid recreating modules to avoid resetting encoders in between autonomous and tele op
-    if( extensionArm == null )
-    {
-      extensionArm = new ExtensionArm( hardwareMap, telemetry );
-      lift = new Lift( hardwareMap, telemetry );
-      intake = new Intake( hardwareMap, telemetry );
-      drive = new Drive( hardwareMap, telemetry );
-    }
+    this.telemetry = telemetry;
+    extensionArm = new ExtensionArm( hardwareMap, telemetry );
+    lift = new Lift( hardwareMap, telemetry );
+    intake = new Intake( hardwareMap, telemetry );
+    drive = new Drive( hardwareMap, telemetry );
   }
+
+  public Telemetry telemetry()
+  { return telemetry; }
 
   public ExtensionArm extensionArm()
   { return extensionArm; }
@@ -51,12 +53,6 @@ public class JoeBot
     drive.stop();
   }
 
-  public enum Basket
-  {
-    HIGH_BASKET,
-    LOW_BASKET
-  }
-
   public void updateState()
   {
     drive.updateState();
@@ -65,7 +61,29 @@ public class JoeBot
     intake.updateState();
   }
 
-  public void placeSampleInBasket( Telemetry telemetry, Basket basket )
+  public void grabSample( boolean isSpecimen )
+  {
+    telemetry.log().add( String.format( "grabSample isSpecimen=%s", isSpecimen ) );
+
+    Actions.runBlocking(
+      new SequentialAction(
+        new MoveLift( this,
+          isSpecimen ?
+            Lift.Position.SPECIMEN_FLOOR :
+            Lift.Position.SAMPLE_FLOOR ),
+        new GrabSample( this ),
+        new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
+      )
+    );
+  }
+
+  public enum Basket
+  {
+    HIGH_BASKET,
+    LOW_BASKET
+  }
+
+  public void placeSampleInBasket( Basket basket )
   {
     telemetry.log().add( String.format( "placeSampleInBasket: %s", basket ) );
 
@@ -74,14 +92,14 @@ public class JoeBot
 
     Actions.runBlocking(
       new SequentialAction(
-        new MoveLift( telemetry, lift,
+        new MoveLift( this,
                       basket == Basket.HIGH_BASKET ?
                         Lift.Position.HIGH_BASKET :
                         Lift.Position.LOW_BASKET ),
-        new MoveExtensionArm( telemetry, extensionArm, extendedPosition ),
-        new OperateIntake( telemetry, intake, Intake.Direction.PUSH, 500 ),
-        new MoveExtensionArm( telemetry, extensionArm, ExtensionArm.Position.FULLY_RETRACTED.value ),
-        new MoveLift( telemetry, lift, Lift.Position.FLOOR )
+        new MoveExtensionArm( this, extendedPosition ),
+        new OperateIntake( this, Intake.Direction.PUSH, 500 ),
+        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value ),
+        new MoveLift( this, Lift.Position.FLOOR )
       )
     );
   }
@@ -92,7 +110,7 @@ public class JoeBot
     LOW_BAR
   }
 
-  public void hangSpecimen( Telemetry telemetry, Bar bar )
+  public void hangSpecimen( Bar bar )
   {
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE.value;
@@ -100,41 +118,30 @@ public class JoeBot
     telemetry.log().add( String.format( "hangSpecimen: %s", bar ) );
     Actions.runBlocking(
       new SequentialAction(
-        new MoveLift( telemetry, lift,
+        new MoveLift( this,
           bar == Bar.HIGH_BAR ?
                         Lift.Position.ABOVE_HIGH_SPECIMEN_BAR :
                         Lift.Position.ABOVE_LOW_SPECIMEN_BAR ),
-        new MoveExtensionArm( telemetry, extensionArm, extendedPosition ),
-        new MoveLift( telemetry, lift,
+        new MoveExtensionArm( this, extendedPosition ),
+        new MoveLift( this,
                       bar == Bar.HIGH_BAR ?
                         Lift.Position.SPECIMEN_CLIPPED_ONTO_HIGH_BAR :
                         Lift.Position.SPECIMEN_CLIPPED_ONTO_LOW_BAR,
                         500 ),
-        new MoveExtensionArm( telemetry, extensionArm, ExtensionArm.Position.FULLY_RETRACTED.value ),
-        new MoveLift( telemetry, lift, Lift.Position.FLOOR )
+        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value ),
+        new MoveLift( this, Lift.Position.FLOOR )
       )
     );
   }
 
-  /*
-  public void grabSample( boolean isSpecimen )
-  {
-    Actions.runBlocking(
-      new SequentialAction(
-        //TODO
-      )
-    );
-  }
-  */
-
-  public void climb( Telemetry telemetry )
+  public void climb()
   {
     telemetry.log().add( "climb" );
     Actions.runBlocking(
       new SequentialAction(
-        new MoveLift( telemetry, lift, Lift.Position.ABOVE_LOW_HANG_BAR ),
-        new MoveExtensionArm( telemetry, extensionArm, ExtensionArm.Position.EXTEND_TO_CLIMB.value ),
-        new MoveLift( telemetry, lift, Lift.Position.HANG_FROM_LOW_HANG_BAR )
+        new MoveLift( this, Lift.Position.ABOVE_LOW_HANG_BAR ),
+        new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_CLIMB.value ),
+        new MoveLift( this, Lift.Position.HANG_FROM_LOW_HANG_BAR )
       )
     );
   }
