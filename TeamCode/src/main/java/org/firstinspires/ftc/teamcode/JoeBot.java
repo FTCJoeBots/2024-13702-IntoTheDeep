@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,6 +13,9 @@ import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
+import org.firstinspires.ftc.teamcode.opmode.Bar;
+import org.firstinspires.ftc.teamcode.opmode.Basket;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 public class JoeBot
 {
@@ -19,15 +23,27 @@ public class JoeBot
   private ExtensionArm extensionArm = null;
   private Lift lift = null;
   private Intake intake = null;
+
+  private MecanumDrive mecanumDrive = null;
   private Drive drive = null;
 
-  public JoeBot( HardwareMap hardwareMap, Telemetry telemetry )
+  private static Pose2d pose = new Pose2d( 0, 0, 0 );
+
+  public JoeBot( boolean forAutonomous, HardwareMap hardwareMap, Telemetry telemetry )
   {
     this.telemetry = telemetry;
     extensionArm = new ExtensionArm( hardwareMap, telemetry );
     lift = new Lift( hardwareMap, telemetry );
     intake = new Intake( hardwareMap, telemetry );
-    drive = new Drive( hardwareMap, telemetry );
+
+    if( forAutonomous )
+    {
+      mecanumDrive = new MecanumDrive( hardwareMap, pose );
+    }
+    else
+    {
+      drive = new Drive( hardwareMap, telemetry, pose );
+    }
   }
 
   public Telemetry telemetry()
@@ -45,17 +61,26 @@ public class JoeBot
   public Drive drive()
   { return drive; }
 
+  public MecanumDrive mecanumDrive()
+  { return mecanumDrive; }
+
   public void stop()
   {
     extensionArm.stop();
     lift.stop();
     intake.stop();
-    drive.stop();
+
+    if( drive != null )
+    { drive.stop(); }
   }
 
   public void updateState()
   {
-    drive.updateState();
+    if( drive != null )
+    {
+      drive.updateState();
+    }
+
     lift.updateState();
     extensionArm.updateState();
     intake.updateState();
@@ -77,12 +102,6 @@ public class JoeBot
     );
   }
 
-  public enum Basket
-  {
-    HIGH_BASKET,
-    LOW_BASKET
-  }
-
   public void placeSampleInBasket( Basket basket )
   {
     telemetry.log().add( String.format( "placeSampleInBasket: %s", basket ) );
@@ -102,12 +121,6 @@ public class JoeBot
         new MoveLift( this, Lift.Position.FLOOR )
       )
     );
-  }
-
-  public enum Bar
-  {
-    HIGH_BAR,
-    LOW_BAR
   }
 
   public void hangSpecimen( Bar bar )

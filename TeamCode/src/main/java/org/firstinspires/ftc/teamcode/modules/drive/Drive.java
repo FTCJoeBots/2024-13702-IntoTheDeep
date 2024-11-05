@@ -25,7 +25,7 @@ public class Drive extends AbstractModule
   private DcMotor backRightMotor = null;
 
   private ThreeDeadWheelLocalizer localizer = null;
-  private static Pose2d pose = new Pose2d( 0, 0, 0 );
+  private Pose2d pose;
 
   private IMU inertialMeasurementUnit = null;
   private static YawPitchRollAngles orientation = new YawPitchRollAngles( AngleUnit.DEGREES, 0, 0, 0, 0 );
@@ -59,9 +59,10 @@ public class Drive extends AbstractModule
   private RotateDirection targetDirection = RotateDirection.RIGHT;
   private double targetAngle = 0;
 
-  public Drive( HardwareMap hardwareMap, Telemetry telemetry )
+  public Drive( HardwareMap hardwareMap, Telemetry telemetry, Pose2d pose )
   {
     super( hardwareMap, telemetry );
+    this.pose = pose;
     initObjects();
     initState();
   }

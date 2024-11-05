@@ -43,7 +43,7 @@ public class ManualJoeBot extends OpMode
 //      module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
 //    }
 
-    robot = new JoeBot( hardwareMap, telemetry );
+    robot = new JoeBot( false, hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
 
     telemetry.addLine( "Initialized Manual" );
@@ -116,7 +116,7 @@ public class ManualJoeBot extends OpMode
     {
       if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
       {
-        robot.placeSampleInBasket( JoeBot.Basket.HIGH_BASKET );
+        robot.placeSampleInBasket( Basket.HIGH_BASKET );
       }
       else
       {
@@ -129,7 +129,7 @@ public class ManualJoeBot extends OpMode
     {
       if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
       {
-        robot.placeSampleInBasket( JoeBot.Basket.LOW_BASKET );
+        robot.placeSampleInBasket( Basket.LOW_BASKET );
       }
       else
       {
@@ -147,12 +147,12 @@ public class ManualJoeBot extends OpMode
     //Hang specimen from high bar - x + dpad_left
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) )
     {
-      robot.hangSpecimen( JoeBot.Bar.HIGH_BAR );
+      robot.hangSpecimen( Bar.HIGH_BAR );
     }
     //Hang specimen from low bar - x + dpad_right
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) )
     {
-      robot.hangSpecimen( JoeBot.Bar.LOW_BAR );
+      robot.hangSpecimen( Bar.LOW_BAR );
     }
 
     //Climbing - x + start
