@@ -29,24 +29,34 @@
 
 package org.firstinspires.ftc.teamcode.opmode;
 
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.modules.Lift;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 import java.util.List;
 
-@Autonomous( name = "Auto Joe Bot", group = "Robot" )
-public class AutoJoeBot extends OpMode
+public abstract class AbstractAutonomousOpMode extends OpMode
 {
+  private final Team team;
+  private final GameStrategy gameStrategy;
   ElapsedTime time = null;
   List<LynxModule> hubs;
   JoeBot robot = null;
-  Gamepads gamepads = null;
+
+  protected AbstractAutonomousOpMode( Team team, GameStrategy gameStrategy )
+  {
+    this.team = team;
+    this.gameStrategy = gameStrategy;
+  }
 
   private enum State
   {
@@ -68,8 +78,7 @@ public class AutoJoeBot extends OpMode
       module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
     }
 
-    robot = new JoeBot( hardwareMap, telemetry );
-    gamepads = new Gamepads( gamepad1, gamepad2 );
+    robot = new JoeBot( true, hardwareMap, telemetry );
 
     telemetry.addLine( "Initialized Auto" );
     telemetry.update();
@@ -112,6 +121,28 @@ public class AutoJoeBot extends OpMode
         state = State.LIFT_IS_DOWN;
       }
     }
+
+    MecanumDrive drive = robot.mecanumDrive();
+
+    TrajectoryActionBuilder test = drive.actionBuilder( drive.pose )
+      .splineTo( new Vector2d( 10, 20 ), Math.toRadians( 90 ) )
+      .waitSeconds(2)
+      .lineToYSplineHeading(33, Math.toRadians(0))
+      .waitSeconds(2)
+      .setTangent(Math.toRadians(90))
+      .lineToY(48)
+      .setTangent(Math.toRadians(0))
+      .lineToX(32)
+      .strafeTo(new Vector2d(44.5, 30))
+      .turn(Math.toRadians(180))
+      .lineToX(47.5);
+
+    Action action = test.build();
+    Actions.runBlocking(
+      new SequentialAction(
+        action
+      )
+    );
 
   }
 }
