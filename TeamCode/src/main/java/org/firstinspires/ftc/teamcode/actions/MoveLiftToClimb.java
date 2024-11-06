@@ -1,20 +1,18 @@
 package org.firstinspires.ftc.teamcode.actions;
 
 import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
 
-public class MoveExtensionArm extends AbstractAction implements Action
+public class MoveLiftToClimb extends AbstractAction implements Action
 {
-  private int position;
-
-  public MoveExtensionArm( JoeBot robot, int position )
+  public MoveLiftToClimb( JoeBot robot )
   {
-    super( robot, 1000 );
+    super( robot, 5000 );
     this.robot = robot;
-    this.position = position;
   }
 
   @Override
@@ -22,19 +20,19 @@ public class MoveExtensionArm extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      robot.telemetry().log().add( String.format( "MoveExtensionArm: %s", position ) );
-      robot.extensionArm().travelTo( position );
+      robot.telemetry().log().add( "MoveLiftToClimb" );
+      robot.lift().climb();
       super.initialize();
     }
 
-    robot.extensionArm().updateState();
+    robot.lift().updateState();
 
     //stop if it is taking too long
     if( timeExceeded() )
     {
-      robot.extensionArm().stop();
+      robot.lift().stop();
     }
 
-    return robot.extensionArm().isMoving();
+    return robot.lift().isMoving();
   }
 }

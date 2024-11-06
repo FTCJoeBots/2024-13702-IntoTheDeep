@@ -87,9 +87,12 @@ public class ExtensionArm extends AbstractModule
     setTargetPositionAndPower( Position.FULLY_RETRACTED.value, Speed.FAST.value );
   }
 
-  public void travelTo( Position position )
+  public void climb()
   {
-    setTargetPositionAndPower( position.value, Speed.FAST.value );
+    extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+    extensionArmMotor.setTargetPosition( Position.FULLY_RETRACTED.value );
+    extensionArmMotor.setPower( 1.0 );
+    currentAction = Action.MOVING;
   }
 
   public void travelTo( int position )
