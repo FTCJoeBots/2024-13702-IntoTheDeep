@@ -73,9 +73,9 @@ public class ExtensionArm extends AbstractModule
     if( currentAction == Action.STOPPED )
     { return; }
 
-    int diff = Math.abs( extensionArmMotor.getCurrentPosition() - extensionArmMotor.getTargetPosition() );
+    final int diff = Math.abs( extensionArmMotor.getCurrentPosition() - extensionArmMotor.getTargetPosition() );
 
-    if( diff ) <= 1 )
+    if( diff <= 1 )
     {
       stop();
 //      telemetry.log().add( "Extension Arm Stopped" );
