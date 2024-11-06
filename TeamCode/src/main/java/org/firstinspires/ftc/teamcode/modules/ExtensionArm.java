@@ -50,6 +50,7 @@ public class ExtensionArm extends AbstractModule
   private enum Action
   {
     MOVING,
+    CLIMBING,
     STOPPED
   }
 
@@ -64,13 +65,17 @@ public class ExtensionArm extends AbstractModule
 
   public boolean isMoving()
   {
-    return currentAction == Action.MOVING;
+    return currentAction != Action.STOPPED;
   }
 
   public void updateState()
   {
-    if( currentAction == Action.MOVING &&
-      Math.abs( extensionArmMotor.getCurrentPosition() - extensionArmMotor.getTargetPosition() ) <= 1 )
+    if( currentAction == Action.STOPPED )
+    { return; }
+
+    int diff = Math.abs( extensionArmMotor.getCurrentPosition() - extensionArmMotor.getTargetPosition() );
+
+    if( diff ) <= 1 )
     {
       stop();
 //      telemetry.log().add( "Extension Arm Stopped" );
@@ -167,7 +172,18 @@ public class ExtensionArm extends AbstractModule
 
   public void stop()
   {
-    super.stop();
+    //never drop motor power to 0 when climbing
+    //or extension arm will extend
+    if( currentAction == Action.CLIMBING )
+    {
+      extensionArmMotor.setTargetPosition( extensionArmMotor.getCurrentPosition() );
+      extensionArmMotor.setPower( 1 );
+    }
+    else if( currentAction == Action.MOVING )
+    {
+      super.stop();
+    }
+
     currentAction = Action.STOPPED;
   }
 

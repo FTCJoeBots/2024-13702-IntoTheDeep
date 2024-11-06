@@ -6,12 +6,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-//need a way to be able to pull in specimen easier, maybe special button combo?
-//extention arm did not hold itself in when we climbed, why?
-//student low hang bar when near basekt, and arm got stuck on basket and he was locked out
-//when trying ot pick up a samplef rom the center when the extension arm is all the way out the end of the arm is too low. we need to raise hte lift slightly
-//need a button to streamline picking up specimens buy raising to special hight, extending out automatically
-
 public class Lift extends AbstractModule
 {
   private static final double FAST_SPEED_UP = 1.0;
@@ -58,7 +52,7 @@ public class Lift extends AbstractModule
     //climbing
     ABOVE_LOW_HANG_BAR( 4663 ),
     TOUCHING_LOW_HANG_BAR( 3400  ),
-    HANG_FROM_LOW_HANG_BAR( 2000 ),
+    HANG_FROM_LOW_HANG_BAR( 500 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
     HIGH_UP( 2000 );
