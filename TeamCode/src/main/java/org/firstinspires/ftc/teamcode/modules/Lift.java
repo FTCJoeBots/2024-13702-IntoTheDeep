@@ -11,13 +11,13 @@ public class Lift extends AbstractModule
   private static final double FAST_SPEED_UP = 1.0;
   private static final double FAST_SPEED_DOWN = 1.0;
 
-  private static final double SLOW_SPEED_UP = 0.4;
-  private static final double SLOW_SPEED_DOWN = 0.15;
+//  private static final double SLOW_SPEED_UP = 0.4;
+//  private static final double SLOW_SPEED_DOWN = 0.15;
 
   private static final double COAST = 0;
 
-  private static final int ADJUST_UP   = 200;
-  private static final int ADJUST_DOWN = 200;
+  private static final int ADJUST_UP   = 100;
+  private static final int ADJUST_DOWN = 100;
 
   //coast down until we are close to our target
   //IMPORTANT: this value should be less than ADJUST_DOWN or else we never will coast
@@ -40,18 +40,19 @@ public class Lift extends AbstractModule
     SPECIMEN_FLOOR( 347 ),
 
     //putting samples in baskets
-    HIGH_BASKET( 10000 ),
+    HIGH_BASKET( 9920 ),
     LOW_BASKET( 6088 ),
 
     //hanging specimens
     ABOVE_HIGH_SPECIMEN_BAR( 6324 ),
     ABOVE_LOW_SPECIMEN_BAR( 3548 ),
     SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 5691 ),
-    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 2996 ),
+    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 2600 ),
 
     //climbing
     ABOVE_LOW_HANG_BAR( 4663 ),
-    HANG_FROM_LOW_HANG_BAR( 3889 ),
+    TOUCHING_LOW_HANG_BAR( 3400  ),
+    HANG_FROM_LOW_HANG_BAR( 500 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
     HIGH_UP( 2000 );
@@ -70,6 +71,7 @@ public class Lift extends AbstractModule
   private enum Action
   {
     MOVING,
+    CLIMBING,
     STOPPED
   }
 
@@ -103,8 +105,8 @@ public class Lift extends AbstractModule
 
   public boolean isMoving()
   {
-    telemetry.log().add( String.format( "currentAction: %s", currentAction ) );
-    return currentAction == Action.MOVING;
+    telemetry.log().add( String.format( "Lift currentAction: %s", currentAction ) );
+    return currentAction != Action.STOPPED;
   }
 
   public int liftPosition()
@@ -122,19 +124,20 @@ public class Lift extends AbstractModule
     return turnMotors( DcMotorSimple.Direction.FORWARD, FAST_SPEED_UP );
   }
 
-  public boolean slowLift()
-  {
-    return turnMotors( DcMotorSimple.Direction.FORWARD, SLOW_SPEED_UP );
-  }
-
   public boolean fastDrop()
   {
     return turnMotors( DcMotorSimple.Direction.REVERSE, FAST_SPEED_DOWN );
   }
 
-  public boolean slowDrop()
+  public boolean climb()
   {
-    return turnMotors( DcMotorSimple.Direction.REVERSE, SLOW_SPEED_DOWN );
+    double power = 1.0;
+    int position = Position.HANG_FROM_LOW_HANG_BAR.value;
+
+    setMotorPosition( leftMotor, position, power );
+    setMotorPosition( rightMotor, position, power );
+    currentAction = Action.CLIMBING;
+    return true;
   }
 
   private double adjustPower( int targetPosition, double power )
@@ -167,9 +170,7 @@ public class Lift extends AbstractModule
                    FAST_SPEED_UP :
                    FAST_SPEED_DOWN;
 
-    //always use power to climb
-    if( position != Position.HANG_FROM_LOW_HANG_BAR )
-    { power = adjustPower( position.value, power ); }
+    power = adjustPower( position.value, power );
 
     setMotorPosition( leftMotor, position.value, power );
     setMotorPosition( rightMotor, position.value, power );
@@ -188,7 +189,7 @@ public class Lift extends AbstractModule
 
   public void updateState()
   {
-    if( currentAction != Action.MOVING )
+    if( currentAction == Action.STOPPED )
     { return; }
 
     int leftDiff = Math.abs( leftMotor.getCurrentPosition() - leftMotor.getTargetPosition() );
@@ -206,10 +207,12 @@ public class Lift extends AbstractModule
     }
 
     //switch from floating to using power once we get close to our target position
-    else if( targetPower == 0 &&
+    else if( leftMotor.getZeroPowerBehavior() == DcMotor.ZeroPowerBehavior.FLOAT &&
              ( liftPosition() <= MINIMUM_COAST_HEIGHT ||
                Math.min( leftDiff, rightDiff ) < FAR_AWAY ) )
     {
+      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
       leftMotor.setPower( targetPower );
       rightMotor.setPower( targetPower );
     }
@@ -252,7 +255,7 @@ public class Lift extends AbstractModule
     }
 
     // Ensure we continue to lift to preset position as we release buttons
-    if( currentAction == Action.MOVING )
+    if( currentAction != Action.STOPPED )
     {
       if( direction == DcMotorSimple.Direction.FORWARD && liftNewPosition <= leftMotor.getTargetPosition() )
       { return false; }

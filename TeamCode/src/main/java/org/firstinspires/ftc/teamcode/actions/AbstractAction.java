@@ -10,7 +10,7 @@ public abstract class AbstractAction
   private boolean initialized = false;
 
   //maximum time the action can run for in milliseconds
-  private int maxTime = 5000;
+  private int maxTime = 6000;
   private ElapsedTime time = null;
 
   public AbstractAction( JoeBot robot )

@@ -20,7 +20,7 @@ public class ManualJoeBot extends OpMode
 {
   private enum Module
   {
-    DRIVE, INTAKE, LIFT, EXTENSION_ARM
+    LIFT, DRIVE, INTAKE, EXTENSION_ARM
   }
 
   private ElapsedTime time = null;
@@ -155,34 +155,28 @@ public class ManualJoeBot extends OpMode
       robot.hangSpecimen( Bar.LOW_BAR );
     }
 
-    //Climbing - x + start
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.START, Button.X ) ) )
+    //Climb motion - x + start
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.X ) ) )
     {
       robot.climb();
     }
-    //Raise lift slow (high torque) - dpad_up + b
-    else if( gamepad2.dpad_up && gamepad2.b && !gamepad2.x )
+    //Climb - dpad_down + b
+    else if( gamepad2.dpad_down && gamepad2.b && gamepad2.x )
     {
-      if( robot.lift().slowLift() )
-      { telemetry.addLine( "Raise lift slow" ); }
+      if( robot.lift().climb() )
+      { telemetry.addLine( "Climb" ); }
     }
-    //Lower lift slow (high torque) - dpad_down + b
-    else if( gamepad2.dpad_down && gamepad2.b && !gamepad2.x )
-    {
-      if( robot.lift().slowDrop() )
-      { telemetry.addLine( "Lower lift slow" ); }
-    }
-    //Raise lift fast - dpad_up
+    //Raise lift - dpad_up
     else if( gamepad2.dpad_up && !gamepad2.x )
     {
       if( robot.lift().fastLift() )
-      { telemetry.addLine( "Raise lift fast" ); }
+      { telemetry.addLine( "Raise lift" ); }
     }
-    //Lower lift fast- dpad_down
+    //Lower lift- dpad_down
     else if( gamepad2.dpad_down && !gamepad2.x )
     {
       if( robot.lift().fastDrop() )
-      { telemetry.addLine( "Lower lift fast" ); }
+      { telemetry.addLine( "Lower lift" ); }
     }
 
     //==================
@@ -216,6 +210,7 @@ public class ManualJoeBot extends OpMode
       robot.drive().resetPose();
     }
 
+    /*
     //Turn around
     if( gamepads.buttonPressed( Participant.DRIVER, Button.RIGHT_BUMPER ) )
     {
@@ -263,7 +258,7 @@ public class ManualJoeBot extends OpMode
     if( gamepads.buttonPressed( Participant.DRIVER, Button.LEFT_STICK ) )
     {
       robot.drive().togglePerspective();
-    }
+    }*/
 
     final double forward = gamepad1.left_stick_y;
     final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
