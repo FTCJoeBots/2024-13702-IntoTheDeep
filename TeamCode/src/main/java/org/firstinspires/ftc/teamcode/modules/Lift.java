@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -10,9 +11,6 @@ public class Lift extends AbstractModule
 {
   private static final double FAST_SPEED_UP = 1.0;
   private static final double FAST_SPEED_DOWN = 1.0;
-
-//  private static final double SLOW_SPEED_UP = 0.4;
-//  private static final double SLOW_SPEED_DOWN = 0.15;
 
   private static final double COAST = 0;
 
@@ -47,12 +45,15 @@ public class Lift extends AbstractModule
     ABOVE_HIGH_SPECIMEN_BAR( 6324 ),
     ABOVE_LOW_SPECIMEN_BAR( 3548 ),
     SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 5691 ),
-    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 2600 ),
+    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 3000 ),
 
-    //climbing
+    //leve 1 scent
+    AT_LOW_HANG_BAR( 3800 ),
+
+    //level 2 ascent
     ABOVE_LOW_HANG_BAR( 4663 ),
     TOUCHING_LOW_HANG_BAR( 3400  ),
-    HANG_FROM_LOW_HANG_BAR( 500 ),
+    HANG_FROM_LOW_HANG_BAR( 0 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
     HIGH_UP( 2000 );
@@ -65,8 +66,8 @@ public class Lift extends AbstractModule
     public final int value;
   }
 
-  DcMotor leftMotor = null;
-  DcMotor rightMotor = null;
+  DcMotorEx leftMotor = null;
+  DcMotorEx rightMotor = null;
 
   private enum Action
   {
@@ -147,10 +148,14 @@ public class Lift extends AbstractModule
     //it is smoother if we coast downwards until we get
     //close to our target position
     int liftCurPosition = liftPosition();
+    double liftVelocity = leftMotor.getVelocity();
 
     if( targetPosition < liftCurPosition &&
       liftCurPosition > MINIMUM_COAST_HEIGHT &&
-      Math.abs( targetPosition - liftCurPosition ) > FAR_AWAY )
+      Math.abs( targetPosition - liftCurPosition ) > FAR_AWAY &&
+      //wait until the lift starts moving before switching to coast most
+      //to avoid getting stuck
+      liftVelocity > 10 )
     {
       leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
       rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
@@ -200,7 +205,7 @@ public class Lift extends AbstractModule
     //stop once we get close to our target position
     telemetry.log().add( String.format( "lift diff: %s", diff ) );
 
-    if( diff <= 20 )
+    if( diff <= 10 )
     {
       telemetry.log().add( "close enough, auto stop" );
       stop();
@@ -225,7 +230,10 @@ public class Lift extends AbstractModule
     telemetry.addLine( String.format( "Lift Action: %s", currentAction ) );
 
     if( leftMotor != null )
-    { telemetry.addLine( String.format( "Left Lift Motor: %s", leftMotor.getCurrentPosition() ) ); }
+    {
+      telemetry.addLine( String.format( "Left Lift Motor: %s", leftMotor.getCurrentPosition() ) );
+      telemetry.addLine( String.format( "Left Lift Velocity: %f", leftMotor.getVelocity() ) );
+    }
 
     if( rightMotor != null )
     { telemetry.addLine( String.format( "Right Lift Motor: %s", rightMotor.getCurrentPosition() ) ); }
@@ -279,7 +287,7 @@ public class Lift extends AbstractModule
     { return false; }
   }
 
-  private void setMotorPosition( DcMotor motor, int position, double power )
+  private void setMotorPosition( DcMotorEx motor, int position, double power )
   {
     if( motor == null )
     { return; }

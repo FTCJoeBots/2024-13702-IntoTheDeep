@@ -40,7 +40,6 @@ public class Intake extends AbstractModule
 
   //continue running the servos briefly after we see the sample
   //to ensure it is *centered* within the intake
-//  private static final int CENTER_DELAY = 200;
   private static final int CENTER_DELAY = 0;
   private static final int EJECT_DELAY = 400;
 
@@ -140,11 +139,11 @@ public class Intake extends AbstractModule
 
     float hue = hsvValues[ 0 ];
 
-    //~20
-     if( hue < 25 || hue > 325 )
+    //~24
+     if( hue < 40 || hue > 325 )
     { return ObservedObject.RED_SAMPLE; }
-     //~85
-    else if( hue > 70 && hue < 100 )
+     //~90
+    else if( hue > 70 && hue < 110 )
     { return ObservedObject.YELLOW_SAMPLE; }
     //~210
     else if( hue > 195 && hue < 265 )

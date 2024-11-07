@@ -21,7 +21,8 @@ public class ExtensionArm extends AbstractModule
     FULLY_EXTENDED( 2876 ),
     EXTEND_TO_GRAB_SAMPLE( 400 ),
     EXTEND_TO_DUMP_IN_BASKET( 800 ),
-    EXTEND_TO_HANG_SAMPLE( 834 ),
+    EXTEND_TO_HANG_SAMPLE( 1000 ),
+    EXTEND_TO_TOUCH_BAR( 455 ),
     EXTEND_TO_CLIMB( 834 ),
     MAX_EXTENSION_WHILE_HIGH( 1000 );
 
@@ -97,7 +98,7 @@ public class ExtensionArm extends AbstractModule
     extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
     extensionArmMotor.setTargetPosition( Position.FULLY_RETRACTED.value );
     extensionArmMotor.setPower( 1.0 );
-    currentAction = Action.MOVING;
+    currentAction = Action.CLIMBING;
   }
 
   public void travelTo( int position )
