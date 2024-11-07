@@ -48,6 +48,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 {
   private final Team team;
   private final GameStrategy gameStrategy;
+  private AutonomousState state = AutonomousState.HAVE_SPECIMEN;
+  private int neutralSamplesLeft = 6;
+  private int teamSamplesLeft = 3;
   ElapsedTime time = null;
   List<LynxModule> hubs;
   JoeBot robot = null;
@@ -57,13 +60,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     this.team = team;
     this.gameStrategy = gameStrategy;
   }
-
-  private enum State
-  {
-    LIFT_IS_DOWN, LIFT_IS_UP
-  }
-
-  private State state = State.LIFT_IS_DOWN;
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -107,6 +103,20 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       module.clearBulkCache();
     }
 
+    switch( gameStrategy )
+    {
+      case PARK:
+        parkStrategy();
+        break;
+        case PLACE_SAMPLES_IN_BASKETS:
+         bucketStrategy();
+         break;
+        case HANG_SPECIMENS_ON_BARS:
+          specimenStrategy();
+          break;
+    }
+
+    /*
     //Move the lift in the opposite direction once it has stopped moving
     if( !robot.lift().isMoving() )
     {
@@ -143,6 +153,23 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         action
       )
     );
+*/
+  }
 
+  private void parkStrategy()
+  {
+    //TODO
+    //bucket bot parks by touching bar - first drive to location just outside hang zone to avoid hitting foot
+    //  specimen bot parks by going to observation zone
+  }
+
+  private void bucketStrategy()
+  {
+    //TODO
+  }
+
+  private void specimenStrategy()
+  {
+    //TODO
   }
 }

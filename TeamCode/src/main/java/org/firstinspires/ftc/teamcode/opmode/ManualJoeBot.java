@@ -112,53 +112,46 @@ public class ManualJoeBot extends OpMode
     //Lift
     //==================
     //High basket - x + dpad_up
-    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) &&
+        robot.intake().hasSample() )
     {
-      if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
-      {
-        robot.placeSampleInBasket( Basket.HIGH_BASKET );
-      }
-      else
-      {
-        robot.lift().travelTo( Lift.Position.HIGH_BASKET );
-        addMessage( "Move Lift to High Basket" );
-      }
+      robot.placeSampleInBasket( Basket.HIGH_BASKET );
     }
     //Low basket - x + dpad_down
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) &&
+             robot.intake().hasSample() )
     {
-      if( robot.intake().getObservedObject() != Intake.ObservedObject.NOTHING )
-      {
-        robot.placeSampleInBasket( Basket.LOW_BASKET );
-      }
-      else
-      {
-        robot.lift().travelTo( Lift.Position.LOW_BASKET );
-        addMessage( "Move Lift to Low Basket" );
-      }
+      robot.placeSampleInBasket( Basket.LOW_BASKET );
     }
-    //Move lift to bottom - x + a
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.A, Button.X ) ) )
+    //Move lift to bottom - B + dpad_down
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.DPAD_DOWN ) ) )
     {
       robot.lift().travelTo( Lift.Position.FLOOR );
       addMessage( "Move Lift to Floor" );
     }
 
     //Hang specimen from high bar - x + dpad_left
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) &&
+             robot.intake().hasSample() )
     {
       robot.hangSpecimen( Bar.HIGH_BAR );
     }
     //Hang specimen from low bar - x + dpad_right
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) &&
+             robot.intake().hasSample() )
     {
       robot.hangSpecimen( Bar.LOW_BAR );
     }
 
-    //Climb motion - x + start
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.X ) ) )
+    //Level 1 ascent - left bumper
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.LEFT_BUMPER ) )
     {
-      robot.climb();
+      robot.levelOneAscent();
+    }
+    //Level 2 ascent - Right Bumper
+    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.RIGHT_BUMPER ) )
+    {
+      robot.levelTwoAscent();
     }
     //Climb - dpad_down + b
     else if( gamepad2.dpad_down && gamepad2.b && gamepad2.x )
@@ -200,6 +193,18 @@ public class ManualJoeBot extends OpMode
              gamepads.buttonPressed( Participant.OPERATOR, Button.B ) )
     {
       robot.intake().stop();
+    }
+    //Grab sample - X + pull back left stick
+    else if( gamepad2.x &&
+             gamepad2.left_stick_y > 0 )
+    {
+      robot.grabSample( false );
+    }
+    //Grab specimen - X + push forward left stick
+    else if( gamepad2.x &&
+             gamepad2.left_stick_y < 0 )
+    {
+      robot.grabSample( true );
     }
 
     //==================

@@ -92,6 +92,10 @@ public class JoeBot
   {
     telemetry.log().add( String.format( "Grab Sample Motion: isSpecimen=%s", isSpecimen ) );
 
+    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
+    //while the motion if being performed
+    drive.stop();
+
     Actions.runBlocking(
       new SequentialAction(
         new MoveLift( this,
@@ -107,6 +111,10 @@ public class JoeBot
   public void placeSampleInBasket( Basket basket )
   {
     telemetry.log().add( String.format( "Place Sample In Basket Motion: %s", basket ) );
+
+    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
+    //while the motion if being performed
+    drive.stop();
 
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_DUMP_IN_BASKET.value;
@@ -128,10 +136,15 @@ public class JoeBot
 
   public void hangSpecimen( Bar bar )
   {
+    telemetry.log().add( String.format( "Hang Specimen Motion: %s", bar ) );
+
+    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
+    //while the motion if being performed
+    drive.stop();
+
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE.value;
 
-    telemetry.log().add( String.format( "Hang Specimen Motion: %s", bar ) );
     Actions.runBlocking(
       new SequentialAction(
         new MoveLift( this,
@@ -151,9 +164,31 @@ public class JoeBot
     );
   }
 
-  public void climb()
+  public void levelOneAscent()
   {
-    telemetry.log().add( "Climb Motion:" );
+    telemetry.log().add( "Level One Ascent:" );
+
+    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
+    //while the motion if being performed
+    drive.stop();
+
+    Actions.runBlocking(
+      new SequentialAction(
+        new MoveLift( this, Lift.Position.AT_LOW_HANG_BAR ),
+        new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_TOUCH_BAR.value )
+      )
+    );
+  }
+
+
+  public void levelTwoAscent()
+  {
+    telemetry.log().add( "Level Two Ascent:" );
+
+    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
+    //while the motion if being performed
+    drive.stop();
+
     Actions.runBlocking(
       new SequentialAction(
         new MoveLift( this, Lift.Position.ABOVE_LOW_HANG_BAR ),
@@ -164,5 +199,7 @@ public class JoeBot
       )
     );
   }
+
+
 
 }

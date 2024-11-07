@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.modules;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -23,9 +24,9 @@ public abstract class AbstractModule
     motors = new ArrayList<>();
   }
 
-  protected DcMotor createMotor( String name )
+  protected DcMotorEx createMotor( String name )
   {
-    DcMotor motor = hardwareMap.dcMotor.get( name );
+    DcMotorEx motor = hardwareMap.get( DcMotorEx.class, name );
     motors.add( motor );
     return motor;
   }
