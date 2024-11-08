@@ -27,27 +27,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.opmode;
+package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
-import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
-import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
+import org.firstinspires.ftc.teamcode.enums.Bar;
+import org.firstinspires.ftc.teamcode.enums.Basket;
+import org.firstinspires.ftc.teamcode.enums.Location;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
+import org.firstinspires.ftc.teamcode.enums.Team;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 
 public abstract class AbstractAutonomousOpMode extends OpMode
 {
@@ -124,6 +124,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private void park()
   {
+    //TODO- we don't park in obervation zone! we park in ascent zone!
     driveTo( Arrays.asList( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE.value, Math.toRadians( -90 ) ),
                             new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( -90 ) ) ) );
     robot.extensionArm().travelTo( ExtensionArm.Position.EXTEND_TO_TOUCH_BAR.value );

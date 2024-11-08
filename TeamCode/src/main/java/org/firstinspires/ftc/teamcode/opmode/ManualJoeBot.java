@@ -6,10 +6,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
-import org.firstinspires.ftc.teamcode.modules.Intake;
-import org.firstinspires.ftc.teamcode.modules.drive.PresetDirection;
-import org.firstinspires.ftc.teamcode.modules.drive.RotateDirection;
+import org.firstinspires.ftc.teamcode.enums.Button;
+import org.firstinspires.ftc.teamcode.enums.Participant;
 import org.firstinspires.ftc.teamcode.modules.Lift;
+import org.firstinspires.ftc.teamcode.enums.Bar;
+import org.firstinspires.ftc.teamcode.enums.Basket;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -180,8 +181,22 @@ public class ManualJoeBot extends OpMode
     //==================
     //Intake
     //==================
+    //Grab sample - X + pull back left stick
+    if( !robot.intake().hasSample() &&
+        gamepad2.x &&
+        gamepad2.left_stick_y > 0 )
+    {
+      robot.grabSample( false );
+    }
+    //Grab specimen - X + push forward left stick
+    else if( !robot.intake().hasSample() &&
+             gamepad2.x &&
+             gamepad2.left_stick_y < 0 )
+    {
+      robot.grabSample( true );
+    }
     //Pull in sample
-    if( gamepad2.left_stick_y > 0 &&
+    else if( gamepad2.left_stick_y > 0 &&
         //avoid trapping a sample in the center of the robot
         ( !robot.intake().hasSample() ||
           robot.lift().liftPosition() < 1000 ) )
@@ -198,18 +213,6 @@ public class ManualJoeBot extends OpMode
              gamepads.buttonPressed( Participant.OPERATOR, Button.B ) )
     {
       robot.intake().stop();
-    }
-    //Grab sample - X + pull back left stick
-    else if( gamepad2.x &&
-             gamepad2.left_stick_y > 0 )
-    {
-      robot.grabSample( false );
-    }
-    //Grab specimen - X + push forward left stick
-    else if( gamepad2.x &&
-             gamepad2.left_stick_y < 0 )
-    {
-      robot.grabSample( true );
     }
 
     //==================

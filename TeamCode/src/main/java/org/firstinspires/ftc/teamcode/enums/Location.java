@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmode;
+package org.firstinspires.ftc.teamcode.enums;
 
 import com.acmerobotics.roadrunner.Vector2d;
 

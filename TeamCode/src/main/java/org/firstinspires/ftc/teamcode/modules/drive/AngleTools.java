@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.modules.drive;
 
+import org.firstinspires.ftc.teamcode.enums.PresetDirection;
+import org.firstinspires.ftc.teamcode.enums.RotateDirection;
+
 public class AngleTools
 {
   public static RotateDirection quickestDirection( double currentAngle, double nextAngle )

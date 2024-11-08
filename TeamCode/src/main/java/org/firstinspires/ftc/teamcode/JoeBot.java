@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
-import org.firstinspires.ftc.teamcode.opmode.Bar;
-import org.firstinspires.ftc.teamcode.opmode.Basket;
+import org.firstinspires.ftc.teamcode.enums.Bar;
+import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 public class JoeBot
@@ -183,7 +183,6 @@ public class JoeBot
     );
   }
 
-
   public void levelTwoAscent()
   {
     telemetry.log().add( "Level Two Ascent:" );
@@ -202,7 +201,5 @@ public class JoeBot
       )
     );
   }
-
-
 
 }
