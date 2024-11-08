@@ -12,7 +12,7 @@ public class GrabSample extends AbstractAction implements Action
 {
   public GrabSample( JoeBot robot )
   {
-    super( robot, 1000 );
+    super( robot, 4000 );
   }
 
   @Override

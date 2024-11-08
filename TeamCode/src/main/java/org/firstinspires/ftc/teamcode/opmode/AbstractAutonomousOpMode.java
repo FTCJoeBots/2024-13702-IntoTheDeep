@@ -29,20 +29,25 @@
 
 package org.firstinspires.ftc.teamcode.opmode;
 
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
-import org.firstinspires.ftc.teamcode.modules.Lift;
+import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
+import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 public abstract class AbstractAutonomousOpMode extends OpMode
 {
@@ -106,70 +111,109 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     switch( gameStrategy )
     {
       case PARK:
-        parkStrategy();
+        park();
         break;
-        case PLACE_SAMPLES_IN_BASKETS:
+      case PLACE_SAMPLES_IN_BASKETS:
          bucketStrategy();
          break;
-        case HANG_SPECIMENS_ON_BARS:
-          specimenStrategy();
-          break;
+      case HANG_SPECIMENS_ON_BARS:
+        specimenStrategy();
+        break;
     }
-
-    /*
-    //Move the lift in the opposite direction once it has stopped moving
-    if( !robot.lift().isMoving() )
-    {
-      if( state == State.LIFT_IS_DOWN )
-      {
-        robot.lift().travelTo( Lift.Position.LOW_BASKET );
-        state = State.LIFT_IS_UP;
-      }
-      else
-      {
-        robot.lift().travelTo( Lift.Position.FLOOR );
-        state = State.LIFT_IS_DOWN;
-      }
-    }
-
-    MecanumDrive drive = robot.mecanumDrive();
-
-    TrajectoryActionBuilder test = drive.actionBuilder( drive.pose )
-      .splineTo( new Vector2d( 10, 20 ), Math.toRadians( 90 ) )
-      .waitSeconds(2)
-      .lineToYSplineHeading(33, Math.toRadians(0))
-      .waitSeconds(2)
-      .setTangent(Math.toRadians(90))
-      .lineToY(48)
-      .setTangent(Math.toRadians(0))
-      .lineToX(32)
-      .strafeTo(new Vector2d(44.5, 30))
-      .turn(Math.toRadians(180))
-      .lineToX(47.5);
-
-    Action action = test.build();
-    Actions.runBlocking(
-      new SequentialAction(
-        action
-      )
-    );
-*/
   }
 
-  private void parkStrategy()
+  private void park()
   {
-    //TODO
-    //bucket bot parks by touching bar - first drive to location just outside hang zone to avoid hitting foot
-    //  specimen bot parks by going to observation zone
+    driveTo( Arrays.asList( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE.value, Math.toRadians( -90 ) ),
+                            new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( -90 ) ) ) );
+    robot.extensionArm().travelTo( ExtensionArm.Position.EXTEND_TO_TOUCH_BAR.value );
+
+    //TODO - set state to parked
   }
 
   private void bucketStrategy()
   {
-    //TODO
+    if( state == AutonomousState.HAVE_SPECIMEN )
+    {
+      driveTo( new Pose2d( Location.SPECIMEN_BAR.value, 0 ) );
+      robot.hangSpecimen( Bar.HIGH_BAR );
+      state = AutonomousState.HAVE_NOTHING;
+    }
+    else if( state == AutonomousState.HAVE_SAMPLE )
+    {
+      //TODO - bad angle!
+      driveTo( new Pose2d( Location.SAMPLE_BASKETS.value, -90 ) );
+      //TODO - place sample in basket
+      //TODO - state = have nothing
+    }
+    else if( state == AutonomousState.HAVE_NOTHING )
+    {
+      //TODO if neutral samples left <= 0 or there is not enough time yet park
+//      private int neutralSamplesLeft = 6;
+//      ElapsedTime time = null;
+
+      //otherwise...
+      //TODO - move to net further sample on ground away from fall
+      //TODO - grab sample
+      //TODO - state = HAVE_SAMPLE
+      //TODO - decrement neutralSamplesLeft
+    }
   }
 
   private void specimenStrategy()
   {
-    //TODO
+    if( state == AutonomousState.HAVE_SPECIMEN )
+    {
+      //TODO - Go to specimen bar
+      //TODO - Hang specimen
+      //TODO - state = HAVE_NOTHING
+    }
+    else if( state == AutonomousState.HAVE_SAMPLE )
+    {
+      //TODO - Go to the observation zone
+      //TODO - Give the sample to the human player
+      //TODO - Back out of the loading zone
+      //TODO - Wait for 5 seconds
+      //TODO - Pick up the specimen.
+      //TODO - state=HAVE_SPeciMENS
+          /*
+    TrajectoryActionBuilder test = drive.actionBuilder( drive.pose )
+      .splineTo( new Vector2d( 10, 20 ), Math.toRadians( 90 ) )
+      .waitSeconds(2)
+      .lineToYSplineHeading(33, Math.toRadians(0))
+      .setTangent(Math.toRadians(90))
+      .lineToY(48)
+      .lineToX(32)
+      .strafeTo(new Vector2d(44.5, 30))
+      .turn(Math.toRadians(180))
+*/
+    }
+    else if( state == AutonomousState.HAVE_NOTHING )
+    {
+      //TODO if team samples left <= 0 or there is not enough time yet park
+      //      private int teamSamplesLeft = 3;
+      //      ElapsedTime time = null;
+
+      //TODO - otherwise... what should we do?
+
+    }
+  }
+
+  private void driveTo( Pose2d pose )
+  {
+    driveTo( Collections.singletonList( pose ) );
+  }
+
+  private void driveTo( List<Pose2d> poses )
+  {
+    MecanumDrive drive = robot.mecanumDrive();
+
+    TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
+    for( Pose2d pose : poses )
+    {
+      trajectory = trajectory.splineTo( pose.position, pose.heading.toDouble() );
+    }
+
+    Actions.runBlocking( trajectory.build() );
   }
 }

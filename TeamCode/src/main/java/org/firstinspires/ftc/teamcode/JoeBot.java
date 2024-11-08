@@ -164,6 +164,9 @@ public class JoeBot
     );
   }
 
+  //TODO - once lift is moved set drive wheels to coast and FULLY exten the arm.
+  //stop that action once the velocity of hte extension arm drops below a certain amount.
+  //this will prevent gear mash but allow this to work from farther away and allow us to extend arm quickly!
   public void levelOneAscent()
   {
     telemetry.log().add( "Level One Ascent:" );

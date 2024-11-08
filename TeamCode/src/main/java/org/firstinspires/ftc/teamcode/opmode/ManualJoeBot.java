@@ -55,7 +55,12 @@ public class ManualJoeBot extends OpMode
   {
     //Allow robot to be pushed around before the start button is pressed
     robot.drive().coast();
+
+    //TODO auto retract arm and drop lift in ce level 1 ascent was done by auto op mode?
   }
+
+//  reset pos at start of autonomous
+//  do not reset motoroencoders after auto
 
   @Override
   public void start()

@@ -9,13 +9,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class AbstractModule
 {
   protected HardwareMap hardwareMap = null;
   protected Telemetry telemetry = null;
-  private List<DcMotorSimple> motors = null;
+  private ArrayList<DcMotorSimple> motors = null;
 
   public AbstractModule( HardwareMap hardwareMap, Telemetry telemetry )
   {
