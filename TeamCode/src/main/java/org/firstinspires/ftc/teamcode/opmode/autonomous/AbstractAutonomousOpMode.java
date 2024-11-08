@@ -89,7 +89,16 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     switch( gameStrategy )
     {
       case PARK:
-        park();
+        if( state != AutonomousState.PARKED )
+        {
+          park();
+        }
+        break;
+      case LEVEL_1_ASCENT:
+        if( state != AutonomousState.PARKED )
+        {
+          level1Ascent();
+        }
         break;
       case PLACE_SAMPLES_IN_BASKETS:
          basketStrategy();
