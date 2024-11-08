@@ -1,32 +1,3 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
@@ -40,10 +11,10 @@ import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.enums.Location;
+import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.enums.Team;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -79,7 +50,14 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
     }
 
+    //force encoders to be reset at the beginning of autonomous
+    AbstractModule.encodersReset = false;
+
     robot = new JoeBot( true, hardwareMap, telemetry );
+
+    //always reset the position and heading at the beginning of Autonomous
+    telemetry.addLine( "Resetting Position" );
+    robot.resetPos();
 
     telemetry.addLine( "Initialized Auto" );
     telemetry.update();
@@ -114,7 +92,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         park();
         break;
       case PLACE_SAMPLES_IN_BASKETS:
-         bucketStrategy();
+         basketStrategy();
          break;
       case HANG_SPECIMENS_ON_BARS:
         specimenStrategy();
@@ -122,17 +100,31 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     }
   }
 
-  private void park()
+  @Override
+  public void stop()
   {
-    //TODO- we don't park in obervation zone! we park in ascent zone!
-    driveTo( Arrays.asList( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE.value, Math.toRadians( -90 ) ),
-                            new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( -90 ) ) ) );
-    robot.extensionArm().travelTo( ExtensionArm.Position.EXTEND_TO_TOUCH_BAR.value );
+    //store position so it can be restored when we start TeleOp
+    robot.cachePos();
 
-    //TODO - set state to parked
+    //prevent resetting encoders when switching to TeleOp
+    AbstractModule.encodersReset = true;
   }
 
-  private void bucketStrategy()
+  private void level1Ascent()
+  {
+    driveTo( Arrays.asList( new Pose2d( Location.NEAR_ASCENT_ZONE.value, Math.toRadians( -90 ) ),
+                            new Pose2d( Location.ASCENT_ZONE.value, Math.toRadians( -90 ) ) ) );
+    robot.extensionArm().travelTo( ExtensionArm.Position.EXTEND_TO_TOUCH_BAR.value );
+    state  = AutonomousState.PARKED;
+  }
+
+  private void park()
+  {
+    driveTo( new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( 0 ) ) );
+    state  = AutonomousState.PARKED;
+  }
+
+  private void basketStrategy()
   {
     if( state == AutonomousState.HAVE_SPECIMEN )
     {
@@ -148,15 +140,36 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     }
     else if( state == AutonomousState.HAVE_NOTHING )
     {
-      //TODO if neutral samples left <= 0 or there is not enough time yet park
-//      private int neutralSamplesLeft = 6;
-//      ElapsedTime time = null;
+      if( neutralSamplesLeft < 4 ||
+          timeRunningOut() )
+      {
+        level1Ascent();
+      }
+      else
+      {
+        if( neutralSamplesLeft == 6 )
+        {
+          driveTo( new Pose2d( Location.YELLOW_SAMPLE_1.value, 0 ) );
+        }
+        else if( neutralSamplesLeft == 5 )
+        {
+          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES.value, Math.toRadians( 180 ) ),
+                                  new Pose2d( Location.YELLOW_SAMPLE_2.value, Math.toRadians( 180 ) ) ) );
+        }
+        else if( neutralSamplesLeft == 4 )
+        {
+          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES.value, Math.toRadians( 135 ) ),
+                                  new Pose2d( Location.YELLOW_SAMPLE_2.value, Math.toRadians( 135 ) ) ) );
+        }
 
-      //otherwise...
-      //TODO - move to get further sample on ground away from fall
-      //TODO - grab sample
-      //TODO - state = HAVE_SAMPLE
-      //TODO - decrement neutralSamplesLeft
+        robot.grabSample( false );
+        neutralSamplesLeft--;
+
+        if( robot.intake().hasSample() )
+        {
+          state = AutonomousState.HAVE_SAMPLE;
+        }
+      }
     }
   }
 
@@ -170,32 +183,39 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     }
     else if( state == AutonomousState.HAVE_SAMPLE )
     {
-      //TODO - Go to the observation zone
-      //TODO - Give the sample to the human player
-      //TODO - Back out of the loading zone
-      //TODO - Wait for 5 seconds
-      //TODO - Pick up the specimen.
-      //TODO - state=HAVE_SPeciMENS
-          /*
-    TrajectoryActionBuilder test = drive.actionBuilder( drive.pose )
-      .splineTo( new Vector2d( 10, 20 ), Math.toRadians( 90 ) )
-      .waitSeconds(2)
-      .lineToYSplineHeading(33, Math.toRadians(0))
-      .setTangent(Math.toRadians(90))
-      .lineToY(48)
-      .lineToX(32)
-      .strafeTo(new Vector2d(44.5, 30))
-      .turn(Math.toRadians(180))
-*/
+      driveTo( new Pose2d( Location.OBSERVATION_ZONE.value, 180 ) );
+      robot.giveUpSample();
+      retrieveSpecimen();
     }
     else if( state == AutonomousState.HAVE_NOTHING )
     {
-      //TODO if team samples left <= 0 or there is not enough time yet park
-      //      private int teamSamplesLeft = 3;
-      //      ElapsedTime time = null;
+      if( teamSamplesLeft <= 0 ||
+        timeRunningOut() )
+      {
+        park();
+      }
 
-      //TODO - otherwise... what should we do?
+      if( teamSamplesLeft == 3 )
+      {
+        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES.value, Math.toRadians( -90 ) ),
+                                new Pose2d( Location.TEAM_SAMPLE_1.value, Math.toRadians( -90 ) ),
+                                new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( -90 ) ) ) );
+      }
+      else if( neutralSamplesLeft == 2 )
+      {
+        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES.value, Math.toRadians( -90 ) ),
+                                new Pose2d( Location.TEAM_SAMPLE_2.value, Math.toRadians( -90 ) ),
+                                new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( -90 ) ) ) );
+      }
+      else
+      {
+        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES.value, Math.toRadians( -90 ) ),
+                                new Pose2d( Location.TEAM_SAMPLE_1.value, Math.toRadians( -90 ) ),
+                                new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( -90 ) ) ) );
+      }
 
+      teamSamplesLeft--;
+      retrieveSpecimen();
     }
   }
 
@@ -216,4 +236,24 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
     Actions.runBlocking( trajectory.build() );
   }
+
+  private void retrieveSpecimen()
+  {
+    driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE.value, 180 ) );
+    robot.wait( 1000 );
+    robot.grabSample( true );
+
+    state = robot.intake().hasSample() ?
+      AutonomousState.HAVE_SPECIMEN :
+      AutonomousState.HAVE_NOTHING;
+  }
+
+  private boolean timeRunningOut()
+  {
+    int timeInMatch = 30;
+    double timeEllapsed = time.seconds();
+    double timeLeft = timeInMatch - timeEllapsed;
+    return timeLeft <= 10;
+  }
+
 }
