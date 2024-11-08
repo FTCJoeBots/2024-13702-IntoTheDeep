@@ -1,6 +1,9 @@
-package org.firstinspires.ftc.teamcode.opmode;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
+
+import org.firstinspires.ftc.teamcode.enums.Button;
+import org.firstinspires.ftc.teamcode.enums.Participant;
 
 import java.util.Set;
 

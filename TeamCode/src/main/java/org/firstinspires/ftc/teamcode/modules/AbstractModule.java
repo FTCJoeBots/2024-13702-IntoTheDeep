@@ -9,13 +9,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class AbstractModule
 {
   protected HardwareMap hardwareMap = null;
   protected Telemetry telemetry = null;
-  private List<DcMotorSimple> motors = null;
+  private ArrayList<DcMotorSimple> motors = null;
+
+  public static boolean encodersReset = false;
 
   public AbstractModule( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -50,7 +51,8 @@ public abstract class AbstractModule
     motor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
 
     // Reset the motor encoder so that it reads zero ticks
-    motor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+    if( !encodersReset )
+    { motor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER ); }
 
     // Turn the motor back on
     motor.setMode( runMode );

@@ -1,22 +1,27 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArmToClimb;
 import org.firstinspires.ftc.teamcode.actions.MoveLiftToClimb;
 import org.firstinspires.ftc.teamcode.actions.GrabSample;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
 import org.firstinspires.ftc.teamcode.actions.OperateIntake;
+import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
-import org.firstinspires.ftc.teamcode.opmode.Bar;
-import org.firstinspires.ftc.teamcode.opmode.Basket;
+import org.firstinspires.ftc.teamcode.enums.Bar;
+import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 public class JoeBot
@@ -33,6 +38,9 @@ public class JoeBot
 
   public JoeBot( boolean forAutonomous, HardwareMap hardwareMap, Telemetry telemetry )
   {
+    if( !AbstractModule.encodersReset )
+    { telemetry.addLine( "Resetting Encoders" ); }
+
     this.telemetry = telemetry;
     extensionArm = new ExtensionArm( hardwareMap, telemetry );
     lift = new Lift( hardwareMap, telemetry );
@@ -76,6 +84,29 @@ public class JoeBot
     { drive.stop(); }
   }
 
+  public void resetPos()
+  {
+    pose = new Pose2d( 0, 0, 0 );
+
+    if( drive != null )
+    { drive.resetPose( pose ); }
+
+    if( mecanumDrive != null )
+    { mecanumDrive.pose = pose; }
+  }
+
+  public void cachePos()
+  {
+    if( drive != null )
+    {
+      pose = drive.getPos();
+    }
+    else if( mecanumDrive != null )
+    {
+      pose = mecanumDrive.pose;
+    }
+  }
+
   public void updateState()
   {
     if( drive != null )
@@ -106,6 +137,26 @@ public class JoeBot
         new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
       )
     );
+  }
+
+  public void wait( int milliseconds )
+  {
+    Actions.runBlocking(
+      new SequentialAction(
+        new SleepAction( milliseconds )
+      )
+    );
+  }
+
+  public void giveUpSample()
+  {
+    telemetry.log().add( "Give Up Sample" );
+
+    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
+    //while the motion if being performed
+    drive.stop();
+
+    Actions.runBlocking( new GiveUpSample( this ) );
   }
 
   public void placeSampleInBasket( Basket basket )
@@ -164,6 +215,9 @@ public class JoeBot
     );
   }
 
+  //TODO - once lift is moved set drive wheels to coast and FULLY exten the arm.
+  //stop that action once the velocity of hte extension arm drops below a certain amount.
+  //this will prevent gear mash but allow this to work from farther away and allow us to extend arm quickly!
   public void levelOneAscent()
   {
     telemetry.log().add( "Level One Ascent:" );
@@ -179,7 +233,6 @@ public class JoeBot
       )
     );
   }
-
 
   public void levelTwoAscent()
   {
@@ -199,7 +252,5 @@ public class JoeBot
       )
     );
   }
-
-
 
 }

@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.enums.PresetDirection;
+import org.firstinspires.ftc.teamcode.enums.RotateDirection;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.roadrunner.ThreeDeadWheelLocalizer;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -28,6 +30,7 @@ public class Drive extends AbstractModule
   private Pose2d pose;
 
   private IMU inertialMeasurementUnit = null;
+  private double imuOffset = 0;
   private static YawPitchRollAngles orientation = new YawPitchRollAngles( AngleUnit.DEGREES, 0, 0, 0, 0 );
   private static ElapsedTime orientationTime = new ElapsedTime();
 
@@ -94,14 +97,22 @@ public class Drive extends AbstractModule
     }
   }
 
-  public void resetPose()
+  public Pose2d getPos()
   {
-    pose = new Pose2d( 0, 0, 0 );
+    return pose;
+  }
+
+  public void resetPose( Pose2d pose )
+  {
+    this.pose = pose;
 
     if( inertialMeasurementUnit != null )
-    { inertialMeasurementUnit.resetYaw(); }
+    {
+      inertialMeasurementUnit.resetYaw();
+      imuOffset = pose.heading.toDouble();
+    }
 
-    telemetry.log().add( "Reset Position" );
+    telemetry.log().add( "Reset Position and Heading" );
   }
 
   public void turnAround( RotateDirection direction )
@@ -299,9 +310,7 @@ public class Drive extends AbstractModule
 
     if( inertialMeasurementUnit != null )
     {
-      telemetry.addLine().addData( "IMU Heading: ", "%.1f", orientation.getYaw( AngleUnit.DEGREES ) );
-      telemetry.addLine().addData( "Pitch: ", "%.1f", orientation.getPitch( AngleUnit.DEGREES ) );
-      telemetry.addLine().addData( "Roll: ", "%.1f", orientation.getRoll( AngleUnit.DEGREES ) );
+      telemetry.addLine().addData( "IMU Heading: ", "%.1f", Math.toDegrees( orientation.getYaw( AngleUnit.RADIANS ) - imuOffset ) );
     }
   }
 }

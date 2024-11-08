@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmode;
+package org.firstinspires.ftc.teamcode.enums;
 
 import com.acmerobotics.roadrunner.Vector2d;
 
@@ -8,14 +8,18 @@ public enum Location
   STARTING_POSITION_SPECIMENS( 4, 8 ),
   SAMPLE_BASKETS( 5, 9),
   SPECIMEN_BAR( 5, 9),
+  NEAR_THE_OBSERVATION_ZONE( 8,88),
   OBSERVATION_ZONE( 5, 9),
+  NEAR_ASCENT_ZONE( 67, 55    ),
   ASCENT_ZONE( 5, 9),
+  NEAR_YELLOW_SAMPLES( 0, 0 ),
   YELLOW_SAMPLE_1( 5, 9),
   YELLOW_SAMPLE_2( 5, 9),
   YELLOW_SAMPLE_3( 5, 9),
   YELLOW_SAMPLE_4( 5, 9),
   YELLOW_SAMPLE_5( 5, 9),
   YELLOW_SAMPLE_6( 5, 9),
+  NEAR_TEAM_SAMPLES( 0, 0 ),
   TEAM_SAMPLE_1( 5, 9),
   TEAM_SAMPLE_2( 5, 9),
   TEAM_SAMPLE_3( 5, 9);

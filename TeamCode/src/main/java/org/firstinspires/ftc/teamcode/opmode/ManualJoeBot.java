@@ -5,11 +5,14 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
-import org.firstinspires.ftc.teamcode.modules.Intake;
-import org.firstinspires.ftc.teamcode.modules.drive.PresetDirection;
-import org.firstinspires.ftc.teamcode.modules.drive.RotateDirection;
+import org.firstinspires.ftc.teamcode.enums.Button;
+import org.firstinspires.ftc.teamcode.enums.Participant;
+import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Lift;
+import org.firstinspires.ftc.teamcode.enums.Bar;
+import org.firstinspires.ftc.teamcode.enums.Basket;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -20,11 +23,11 @@ public class ManualJoeBot extends OpMode
 {
   private enum Module
   {
-    LIFT, DRIVE, INTAKE, EXTENSION_ARM
+    LIFT, EXTENSION_ARM, INTAKE, DRIVE,
   }
 
   private ElapsedTime time = null;
-  private Module currentModule = Module.DRIVE;
+  private Module currentModule = Module.LIFT;
   private List<LynxModule> hubs;
   private JoeBot robot = null;
   private Gamepads gamepads = null;
@@ -48,13 +51,29 @@ public class ManualJoeBot extends OpMode
 
     telemetry.addLine( "Initialized Manual" );
     telemetry.update();
+
+    //Allow robot to be pushed around before the start button is pressed
+    robot.drive().coast();
+
+    //auto retract arm and drop lift in case level 1 ascent was previously performed in Autonomous
+    if( robot.extensionArm().getMotorPosition() > ExtensionArm.Position.FULLY_RETRACTED.value )
+    {
+      addMessage( "Automatically Retracting Extension Arm" );
+      robot.extensionArm().fullyRetract();
+    }
+
+    if( robot.lift().liftPosition() > Lift.Position.FLOOR.value )
+    {
+      addMessage( "Automatically Dropping Lift" );
+      robot.lift().travelTo( Lift.Position.FLOOR );
+    }
   }
 
   @Override
   public void init_loop()
   {
-    //Allow robot to be pushed around before the start button is pressed
-    robot.drive().coast();
+    //Print out location so we can calibrate X,Y positions and verify heading
+    robot.drive().printTelemetry();
   }
 
   @Override
@@ -175,8 +194,22 @@ public class ManualJoeBot extends OpMode
     //==================
     //Intake
     //==================
+    //Grab sample - X + pull back left stick
+    if( !robot.intake().hasSample() &&
+        gamepad2.x &&
+        gamepad2.left_stick_y > 0 )
+    {
+      robot.grabSample( false );
+    }
+    //Grab specimen - X + push forward left stick
+    else if( !robot.intake().hasSample() &&
+             gamepad2.x &&
+             gamepad2.left_stick_y < 0 )
+    {
+      robot.grabSample( true );
+    }
     //Pull in sample
-    if( gamepad2.left_stick_y > 0 &&
+    else if( gamepad2.left_stick_y > 0 &&
         //avoid trapping a sample in the center of the robot
         ( !robot.intake().hasSample() ||
           robot.lift().liftPosition() < 1000 ) )
@@ -194,25 +227,13 @@ public class ManualJoeBot extends OpMode
     {
       robot.intake().stop();
     }
-    //Grab sample - X + pull back left stick
-    else if( gamepad2.x &&
-             gamepad2.left_stick_y > 0 )
-    {
-      robot.grabSample( false );
-    }
-    //Grab specimen - X + push forward left stick
-    else if( gamepad2.x &&
-             gamepad2.left_stick_y < 0 )
-    {
-      robot.grabSample( true );
-    }
 
     //==================
     //Drive
     //==================
     if( gamepads.buttonPressed( Participant.DRIVER, Button.BACK ) )
     {
-      robot.drive().resetPose();
+      robot.resetPos();
     }
 
     /*
@@ -273,12 +294,12 @@ public class ManualJoeBot extends OpMode
     //Cycle through telemetry
     if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.GUIDE ) )
     {
-      Module[] modules = Module.values();
+      final Module[] modules = Module.values();
 
       if( currentModule == modules[ modules.length - 1 ] )
       { currentModule = modules[ 0 ]; }
       else
-      { currentModule = Module.values()[ currentModule.ordinal() + 1 ]; }
+      { currentModule = modules[ currentModule.ordinal() + 1 ]; }
     }
 
     telemetry.addData( "%s", currentModule );
@@ -312,6 +333,11 @@ public class ManualJoeBot extends OpMode
   public void stop()
   {
     robot.stop();
+
+    //store position so it can be restored when we start TeleOp
+    robot.cachePos();
+
+    //allow robot to be pushed around
     robot.drive().coast();
   }
 
