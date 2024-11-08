@@ -141,10 +141,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     }
     else if( state == AutonomousState.HAVE_SAMPLE )
     {
-      //TODO - bad angle!
-      driveTo( new Pose2d( Location.SAMPLE_BASKETS.value, -90 ) );
-      //TODO - place sample in basket
-      //TODO - state = have nothing
+      driveTo( new Pose2d( Location.SAMPLE_BASKETS.value, 135 ) );
+      robot.placeSampleInBasket( Basket.HIGH_BASKET );
+      state = AutonomousState.HAVE_NOTHING;
     }
     else if( state == AutonomousState.HAVE_NOTHING )
     {
@@ -153,7 +152,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 //      ElapsedTime time = null;
 
       //otherwise...
-      //TODO - move to net further sample on ground away from fall
+      //TODO - move to get further sample on ground away from fall
       //TODO - grab sample
       //TODO - state = HAVE_SAMPLE
       //TODO - decrement neutralSamplesLeft
@@ -164,9 +163,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     if( state == AutonomousState.HAVE_SPECIMEN )
     {
-      //TODO - Go to specimen bar
-      //TODO - Hang specimen
-      //TODO - state = HAVE_NOTHING
+      driveTo( new Pose2d( Location.SPECIMEN_BAR.value, 0 ) );
+      robot.hangSpecimen( Bar.HIGH_BAR );
+      state = AutonomousState.HAVE_NOTHING;
     }
     else if( state == AutonomousState.HAVE_SAMPLE )
     {
