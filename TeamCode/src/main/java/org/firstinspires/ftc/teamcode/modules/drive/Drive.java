@@ -124,7 +124,7 @@ public class Drive extends AbstractModule
 
   public void faceDirection( PresetDirection direction )
   {
-    double currentAngle = AngleTools.angleForHeading( pose.heading.toDouble() );
+    double currentAngle = AngleTools.angleForHeading( Math.toDegrees( pose.heading.toDouble() ) );
     telemetry.log().add( String.format( "currentAngle: %f", currentAngle ) );
 
     double nextHeading = AngleTools.headingForDirection( direction );
@@ -185,7 +185,7 @@ public class Drive extends AbstractModule
     }
     else if( currentAction == CurrentAction.ROTATE )
     {
-      double currAngle = AngleTools.angleForHeading( pose.heading.toDouble() );
+      double currAngle = AngleTools.angleForHeading( Math.toDegrees( pose.heading.toDouble() ) );
       double angleDifference = targetAngle - currAngle;
 
       if( angleDifference < 0 )
@@ -202,6 +202,8 @@ public class Drive extends AbstractModule
       {
         currentAction = CurrentAction.DOING_NOTHING;
       }
+      //comment this out so we can debug what the code is trying to do
+      /*
       else if( targetDirection == RotateDirection.RIGHT )
       {
         rotate = computeRotateSpeed( angleDifference );
@@ -210,6 +212,7 @@ public class Drive extends AbstractModule
       {
         rotate = -computeRotateSpeed( angleDifference );
       }
+      */
     }
 
     MotorValues speeds = new MotorValues();
