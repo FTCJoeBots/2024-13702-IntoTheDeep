@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
@@ -74,6 +75,38 @@ public class JoeBot
   public MecanumDrive mecanumDrive()
   { return mecanumDrive; }
 
+  public void coast()
+  {
+    if( drive != null )
+    {
+      drive.coast();
+    }
+
+    if( mecanumDrive != null )
+    {
+      mecanumDrive.leftFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      mecanumDrive.leftBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      mecanumDrive.rightBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      mecanumDrive.rightFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+    }
+  }
+
+  public void brake()
+  {
+    if( drive != null )
+    {
+      drive.brake();
+    }
+
+    if( mecanumDrive != null )
+    {
+      mecanumDrive.leftFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+      mecanumDrive.leftBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+      mecanumDrive.rightBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+      mecanumDrive.rightFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+    }
+  }
+
   public void stop()
   {
     extensionArm.stop();
@@ -134,6 +167,7 @@ public class JoeBot
             Lift.Position.SPECIMEN_FLOOR :
             Lift.Position.SAMPLE_FLOOR ),
         new GrabSample( this ),
+        new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
         new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
       )
     );

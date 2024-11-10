@@ -35,7 +35,8 @@ public class Lift extends AbstractModule
     MAX_LIFT( 10000 ),
 
     SAMPLE_FLOOR( 172 ),
-    SPECIMEN_FLOOR( 347 ),
+    SPECIMEN_FLOOR( 300 ),
+    TRAVEL_WITH_SPECIMEN( 600 ),
 
     //putting samples in baskets
     HIGH_BASKET( 9920 ),
@@ -44,7 +45,7 @@ public class Lift extends AbstractModule
     //hanging specimens
     ABOVE_HIGH_SPECIMEN_BAR( 6324 ),
     ABOVE_LOW_SPECIMEN_BAR( 3548 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 5691 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 5750 ),
     SPECIMEN_CLIPPED_ONTO_LOW_BAR( 3000 ),
 
     //leve 1 scent
@@ -56,7 +57,7 @@ public class Lift extends AbstractModule
     HANG_FROM_LOW_HANG_BAR( 0 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
-    HIGH_UP( 2000 );
+    HIGH_UP( 6500 );
 
     Position( int value )
     {

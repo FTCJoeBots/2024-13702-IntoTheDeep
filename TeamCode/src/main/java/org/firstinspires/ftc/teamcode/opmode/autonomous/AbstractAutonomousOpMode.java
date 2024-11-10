@@ -67,14 +67,14 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   public void init_loop()
   {
     //Allow robot to be pushed around before the start button is pressed
-    robot.drive().coast();
+    robot.coast();
   }
 
   @Override
   public void start()
   {
     //Prevent robot from being pushed around
-    robot.drive().brake();
+    robot.brake();
   }
 
   @Override
@@ -238,9 +238,10 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     MecanumDrive drive = robot.mecanumDrive();
 
     TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
+    trajectory.setTangent( 0 );
     for( Pose2d pose : poses )
     {
-      trajectory = trajectory.splineTo( pose.position, pose.heading.toDouble() );
+      trajectory = trajectory.strafeToLinearHeading( pose.position, pose.heading.toDouble() );
     }
 
     Actions.runBlocking( trajectory.build() );
