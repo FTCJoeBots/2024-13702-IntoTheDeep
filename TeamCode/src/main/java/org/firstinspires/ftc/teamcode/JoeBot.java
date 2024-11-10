@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -113,13 +114,12 @@ public class JoeBot
     lift.stop();
     intake.stop();
 
-    if( drive != null )
-    { drive.stop(); }
+    stopDrive();
   }
 
-  public void resetPos()
+  public void resetPos( Vector2d position )
   {
-    pose = new Pose2d( 0, 0, 0 );
+    this.pose = new Pose2d( position, 0 );
 
     if( drive != null )
     { drive.resetPose( pose ); }
@@ -158,7 +158,7 @@ public class JoeBot
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
-    drive.stop();
+    stopDrive();
 
     Actions.runBlocking(
       new SequentialAction(
@@ -167,8 +167,10 @@ public class JoeBot
             Lift.Position.SPECIMEN_FLOOR :
             Lift.Position.SAMPLE_FLOOR ),
         new GrabSample( this ),
-        new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
-        new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
+        new ParallelAction(
+          new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
+          new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
+        )
       )
     );
   }
@@ -188,7 +190,7 @@ public class JoeBot
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
-    drive.stop();
+    stopDrive();
 
     Actions.runBlocking( new GiveUpSample( this ) );
   }
@@ -199,7 +201,7 @@ public class JoeBot
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
-    drive.stop();
+    stopDrive();
 
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_DUMP_IN_BASKET.value;
@@ -214,9 +216,15 @@ public class JoeBot
         new MoveExtensionArm( this, extendedPosition ),
         new OperateIntake( this, Intake.Direction.PUSH, 500 ),
         new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value ),
-        new MoveLift( this, Lift.Position.FLOOR )
+        new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );
+  }
+
+  private void stopDrive()
+  {
+    if( drive != null )
+    { drive.stop(); }
   }
 
   public void hangSpecimen( Bar bar )
@@ -225,7 +233,7 @@ public class JoeBot
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
-    drive.stop();
+    stopDrive();
 
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE.value;
@@ -244,7 +252,7 @@ public class JoeBot
                         Lift.Position.SPECIMEN_CLIPPED_ONTO_LOW_BAR,
                         1000 ),
         new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value ),
-        new MoveLift( this, Lift.Position.FLOOR )
+        new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );
   }
@@ -258,7 +266,7 @@ public class JoeBot
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
-    drive.stop();
+    stopDrive();
 
     Actions.runBlocking(
       new SequentialAction(
@@ -276,7 +284,7 @@ public class JoeBot
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
-    drive.stop();
+    stopDrive();
 
     Actions.runBlocking(
       new SequentialAction(

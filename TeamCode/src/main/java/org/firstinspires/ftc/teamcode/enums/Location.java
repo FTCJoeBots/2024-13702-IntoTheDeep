@@ -4,7 +4,9 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 public enum Location
 {
-  SPECIMEN_BAR( 25, 0 ),
+  SPECIMEN_BAR_LEFT( 25, 9 ),
+  SPECIMEN_BAR_RIGHT( 25, -9 ),
+
   STARTING_POSITION_BASKETS( 0, 15.1 ), //left edge of robot is 2 tiles over from corner
   STARTING_POSITION_SPECIMENS( 0, -15.6 ),
   SAMPLE_BASKETS( 11.1, 50.2 ),
@@ -27,7 +29,7 @@ public enum Location
 
   Location( double x, double y )
   {
-    this.value = new Vector2d( x,y );
+    this.value = new Vector2d( x, y );
   }
 
   public final Vector2d value;

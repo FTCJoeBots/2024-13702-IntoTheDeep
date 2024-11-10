@@ -17,7 +17,7 @@ public class ExtensionArm extends AbstractModule
   public enum Position
   {
     FULLY_RETRACTED( 0 ),
-    RETRACTED_WITH_SAMPLE( 70 ), //47 ),
+    RETRACTED_WITH_SAMPLE( 90 ),
     FULLY_EXTENDED( 2876 ),
     EXTEND_TO_GRAB_SAMPLE( 1600 ),
     EXTEND_TO_DUMP_IN_BASKET( 800 ),

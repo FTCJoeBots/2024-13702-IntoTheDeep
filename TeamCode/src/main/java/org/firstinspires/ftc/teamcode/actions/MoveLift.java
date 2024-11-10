@@ -39,11 +39,10 @@ public class MoveLift extends AbstractAction implements Action
 
     robot.lift().updateState();
 
-    //stop if it is taking too long
+    //let the action complete if the maximum time has been exceeded
+    //that is ok, we sometimes want to let te lift continue to drift down while we are driving
     if( timeExceeded() )
-    {
-      robot.lift().stop();
-    }
+    { return false; }
 
     return robot.lift().isMoving();
   }

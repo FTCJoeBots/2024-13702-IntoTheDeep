@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.enums.Button;
 import org.firstinspires.ftc.teamcode.enums.Participant;
 import org.firstinspires.ftc.teamcode.enums.PresetDirection;
+import org.firstinspires.ftc.teamcode.enums.RotateDirection;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.enums.Bar;
@@ -24,11 +25,11 @@ public class ManualJoeBot extends OpMode
 {
   private enum Module
   {
-    LIFT, EXTENSION_ARM, INTAKE, DRIVE,
+    NONE, LIFT, EXTENSION_ARM, INTAKE, DRIVE,
   }
 
   private ElapsedTime time = null;
-  private Module currentModule = Module.LIFT;
+  private Module currentModule = Module.values()[ 0 ];
   private List<LynxModule> hubs;
   private JoeBot robot = null;
   private Gamepads gamepads = null;
@@ -38,7 +39,6 @@ public class ManualJoeBot extends OpMode
   public void init()
   {
     time = new ElapsedTime();
-    currentModule = Module.DRIVE;
 
     //setup bulk reads
     hubs = hardwareMap.getAll( LynxModule.class );
@@ -243,7 +243,6 @@ public class ManualJoeBot extends OpMode
     }
     */
 
-    /*
     //Turn around
     if( gamepads.buttonPressed( Participant.DRIVER, Button.RIGHT_BUMPER ) )
     {
@@ -253,7 +252,6 @@ public class ManualJoeBot extends OpMode
     {
       robot.drive().turnAround( RotateDirection.LEFT );
     }
-*/
     //Standard directions
     else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_LEFT, Button.DPAD_UP ) ) )
     {
@@ -295,9 +293,18 @@ public class ManualJoeBot extends OpMode
     }
     */
 
-    final double forward = gamepad1.left_stick_y;
-    final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
-    final double rotate = gamepad1.left_trigger - gamepad1.right_trigger;
+    double forward = gamepad1.left_stick_y;
+    double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
+    double rotate = gamepad1.left_trigger - gamepad1.right_trigger;
+
+    if( gamepad1.b )
+    {
+      final double scaleFactor = 0.5;
+      forward *= scaleFactor;
+      strafe *= scaleFactor;
+      rotate *= scaleFactor;
+    }
+
     robot.drive().move( forward, strafe, rotate );
 
     //Cycle through telemetry
@@ -311,7 +318,11 @@ public class ManualJoeBot extends OpMode
       { currentModule = modules[ currentModule.ordinal() + 1 ]; }
     }
 
-    telemetry.addData( "%s", currentModule );
+    telemetry.addLine( currentModule.name() );
+
+    long fps = Math.round( 1.0 / time.seconds() );
+    telemetry.addData( "FPS", "%s", fps );
+    time.reset();
 
     switch( currentModule )
     {
@@ -329,12 +340,8 @@ public class ManualJoeBot extends OpMode
         break;
     }
 
-    gamepads.storeLastButtons();
-
-    long fps = Math.round( 1.0 / time.seconds() );
-    telemetry.addData( "FPS", "%s", fps );
     telemetry.update();
-    time.reset();
+    gamepads.storeLastButtons();
   }
 
   //Called when the OpMode terminates
