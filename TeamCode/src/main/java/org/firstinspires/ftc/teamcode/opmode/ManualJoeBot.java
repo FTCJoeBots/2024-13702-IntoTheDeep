@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.enums.Button;
 import org.firstinspires.ftc.teamcode.enums.Participant;
+import org.firstinspires.ftc.teamcode.enums.PresetDirection;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.enums.Bar;
@@ -235,10 +236,12 @@ public class ManualJoeBot extends OpMode
     //==================
     //Drive
     //==================
+    /*
     if( gamepads.buttonPressed( Participant.DRIVER, Button.BACK ) )
     {
       robot.resetPos();
     }
+    */
 
     /*
     //Turn around
@@ -250,7 +253,7 @@ public class ManualJoeBot extends OpMode
     {
       robot.drive().turnAround( RotateDirection.LEFT );
     }
-
+*/
     //Standard directions
     else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_LEFT, Button.DPAD_UP ) ) )
     {
@@ -285,10 +288,12 @@ public class ManualJoeBot extends OpMode
       robot.drive().faceDirection( PresetDirection.BACKWARD );
     }
 
+    /*
     if( gamepads.buttonPressed( Participant.DRIVER, Button.LEFT_STICK ) )
     {
       robot.drive().togglePerspective();
-    }*/
+    }
+    */
 
     final double forward = gamepad1.left_stick_y;
     final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
