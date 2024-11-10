@@ -270,6 +270,8 @@ public class JoeBot
 
   public void levelTwoAscent()
   {
+    //Turning off for now as the robot gets stuck and the red line on the left lift motor can break
+    /*
     telemetry.log().add( "Level Two Ascent:" );
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
@@ -285,6 +287,7 @@ public class JoeBot
         new MoveLiftToClimb( this )
       )
     );
+    */
   }
 
 }
