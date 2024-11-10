@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
@@ -24,11 +26,11 @@ public class CalibrateFieldPositions extends OpMode
   @Override
   public void init()
   {
-    robot = new JoeBot( false, hardwareMap, telemetry );
+    robot = new JoeBot( true, hardwareMap, telemetry );
     robot.resetPos();
 
     //Allow robot to be pushed around before the start button is pressed
-    robot.drive().coast();
+    robot.coast();
 
     gamepads = new Gamepads( gamepad1, gamepad2 );
   }
@@ -36,13 +38,23 @@ public class CalibrateFieldPositions extends OpMode
   @Override
   public void init_loop()
   {
-    robot.drive().printTelemetry();
+    robot.mecanumDrive().updatePoseEstimate();
+    printPose();
+    telemetry.update();
+  }
+
+  private void printPose()
+  {
+    Pose2d pose = robot.mecanumDrive().pose;
+    telemetry.addLine().addData( "X: ", "%.1f", pose.position.x );
+    telemetry.addLine().addData( "Y: ", "%.1f", pose.position.y );
+    telemetry.addLine().addData( "Heading: ", "%.1f", Math.toDegrees( pose.heading.toDouble() ) );
   }
 
   @Override
   public void start()
   {
-    robot = new JoeBot( true, hardwareMap, telemetry );
+    robot.brake();
   }
 
   @Override
@@ -77,14 +89,14 @@ public class CalibrateFieldPositions extends OpMode
       MecanumDrive drive = robot.mecanumDrive();
 
       TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
-      trajectory = trajectory.splineTo( target.value, 0 );
+      trajectory = trajectory.strafeToLinearHeading( target.value, 0 );
 
       Actions.runBlocking( trajectory.build() );
     }
     else
     {
-      telemetry.addLine( String.format( "Next Target: %s", target ) );
-      telemetry.addLine( String.format( "Current Pose: %s", robot.mecanumDrive().pose ) );
+      telemetry.addLine( String.format( "%s", target ) );
+      printPose();
       telemetry.update();
     }
   }

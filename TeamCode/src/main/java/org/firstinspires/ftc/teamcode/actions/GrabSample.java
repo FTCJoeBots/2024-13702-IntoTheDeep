@@ -25,7 +25,7 @@ public class GrabSample extends AbstractAction implements Action
 
       robot.telemetry().log().add( "GrabSample" );
       robot.intake().pullSampleBack();
-      robot.extensionArm().travelTo( extendedPosition );
+      robot.extensionArm().travelToWithPower( extendedPosition, 0.5 );
       super.initialize();
     }
 

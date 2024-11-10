@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.enums.Button;
 import org.firstinspires.ftc.teamcode.enums.Participant;
+import org.firstinspires.ftc.teamcode.enums.PresetDirection;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.enums.Bar;
@@ -80,7 +81,7 @@ public class ManualJoeBot extends OpMode
   public void start()
   {
     //Prevent robot from being pushed around
-    robot.drive().brake();
+    robot.brake();
   }
 
   private void addMessage( String message)
@@ -131,14 +132,16 @@ public class ManualJoeBot extends OpMode
     //Lift
     //==================
     //High basket - x + dpad_up
-    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) &&
-        robot.intake().hasSample() )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) )
+        // && robot.intake().hasSample()
+     )
     {
       robot.placeSampleInBasket( Basket.HIGH_BASKET );
     }
     //Low basket - x + dpad_down
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) &&
-             robot.intake().hasSample() )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) )
+    //  && robot.intake().hasSample()
+    )
     {
       robot.placeSampleInBasket( Basket.LOW_BASKET );
     }
@@ -150,14 +153,16 @@ public class ManualJoeBot extends OpMode
     }
 
     //Hang specimen from high bar - x + dpad_left
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) &&
-             robot.intake().hasSample() )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) )
+    //  && robot.intake().hasSample()
+    )
     {
       robot.hangSpecimen( Bar.HIGH_BAR );
     }
     //Hang specimen from low bar - x + dpad_right
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) &&
-             robot.intake().hasSample() )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) )
+    //  && robot.intake().hasSample()
+    )
     {
       robot.hangSpecimen( Bar.LOW_BAR );
     }
@@ -231,10 +236,12 @@ public class ManualJoeBot extends OpMode
     //==================
     //Drive
     //==================
+    /*
     if( gamepads.buttonPressed( Participant.DRIVER, Button.BACK ) )
     {
       robot.resetPos();
     }
+    */
 
     /*
     //Turn around
@@ -246,7 +253,7 @@ public class ManualJoeBot extends OpMode
     {
       robot.drive().turnAround( RotateDirection.LEFT );
     }
-
+*/
     //Standard directions
     else if( gamepads.buttonsPressed( Participant.DRIVER, EnumSet.of( Button.DPAD_LEFT, Button.DPAD_UP ) ) )
     {
@@ -281,10 +288,12 @@ public class ManualJoeBot extends OpMode
       robot.drive().faceDirection( PresetDirection.BACKWARD );
     }
 
+    /*
     if( gamepads.buttonPressed( Participant.DRIVER, Button.LEFT_STICK ) )
     {
       robot.drive().togglePerspective();
-    }*/
+    }
+    */
 
     final double forward = gamepad1.left_stick_y;
     final double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
@@ -338,7 +347,7 @@ public class ManualJoeBot extends OpMode
     robot.cachePos();
 
     //allow robot to be pushed around
-    robot.drive().coast();
+    robot.coast();
   }
 
 }

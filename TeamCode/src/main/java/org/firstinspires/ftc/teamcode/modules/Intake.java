@@ -40,7 +40,7 @@ public class Intake extends AbstractModule
 
   //continue running the servos briefly after we see the sample
   //to ensure it is *centered* within the intake
-  private static final int CENTER_DELAY = 0;
+  private static final int CENTER_DELAY = 100;
   private static final int EJECT_DELAY = 400;
 
   public enum Direction
