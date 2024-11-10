@@ -38,8 +38,7 @@ public abstract class AbstractAction
 
   protected boolean timeExceeded()
   {
-    return maxTime > 0 &&
-           time != null &&
+    return time != null &&
            time.milliseconds() >= maxTime;
   }
 }

@@ -34,7 +34,7 @@ public class Lift extends AbstractModule
     FLOOR( 0 ),
     MAX_LIFT( 10000 ),
 
-    SAMPLE_FLOOR( 172 ),
+    SAMPLE_FLOOR( 50 ),
     SPECIMEN_FLOOR( 300 ),
     TRAVEL_WITH_SPECIMEN( 600 ),
 

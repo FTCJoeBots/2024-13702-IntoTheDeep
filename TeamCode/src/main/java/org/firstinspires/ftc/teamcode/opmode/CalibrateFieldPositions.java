@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -27,7 +28,7 @@ public class CalibrateFieldPositions extends OpMode
   public void init()
   {
     robot = new JoeBot( true, hardwareMap, telemetry );
-    robot.resetPos();
+    robot.resetPos( new Vector2d( 0, 0 ) );
 
     //Allow robot to be pushed around before the start button is pressed
     robot.coast();

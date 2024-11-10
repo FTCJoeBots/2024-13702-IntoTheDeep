@@ -46,7 +46,7 @@ public class Drive extends AbstractModule
     DOING_NOTHING
   }
 
-  private double ANGLE_THRESHOLD = 5;
+  private double ANGLE_THRESHOLD = 1;
   private double BREAKING_DISTANCE = 20;
 
   private CurrentAction currentAction = CurrentAction.DOING_NOTHING;
@@ -117,7 +117,7 @@ public class Drive extends AbstractModule
 
   public void turnAround( RotateDirection direction )
   {
-    double currAngle = AngleTools.angleForHeading( pose.heading.toDouble() );
+    double currAngle = AngleTools.angleForHeading( Math.toDegrees( pose.heading.toDouble() ) );
     double nextAngle = ( currAngle + 180 ) % 360;
     turnToAngle( direction, nextAngle );
   }
@@ -158,10 +158,12 @@ public class Drive extends AbstractModule
 
   private double computeRotateSpeed( double angleDifference )
   {
-    double speed = 0.2;
+    double speed = 0.6;
 
     if( angleDifference < BREAKING_DISTANCE )
-    { speed = speed * ( angleDifference / BREAKING_DISTANCE ); }
+    {
+      speed = 0.2;
+    }
 
     return speed;
   }
@@ -186,33 +188,33 @@ public class Drive extends AbstractModule
     else if( currentAction == CurrentAction.ROTATE )
     {
       double currAngle = AngleTools.angleForHeading( Math.toDegrees( pose.heading.toDouble() ) );
-      double angleDifference = targetAngle - currAngle;
 
-      if( angleDifference < 0 )
-      {
-        angleDifference += 360;
-      }
+      double maxAngle = Math.max( currAngle, targetAngle );
+      double minAngle = Math.min( currAngle, targetAngle );
 
-      if( angleDifference > 180 )
-      {
-        angleDifference = 360 - angleDifference;
-      }
+      double angleDifference1 = maxAngle - minAngle;
+      double angleDifference2 = 360 - angleDifference1;
 
-      if( angleDifference < ANGLE_THRESHOLD )
+      double smallerAngleDifference = Math.min( angleDifference1, angleDifference2 );
+
+      if( smallerAngleDifference < ANGLE_THRESHOLD )
       {
         currentAction = CurrentAction.DOING_NOTHING;
       }
       //comment this out so we can debug what the code is trying to do
-      /*
-      else if( targetDirection == RotateDirection.RIGHT )
-      {
-        rotate = computeRotateSpeed( angleDifference );
-      }
       else
       {
-        rotate = -computeRotateSpeed( angleDifference );
+        rotate = computeRotateSpeed( smallerAngleDifference );
+
+        //###
+        targetDirection = AngleTools.quickestDirection( currAngle, targetAngle );
+        //###
+
+        if( targetDirection == RotateDirection.RIGHT )
+        {
+          rotate *= -1;
+        }
       }
-      */
     }
 
     MotorValues speeds = new MotorValues();
@@ -289,7 +291,7 @@ public class Drive extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "%s", perspective ) );
+    telemetry.addLine( String.format( "Perspective: %s", perspective ) );
 //    telemetry.addLine( String.format( "Front Left Power: %s", frontLeftMotor.getPower() ) );
 //    telemetry.addLine( String.format( "Front Right Power: %s", frontRightMotor.getPower() ) );
 //    telemetry.addLine( String.format( "Back Left Power: %s", backLeftMotor.getPower() ) );
@@ -302,9 +304,9 @@ public class Drive extends AbstractModule
 
     if( localizer != null )
     {
-      telemetry.addLine().addData( "XL: ", "%s", localizer.par0.getPositionAndVelocity().position );
-      telemetry.addLine().addData( "XR: ", "%s", localizer.par1.getPositionAndVelocity().position );
-      telemetry.addLine().addData( "XS: ", "%s", localizer.perp.getPositionAndVelocity().position );
+//      telemetry.addLine().addData( "XL: ", "%s", localizer.par0.getPositionAndVelocity().position );
+//      telemetry.addLine().addData( "XR: ", "%s", localizer.par1.getPositionAndVelocity().position );
+//      telemetry.addLine().addData( "XS: ", "%s", localizer.perp.getPositionAndVelocity().position );
 
       telemetry.addLine().addData( "Heading: ", "%.1f", Math.toDegrees( pose.heading.toDouble() ) );
       telemetry.addLine().addData( "X: ", "%.1f", pose.position.x );

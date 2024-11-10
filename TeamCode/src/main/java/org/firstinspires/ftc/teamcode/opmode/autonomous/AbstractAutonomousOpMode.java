@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -8,12 +10,17 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
+import org.firstinspires.ftc.teamcode.actions.MoveLift;
+import org.firstinspires.ftc.teamcode.actions.OperateIntake;
 import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.enums.Location;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.enums.Team;
+import org.firstinspires.ftc.teamcode.modules.Intake;
+import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 import java.util.Arrays;
@@ -27,6 +34,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   private AutonomousState state = AutonomousState.HAVE_SPECIMEN;
   private int neutralSamplesLeft = 6;
   private int teamSamplesLeft = 3;
+  private int numberHung = 0;
   ElapsedTime time = null;
   List<LynxModule> hubs;
   JoeBot robot = null;
@@ -57,7 +65,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
     //always reset the position and heading at the beginning of Autonomous
     telemetry.addLine( "Resetting Position" );
-    robot.resetPos();
+    robot.resetPos( defaultPos() );
 
     telemetry.addLine( "Initialized Auto" );
     telemetry.update();
@@ -75,6 +83,13 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     //Prevent robot from being pushed around
     robot.brake();
+
+    //raise lift so that the speicen does not drag and slow down the robot
+    Actions.runBlocking(
+      new SequentialAction(
+        new MoveLift( robot, Lift.Position.TRAVEL_WITH_SPECIMEN, 500 )
+      )
+    );
   }
 
   @Override
@@ -137,7 +152,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     if( state == AutonomousState.HAVE_SPECIMEN )
     {
-      driveTo( new Pose2d( Location.SPECIMEN_BAR.value, 0 ) );
+      driveTo( new Pose2d( Location.SPECIMEN_BAR_LEFT.value, 0 ) );
       robot.hangSpecimen( Bar.HIGH_BAR );
       state = AutonomousState.HAVE_NOTHING;
     }
@@ -186,15 +201,20 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     if( state == AutonomousState.HAVE_SPECIMEN )
     {
-      driveTo( new Pose2d( Location.SPECIMEN_BAR.value, 0 ) );
+      Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.value.x,
+                                        Location.SPECIMEN_BAR_RIGHT.value.y + 5 * numberHung );
+      driveTo( new Pose2d( location, 0 ) );
       robot.hangSpecimen( Bar.HIGH_BAR );
+      numberHung++;
       state = AutonomousState.HAVE_NOTHING;
     }
     else if( state == AutonomousState.HAVE_SAMPLE )
     {
       driveTo( new Pose2d( Location.OBSERVATION_ZONE.value, 180 ) );
       robot.giveUpSample();
-      retrieveSpecimen();
+      state = retrieveSpecimen() ?
+              AutonomousState.HAVE_SPECIMEN :
+              AutonomousState.HAVE_NOTHING;
     }
     else if( state == AutonomousState.HAVE_NOTHING )
     {
@@ -224,7 +244,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       }
 
       teamSamplesLeft--;
-      retrieveSpecimen();
+      state = retrieveSpecimen() ?
+              AutonomousState.HAVE_SPECIMEN :
+              AutonomousState.HAVE_NOTHING;
     }
   }
 
@@ -247,15 +269,20 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     Actions.runBlocking( trajectory.build() );
   }
 
-  private void retrieveSpecimen()
+  private boolean retrieveSpecimen()
   {
     driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE.value, 180 ) );
     robot.wait( 1000 );
-    robot.grabSample( true );
 
-    state = robot.intake().hasSample() ?
-      AutonomousState.HAVE_SPECIMEN :
-      AutonomousState.HAVE_NOTHING;
+    for( int i = 0; i < 3; i++ )
+    {
+      robot.grabSample( true );
+
+      if( robot.intake().hasSample() )
+      { return true; }
+    }
+
+    return false;
   }
 
   private boolean timeRunningOut()
@@ -264,6 +291,23 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     double timeEllapsed = time.seconds();
     double timeLeft = timeInMatch - timeEllapsed;
     return timeLeft <= 10;
+  }
+
+  private Vector2d defaultPos()
+  {
+    switch( gameStrategy )
+    {
+      case LEVEL_1_ASCENT:
+      case PLACE_SAMPLES_IN_BASKETS:
+        return Location.STARTING_POSITION_BASKETS.value;
+
+      case PARK:
+      case HANG_SPECIMENS_ON_BARS:
+        return Location.STARTING_POSITION_SPECIMENS.value;
+
+      default:
+        return new Vector2d( 0, 0 );
+    }
   }
 
 }
