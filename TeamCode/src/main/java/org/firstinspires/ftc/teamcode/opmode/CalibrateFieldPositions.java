@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.enums.Button;
 import org.firstinspires.ftc.teamcode.enums.Location;
 import org.firstinspires.ftc.teamcode.enums.Participant;
@@ -92,7 +93,7 @@ public class CalibrateFieldPositions extends OpMode
       TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
       trajectory = trajectory.strafeToLinearHeading( target.value, 0 );
 
-      Actions.runBlocking( trajectory.build() );
+      ActionTools.runBlocking( robot, trajectory.build() );
     }
     else
     {

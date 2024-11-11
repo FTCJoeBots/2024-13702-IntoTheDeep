@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
 import org.firstinspires.ftc.teamcode.actions.OperateIntake;
@@ -85,7 +86,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     robot.brake();
 
     //raise lift so that the speicen does not drag and slow down the robot
-    Actions.runBlocking(
+    ActionTools.runBlocking( robot,
       new SequentialAction(
         new MoveLift( robot, Lift.Position.TRAVEL_WITH_SPECIMEN, 500 )
       )
@@ -266,7 +267,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       trajectory = trajectory.strafeToLinearHeading( pose.position, pose.heading.toDouble() );
     }
 
-    Actions.runBlocking( trajectory.build() );
+    ActionTools.runBlocking( robot, trajectory.build() );
   }
 
   private boolean retrieveSpecimen()
