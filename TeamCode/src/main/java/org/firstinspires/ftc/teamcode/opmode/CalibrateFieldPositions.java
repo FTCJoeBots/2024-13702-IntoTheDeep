@@ -22,7 +22,7 @@ public class CalibrateFieldPositions extends OpMode
 {
   private JoeBot robot = null;
   private Gamepads gamepads = null;
-  private Location target = Location.values()[ 0 ];
+  private Location.NamedLocation target = Location.NamedLocation.values()[ 0 ];
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -66,7 +66,7 @@ public class CalibrateFieldPositions extends OpMode
     if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_LEFT ) ||
         gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_UP ) )
     {
-      final Location[] locations = Location.values();
+      final Location.NamedLocation[] locations = Location.NamedLocation.values();
 
       target = locations[ target.ordinal() > 0 ?
                           target.ordinal() - 1 :
@@ -75,7 +75,7 @@ public class CalibrateFieldPositions extends OpMode
     else if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_RIGHT ) ||
              gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_DOWN ) )
     {
-      final Location[] locations = Location.values();
+      final Location.NamedLocation[] locations = Location.NamedLocation.values();
 
       target = locations[ target.ordinal() < locations.length - 1 ?
                           target.ordinal() + 1 :
@@ -92,7 +92,7 @@ public class CalibrateFieldPositions extends OpMode
       MecanumDrive drive = robot.mecanumDrive();
 
       TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
-      trajectory = trajectory.strafeToLinearHeading( target.value, 0 );
+      trajectory = trajectory.strafeToLinearHeading( Location.position( target ), 0 );
 
       ActionTools.runBlocking( robot, trajectory.build() );
     }
