@@ -2,14 +2,15 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArmToClimb;
 import org.firstinspires.ftc.teamcode.actions.MoveLiftToClimb;
@@ -26,6 +27,8 @@ import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
+import java.util.List;
+
 public class JoeBot
 {
   private Telemetry telemetry = null;
@@ -33,6 +36,7 @@ public class JoeBot
   private Lift lift = null;
   private Intake intake = null;
 
+  private List<LynxModule> hubs;
   private MecanumDrive mecanumDrive = null;
   private Drive drive = null;
 
@@ -55,6 +59,27 @@ public class JoeBot
     else
     {
       drive = new Drive( hardwareMap, telemetry, pose );
+    }
+
+    //setup bulk caching AFTER we create the MecanumDrive since when tuning
+    //RoadRunner they prefer to run using Auto instead of Manual mode
+    hubs = hardwareMap.getAll( LynxModule.class );
+    setupBulkCaching();
+  }
+
+  private void setupBulkCaching()
+  {
+    for( LynxModule module : hubs )
+    {
+      module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
+    }
+  }
+
+  public void clearBulkCache()
+  {
+    for( LynxModule module : hubs )
+    {
+      module.clearBulkCache();
     }
   }
 
@@ -142,6 +167,8 @@ public class JoeBot
 
   public void updateState()
   {
+    clearBulkCache();
+
     if( drive != null )
     {
       drive.updateState();
@@ -160,7 +187,7 @@ public class JoeBot
     //while the motion if being performed
     stopDrive();
 
-    Actions.runBlocking(
+    ActionTools.runBlocking( this,
       new SequentialAction(
         new MoveLift( this,
           isSpecimen ?
@@ -177,7 +204,7 @@ public class JoeBot
 
   public void wait( int milliseconds )
   {
-    Actions.runBlocking(
+    ActionTools.runBlocking( this,
       new SequentialAction(
         new SleepAction( milliseconds )
       )
@@ -192,7 +219,7 @@ public class JoeBot
     //while the motion if being performed
     stopDrive();
 
-    Actions.runBlocking( new GiveUpSample( this ) );
+    ActionTools.runBlocking( this, new GiveUpSample( this ) );
   }
 
   public void placeSampleInBasket( Basket basket )
@@ -206,7 +233,7 @@ public class JoeBot
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_DUMP_IN_BASKET.value;
 
-    Actions.runBlocking(
+    ActionTools.runBlocking( this,
       new SequentialAction(
         new MoveLift( this,
                       basket == Basket.HIGH_BASKET ?
@@ -238,7 +265,7 @@ public class JoeBot
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE.value;
 
-    Actions.runBlocking(
+    ActionTools.runBlocking( this,
       new SequentialAction(
         new MoveLift( this,
           bar == Bar.HIGH_BAR ?
@@ -268,7 +295,7 @@ public class JoeBot
     //while the motion if being performed
     stopDrive();
 
-    Actions.runBlocking(
+    ActionTools.runBlocking( this,
       new SequentialAction(
         new MoveLift( this, Lift.Position.AT_LOW_HANG_BAR ),
         new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_TOUCH_BAR.value )
@@ -286,7 +313,7 @@ public class JoeBot
     //while the motion if being performed
     stopDrive();
 
-    Actions.runBlocking(
+    ActionTools.runBlocking( this,
       new SequentialAction(
         new MoveLift( this, Lift.Position.ABOVE_LOW_HANG_BAR ),
         new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_CLIMB.value ),

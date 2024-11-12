@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -30,7 +29,6 @@ public class ManualJoeBot extends OpMode
 
   private ElapsedTime time = null;
   private Module currentModule = Module.values()[ 0 ];
-  private List<LynxModule> hubs;
   private JoeBot robot = null;
   private Gamepads gamepads = null;
 
@@ -39,13 +37,6 @@ public class ManualJoeBot extends OpMode
   public void init()
   {
     time = new ElapsedTime();
-
-    //setup bulk reads
-    hubs = hardwareMap.getAll( LynxModule.class );
-//    for( LynxModule module : hubs )
-//    {
-//      module.setBulkCachingMode( LynxModule.BulkCachingMode.MANUAL );
-//    }
 
     robot = new JoeBot( false, hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
@@ -92,13 +83,6 @@ public class ManualJoeBot extends OpMode
   @Override
   public void loop()
   {
-    //TODO - we need to do this in our motions! or do not use blokcing call so this happens automatically!
-//    //Clear the BulkCache once per control cycle
-//    for( LynxModule module : hubs )
-//    {
-//      module.clearBulkCache();
-//    }
-
     robot.updateState();
 
     //==================
