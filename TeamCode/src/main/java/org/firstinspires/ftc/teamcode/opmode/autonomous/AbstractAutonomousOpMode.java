@@ -104,15 +104,36 @@ public abstract class AbstractAutonomousOpMode extends OpMode
           park();
         }
         break;
+
       case LEVEL_1_ASCENT:
         if( state != AutonomousState.PARKED )
         {
           level1Ascent();
         }
         break;
+
+      case GRAB_SAMPLE:
+        robot.clearBulkCache();
+        robot.intake().updateState();
+        if( !robot.intake().hasSample() )
+        {
+          robot.grabSample( false );
+        }
+        break;
+
+      case GIVE_UP_SAMPLE:
+        robot.clearBulkCache();
+        robot.intake().updateState();
+        if( robot.intake().hasSample() )
+        {
+          robot.giveUpSample();
+        }
+        break;
+
       case PLACE_SAMPLES_IN_BASKETS:
          basketStrategy();
          break;
+
       case HANG_SPECIMENS_ON_BARS:
         specimenStrategy();
         break;
@@ -131,61 +152,78 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private void level1Ascent()
   {
+    telemetry.log().add( "Autonomous:level1Ascent" );
     driveTo( Arrays.asList( new Pose2d( Location.NEAR_ASCENT_ZONE.value, Math.toRadians( -90 ) ),
                             new Pose2d( Location.ASCENT_ZONE.value, Math.toRadians( -90 ) ) ) );
-    robot.extensionArm().travelTo( ExtensionArm.Position.EXTEND_TO_TOUCH_BAR.value );
+
+    robot.levelOneAscent();
     state  = AutonomousState.PARKED;
   }
 
   private void park()
   {
-    driveTo( new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( 0 ) ) );
-    state  = AutonomousState.PARKED;
+    telemetry.log().add( "Autonomous:park" );
+    driveTo( new Pose2d( Location.OBSERVATION_ZONE.value, 0 ) );
+    state = AutonomousState.PARKED;
   }
 
   private void basketStrategy()
   {
     if( state == AutonomousState.HAVE_SPECIMEN )
     {
+      telemetry.log().add( "Autonomous:drive to and hangSpecimen" );
       driveTo( new Pose2d( Location.SPECIMEN_BAR_LEFT.value, 0 ) );
       robot.hangSpecimen( Bar.HIGH_BAR );
       state = AutonomousState.HAVE_NOTHING;
     }
     else if( state == AutonomousState.HAVE_SAMPLE )
     {
-      driveTo( new Pose2d( Location.SAMPLE_BASKETS.value, 135 ) );
+      telemetry.log().add( "Autonomous:drive to and placeSampleInBasket" );
+      driveTo( new Pose2d( Location.SAMPLE_BASKETS.value, Math.toRadians( 135 ) ) );
       robot.placeSampleInBasket( Basket.HIGH_BASKET );
       state = AutonomousState.HAVE_NOTHING;
     }
     else if( state == AutonomousState.HAVE_NOTHING )
     {
-      if( neutralSamplesLeft < 4 ||
-          timeRunningOut() )
+      if( neutralSamplesLeft < 4 )
       {
+        telemetry.log().add( "Autonomous:neutralSamplesLeft %s", neutralSamplesLeft );
+        level1Ascent();
+      }
+      else if( timeRunningOut() )
+      {
+        telemetry.log().add( "Autonomous:timeRunningOut!" );
         level1Ascent();
       }
       else
       {
         if( neutralSamplesLeft == 6 )
         {
+          telemetry.log().add( "Autonomous:driveTo1" );
           driveTo( new Pose2d( Location.YELLOW_SAMPLE_1.value, 0 ) );
         }
         else if( neutralSamplesLeft == 5 )
         {
-          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES.value, Math.toRadians( 180 ) ),
-                                  new Pose2d( Location.YELLOW_SAMPLE_2.value, Math.toRadians( 180 ) ) ) );
+          telemetry.log().add( "Autonomous:driveTo2" );
+          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES.value, Math.PI ),
+                                  new Pose2d( Location.YELLOW_SAMPLE_2.value, Math.PI ) ) );
         }
         else if( neutralSamplesLeft == 4 )
         {
+          telemetry.log().add( "Autonomous:driveTo3" );
           driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES.value, Math.toRadians( 135 ) ),
                                   new Pose2d( Location.YELLOW_SAMPLE_2.value, Math.toRadians( 135 ) ) ) );
         }
 
+        telemetry.log().add( "Autonomous:grabSample" );
         robot.grabSample( false );
         neutralSamplesLeft--;
 
+        robot.clearBulkCache();
+        robot.intake().updateState();
         if( robot.intake().hasSample() )
         {
+          telemetry.log().add( "Autonomous:haveSample!" );
           state = AutonomousState.HAVE_SAMPLE;
         }
       }
@@ -197,7 +235,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     if( state == AutonomousState.HAVE_SPECIMEN )
     {
       Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.value.x,
-                                        Location.SPECIMEN_BAR_RIGHT.value.y + 5 * numberHung );
+                                        Location.SPECIMEN_BAR_RIGHT.value.y + 3 * numberHung );
       driveTo( new Pose2d( location, 0 ) );
       robot.hangSpecimen( Bar.HIGH_BAR );
       numberHung++;
@@ -205,7 +243,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     }
     else if( state == AutonomousState.HAVE_SAMPLE )
     {
-      driveTo( new Pose2d( Location.OBSERVATION_ZONE.value, 180 ) );
+      driveTo( new Pose2d( Location.OBSERVATION_ZONE.value, Math.PI ) );
       robot.giveUpSample();
       state = retrieveSpecimen() ?
               AutonomousState.HAVE_SPECIMEN :
@@ -219,23 +257,25 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         park();
       }
 
+      final double faceLeft = -Math.PI / 2;
+
       if( teamSamplesLeft == 3 )
       {
-        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES.value, Math.toRadians( -90 ) ),
-                                new Pose2d( Location.TEAM_SAMPLE_1.value, Math.toRadians( -90 ) ),
-                                new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( -90 ) ) ) );
+        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES.value, faceLeft ),
+                                new Pose2d( Location.TEAM_SAMPLE_1.value, faceLeft ),
+                                new Pose2d( Location.OBSERVATION_ZONE.value, faceLeft ) ) );
       }
       else if( neutralSamplesLeft == 2 )
       {
-        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES.value, Math.toRadians( -90 ) ),
-                                new Pose2d( Location.TEAM_SAMPLE_2.value, Math.toRadians( -90 ) ),
-                                new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( -90 ) ) ) );
+        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES.value, faceLeft ),
+                                new Pose2d( Location.TEAM_SAMPLE_2.value, faceLeft ),
+                                new Pose2d( Location.OBSERVATION_ZONE.value, faceLeft ) ) );
       }
       else
       {
-        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES.value, Math.toRadians( -90 ) ),
-                                new Pose2d( Location.TEAM_SAMPLE_1.value, Math.toRadians( -90 ) ),
-                                new Pose2d( Location.OBSERVATION_ZONE.value, Math.toRadians( -90 ) ) ) );
+        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES.value, faceLeft ),
+                                new Pose2d( Location.TEAM_SAMPLE_1.value, faceLeft ),
+                                new Pose2d( Location.OBSERVATION_ZONE.value, faceLeft ) ) );
       }
 
       teamSamplesLeft--;
@@ -255,7 +295,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     MecanumDrive drive = robot.mecanumDrive();
 
     TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
-    trajectory.setTangent( 0 );
+//    trajectory.setTangent( 0 );  //DO WE ACTUALLY NEED THIS???
     for( Pose2d pose : poses )
     {
       trajectory = trajectory.strafeToLinearHeading( pose.position, pose.heading.toDouble() );
@@ -266,13 +306,14 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private boolean retrieveSpecimen()
   {
-    driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE.value, 180 ) );
+    driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE.value, Math.PI ) );
     robot.wait( 1000 );
 
     for( int i = 0; i < 3; i++ )
     {
       robot.grabSample( true );
-
+      robot.clearBulkCache();
+      robot.intake().updateState();
       if( robot.intake().hasSample() )
       { return true; }
     }
@@ -282,10 +323,19 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private boolean timeRunningOut()
   {
-    int timeInMatch = 30;
-    double timeEllapsed = time.seconds();
-    double timeLeft = timeInMatch - timeEllapsed;
-    return timeLeft <= 3;
+    final int timeInMatch = 30;
+    double timeElapsed = time.seconds();
+    double timeLeft = timeInMatch - timeElapsed;
+
+    if( timeLeft <= 4 )
+    {
+      telemetry.log().add( String.format( "Autonomous::timeLeft %s", timeLeft ) );
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
 
   private Vector2d defaultPos()
@@ -300,6 +350,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       case HANG_SPECIMENS_ON_BARS:
         return Location.STARTING_POSITION_SPECIMENS.value;
 
+      case GRAB_SAMPLE:
+      case GIVE_UP_SAMPLE:
       default:
         return new Vector2d( 0, 0 );
     }

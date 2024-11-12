@@ -35,21 +35,34 @@ public class GrabSample extends AbstractAction implements Action
     //stop if it is taking too long
     if( timeExceeded() )
     {
+      robot.telemetry().log().add( "GrabSample:timeExceeded - stopping arm and intake" );
       robot.extensionArm().stop();
       robot.intake().stop();
     }
     //stop extending once we grab the sample
-    else if( !robot.intake().isMoving() )
+    else if( !robot.intake().isMoving() &&
+             robot.extensionArm().isMoving() )
     {
+      robot.telemetry().log().add( "GrabSample:intake not moving -> stop extending" );
       robot.extensionArm().stop();
     }
     //stop intake if extension arm can no longer extend
-    else if( !robot.extensionArm().isMoving() )
+    else if( !robot.extensionArm().isMoving() &&
+             robot.intake().isMoving() )
     {
+      robot.telemetry().log().add( "GrabSample:arm extended -> stop intake" );
       robot.intake().stop();
     }
 
-    return robot.extensionArm().isMoving() &&
-           robot.intake().isMoving();
+    if( robot.extensionArm().isMoving() &&
+        robot.intake().isMoving() )
+    {
+      return true;
+    }
+    else
+    {
+      robot.telemetry().log().add( "GrabSample: we're done" );
+      return false;
+    }
   }
 }

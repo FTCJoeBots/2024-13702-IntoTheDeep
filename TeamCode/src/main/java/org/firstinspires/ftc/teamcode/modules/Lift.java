@@ -204,11 +204,11 @@ public class Lift extends AbstractModule
     int diff = Math.min( leftDiff, rightDiff );
 
     //stop once we get close to our target position
-    telemetry.log().add( String.format( "lift diff: %s", diff ) );
+//    telemetry.log().add( String.format( "lift diff: %s", diff ) );
 
     if( diff <= 10 )
     {
-      telemetry.log().add( "close enough, auto stop" );
+      telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", diff ) );
       stop();
     }
 
