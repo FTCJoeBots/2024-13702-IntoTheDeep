@@ -66,25 +66,25 @@ public final class MecanumDrive {
         // described on https://rr.brott.dev/docs/v1-0/tuning/
 
         //DONE - calibrate using ForwardPushTest
-        public double inPerTick = 0.0005720292767600;
+        public double inPerTick = 0.000574205255666928;
 
         //DONE - calibrate using LateralRampLogger
         //(Do not use LateralPushTest because do not use encoders on our drive wheels)
-        public double lateralInPerTick = 0.00036039496557478033;
+        public double lateralInPerTick = 0.00039923792266542837;
 
         //DONE - calibrate using AngularRampLogger
         //Important! Scroll down below first graph and update
         //ThreeDeadWheelLocalizer.java / par*Ticks params as well
-        public double trackWidthTicks = 25880.46302275907;
+        public double trackWidthTicks = 24708.100462010458;
 
         // feedforward parameters (in tick units)
         //DONE - calibrate using ForwardRampLogger (because we use dead wheels)
         //TODO - fine tune using ManualFeedforwardTuner
-        public double kS = 1.1817249640551513;
-        public double kV = 0.00010173382026772806;
+        public double kS = 0.9860318031786472; //1.1817249640551513;
+        public double kV = 0.00011254266830760284; //0.00010173382026772806;
 
-        //TODO - calibrate using ManualFeedforwardTuner
-        public double kA = 0.00002;
+        //DONE - calibrate using ManualFeedforwardTuner
+        public double kA = 0.00003; //0.00002;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;

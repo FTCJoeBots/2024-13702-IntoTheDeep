@@ -22,9 +22,9 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class Params {
         //DONE - calibrate using AngularRampLogger. Scroll down below first
         //graph to see additional graphs with values.
-        public double par0YTicks = -12868.460522467669; // y position of the first parallel encoder (in tick units)
-        public double par1YTicks =  12218.836123167752; // y position of the second parallel encoder (in tick units)
-        public double perpXTicks = -12512.920499538828; // x position of the perpendicular encoder (in tick units)
+        public double par0YTicks = -13126.497247136775; // y position of the first parallel encoder (in tick units)
+        public double par1YTicks =  11898.478596226418; // y position of the second parallel encoder (in tick units)
+        public double perpXTicks = -12448.518930149796; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();

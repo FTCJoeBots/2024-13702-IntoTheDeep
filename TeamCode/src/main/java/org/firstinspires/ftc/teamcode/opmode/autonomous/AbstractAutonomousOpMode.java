@@ -96,12 +96,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   @Override
   public void loop()
   {
-    //Clear the BulkCache once per control cycle
-    for( LynxModule module : hubs )
-    {
-      module.clearBulkCache();
-    }
-
     switch( gameStrategy )
     {
       case PARK:
