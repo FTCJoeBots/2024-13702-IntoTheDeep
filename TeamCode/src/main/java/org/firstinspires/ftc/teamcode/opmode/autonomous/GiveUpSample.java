@@ -9,6 +9,6 @@ public class GiveUpSample extends AbstractAutonomousOpMode
 {
   public GiveUpSample()
   {
-    super( Team.BLUE, GameStrategy.GIVE_UP_SAMPLE );
+    super( Team.BLUE, GameStrategy.GIVE_UP_SAMPLE, AutonomousState.HAVE_SAMPLE );
   }
 }

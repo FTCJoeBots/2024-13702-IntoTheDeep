@@ -9,6 +9,6 @@ public class Level1Ascent extends AbstractAutonomousOpMode
 {
   public Level1Ascent()
   {
-    super( Team.BLUE, GameStrategy.LEVEL_1_ASCENT );
+    super( Team.BLUE, GameStrategy.LEVEL_1_ASCENT, AutonomousState.HAVE_NOTHING );
   }
 }

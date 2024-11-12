@@ -9,6 +9,6 @@ public class BlueTeamSpecimens extends AbstractAutonomousOpMode
 {
   public BlueTeamSpecimens()
   {
-    super( Team.BLUE, GameStrategy.HANG_SPECIMENS_ON_BARS );
+    super( Team.BLUE, GameStrategy.HANG_SPECIMENS_ON_BARS, AutonomousState.HAVE_SPECIMEN );
   }
 }

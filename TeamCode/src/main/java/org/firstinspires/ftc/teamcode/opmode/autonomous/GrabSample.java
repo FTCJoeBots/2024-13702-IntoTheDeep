@@ -9,6 +9,6 @@ public class GrabSample extends AbstractAutonomousOpMode
 {
   public GrabSample()
   {
-    super( Team.BLUE, GameStrategy.GRAB_SAMPLE );
+    super( Team.BLUE, GameStrategy.GRAB_SAMPLE, AutonomousState.HAVE_NOTHING );
   }
 }

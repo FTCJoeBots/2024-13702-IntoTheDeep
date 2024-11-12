@@ -2,17 +2,21 @@ package org.firstinspires.ftc.teamcode.actions;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 
+@Config
 public class GrabSample extends AbstractAction implements Action
 {
+  public static int defaultMaxTime = 4000;
+
   public GrabSample( JoeBot robot )
   {
-    super( robot, 4000 );
+    super( robot, defaultMaxTime );
   }
 
   @Override

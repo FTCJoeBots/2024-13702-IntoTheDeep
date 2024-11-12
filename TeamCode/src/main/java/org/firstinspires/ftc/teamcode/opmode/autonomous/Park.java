@@ -9,6 +9,6 @@ public class Park extends AbstractAutonomousOpMode
 {
   public Park()
   {
-    super( Team.BLUE, GameStrategy.PARK );
+    super( Team.BLUE, GameStrategy.PARK, AutonomousState.HAVE_NOTHING );
   }
 }

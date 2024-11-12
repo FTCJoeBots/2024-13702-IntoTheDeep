@@ -36,7 +36,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 {
   private final Team team;
   private final GameStrategy gameStrategy;
-  private AutonomousState state = AutonomousState.HAVE_SPECIMEN;
+
+  private AutonomousState state = AutonomousState.HAVE_NOTHING;
   private int neutralSamplesLeft = 6;
   private int teamSamplesLeft = 3;
   private int numberHung = 0;
@@ -44,10 +45,11 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   List<LynxModule> hubs;
   JoeBot robot = null;
 
-  protected AbstractAutonomousOpMode( Team team, GameStrategy gameStrategy )
+  protected AbstractAutonomousOpMode( Team team, GameStrategy gameStrategy, AutonomousState startState )
   {
     this.team = team;
     this.gameStrategy = gameStrategy;
+    this.state = startState;
   }
 
   //We run this when the user hits "INIT" on the app
@@ -163,8 +165,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   private void level1Ascent()
   {
     robot.debug( "Autonomous:level1Ascent" );
-    driveTo( Arrays.asList( new Pose2d( Location.NEAR_ASCENT_ZONE, Math.toRadians( -90 ) ),
-                            new Pose2d( Location.ASCENT_ZONE, Math.toRadians( -90 ) ) ) );
+    final double faceRight = -Math.PI / 2;
+    driveTo( Arrays.asList( new Pose2d( Location.NEAR_ASCENT_ZONE, -faceRight ),
+                            new Pose2d( Location.ASCENT_ZONE, -faceRight ) ) );
 
     robot.levelOneAscent();
     state  = AutonomousState.PARKED;
@@ -181,15 +184,17 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     if( state == AutonomousState.HAVE_SPECIMEN )
     {
-      robot.debug( "Autonomous:drive to and hangSpecimen" );
-      driveTo( new Pose2d( Location.SPECIMEN_BAR_LEFT, 0 ) );
+      final double faceForward = 0;
+      robot.debug( "Autonomous:HAVE_SPECIMEN -> hangSpecimen" );
+      driveTo( new Pose2d( Location.SPECIMEN_BAR_LEFT, faceForward ) );
       robot.hangSpecimen( Bar.HIGH_BAR );
       state = AutonomousState.HAVE_NOTHING;
     }
     else if( state == AutonomousState.HAVE_SAMPLE )
     {
-      robot.debug( "Autonomous:drive to and placeSampleInBasket" );
-      driveTo( new Pose2d( Location.SAMPLE_BASKETS, Math.toRadians( 135 ) ) );
+      final double faceBasket = Math.toRadians( 135 );
+      robot.debug( "Autonomous:HAVE_SAMPLE -> placeSampleInBasket" );
+      driveTo( new Pose2d( Location.SAMPLE_BASKETS, faceBasket ) );
       robot.placeSampleInBasket( Basket.HIGH_BASKET );
       state = AutonomousState.HAVE_NOTHING;
     }
@@ -197,35 +202,38 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     {
       if( neutralSamplesLeft < 4 )
       {
-        robot.debug( String.format( "Autonomous:neutralSamplesLeft %s", neutralSamplesLeft ) );
+        robot.debug( String.format( "Autonomous:HAVE_NOTHING -> neutralSamplesLeft %s", neutralSamplesLeft ) );
         level1Ascent();
       }
       else if( timeRunningOut() )
       {
-        robot.debug( "Autonomous:timeRunningOut!" );
+        robot.debug( "Autonomous:HAVE_NOTHING -> timeRunningOut!" );
         level1Ascent();
       }
       else
       {
         if( neutralSamplesLeft == 6 )
         {
-          robot.debug( "Autonomous:driveTo1" );
-          driveTo( new Pose2d( Location.YELLOW_SAMPLE_1, 0 ) );
+          robot.debug( "Autonomous:HAVE_NOTHING -> driveTo1" );
+          final double faceForward = 0;
+          driveTo( new Pose2d( Location.YELLOW_SAMPLE_1, faceForward ) );
         }
         else if( neutralSamplesLeft == 5 )
         {
-          robot.debug( "Autonomous:driveTo2" );
-          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES, Math.PI ),
-                                  new Pose2d( Location.YELLOW_SAMPLE_2, Math.PI ) ) );
+          robot.debug( "Autonomous:HAVE_NOTHING -> driveTo2" );
+          final double faceBackwards = Math.PI;
+          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES, faceBackwards ),
+                                  new Pose2d( Location.YELLOW_SAMPLE_2, faceBackwards ) ) );
         }
         else if( neutralSamplesLeft == 4 )
         {
-          robot.debug( "Autonomous:driveTo3" );
-          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES, Math.toRadians( 135 ) ),
-                                  new Pose2d( Location.YELLOW_SAMPLE_2, Math.toRadians( 135 ) ) ) );
+          robot.debug( "Autonomous:HAVE_NOTHING -> driveTo3" );
+          final double faceSample = Math.toRadians( 135 );
+          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES, faceSample ),
+                                  new Pose2d( Location.YELLOW_SAMPLE_2, faceSample ) ) );
         }
 
-        robot.debug( "Autonomous:grabSample" );
+        robot.debug( "Autonomous:HAVE_NOTHING -> grabSample" );
         robot.grabSample( false );
         neutralSamplesLeft--;
 
@@ -233,7 +241,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         robot.intake().updateState();
         if( robot.intake().hasSample() )
         {
-          robot.debug( "Autonomous:haveSample!" );
+          robot.debug( "Autonomous:HAVE_NOTHING -> HAVE_SAMPLE" );
           state = AutonomousState.HAVE_SAMPLE;
         }
       }
@@ -267,7 +275,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         park();
       }
 
-      final double faceLeft = -Math.PI / 2;
+      final double faceLeft = Math.PI / 2;
 
       if( teamSamplesLeft == 3 )
       {
@@ -305,7 +313,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     MecanumDrive drive = robot.mecanumDrive();
 
     TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
-//    trajectory.setTangent( 0 );  //DO WE ACTUALLY NEED THIS???
+//    trajectory.setTangent( 0 );  //TODO DO WE ACTUALLY NEED THIS???
     for( Pose2d pose : poses )
     {
       trajectory = trajectory.strafeToLinearHeading( pose.position, pose.heading.toDouble() );

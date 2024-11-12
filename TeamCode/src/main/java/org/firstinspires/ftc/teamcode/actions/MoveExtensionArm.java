@@ -1,18 +1,22 @@
 package org.firstinspires.ftc.teamcode.actions;
 
 import androidx.annotation.NonNull;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
 
+@Config
 public class MoveExtensionArm extends AbstractAction implements Action
 {
   private int position;
 
+  public static int defaultMaxTime = 1000;
+
   public MoveExtensionArm( JoeBot robot, int position )
   {
-    super( robot, 1000 );
+    super( robot, defaultMaxTime );
     this.robot = robot;
     this.position = position;
   }
