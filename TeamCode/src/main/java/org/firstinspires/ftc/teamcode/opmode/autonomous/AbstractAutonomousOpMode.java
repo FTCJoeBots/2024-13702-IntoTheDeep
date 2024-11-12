@@ -285,7 +285,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     int timeInMatch = 30;
     double timeEllapsed = time.seconds();
     double timeLeft = timeInMatch - timeEllapsed;
-    return timeLeft <= 10;
+    return timeLeft <= 3;
   }
 
   private Vector2d defaultPos()

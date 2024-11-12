@@ -40,6 +40,7 @@ public class CalibrateFieldPositions extends OpMode
   @Override
   public void init_loop()
   {
+    robot.clearBulkCache();
     robot.mecanumDrive().updatePoseEstimate();
     printPose();
     telemetry.update();
