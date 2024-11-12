@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -29,6 +30,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 import java.util.List;
 
+@Config
 public class JoeBot
 {
   private Telemetry telemetry = null;
@@ -41,6 +43,8 @@ public class JoeBot
   private Drive drive = null;
 
   private static Pose2d pose = new Pose2d( 0, 0, 0 );
+
+  public static boolean debugging = true;
 
   public JoeBot( boolean forAutonomous, HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -65,6 +69,14 @@ public class JoeBot
     //RoadRunner they prefer to run using Auto instead of Manual mode
     hubs = hardwareMap.getAll( LynxModule.class );
     setupBulkCaching();
+  }
+
+  public void debug( String message )
+  {
+    if( debugging )
+    {
+      telemetry.log().add( message );
+    }
   }
 
   private void setupBulkCaching()
@@ -181,7 +193,7 @@ public class JoeBot
 
   public void wait( int milliseconds )
   {
-    telemetry.log().add( String.format( "JoeBot::wait %s", milliseconds ) );
+    debug( String.format( "JoeBot::wait %s", milliseconds ) );
 
     ActionTools.runBlocking( this,
       new SequentialAction(
@@ -192,7 +204,7 @@ public class JoeBot
 
   public void grabSample( boolean isSpecimen )
   {
-    telemetry.log().add( String.format( "JoeBot::grabSample isSpecimen=%s", isSpecimen ) );
+    debug( String.format( "JoeBot::grabSample isSpecimen=%s", isSpecimen ) );
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
@@ -215,7 +227,7 @@ public class JoeBot
 
   public void giveUpSample()
   {
-    telemetry.log().add( "JoeBot::giveUpSample" );
+    debug( "JoeBot::giveUpSample" );
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
@@ -226,7 +238,7 @@ public class JoeBot
 
   public void placeSampleInBasket( Basket basket )
   {
-    telemetry.log().add( String.format( "JoeBot::placeSampleInBasket %s", basket ) );
+    debug( String.format( "JoeBot::placeSampleInBasket %s", basket ) );
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
@@ -252,7 +264,7 @@ public class JoeBot
 
   public void hangSpecimen( Bar bar )
   {
-    telemetry.log().add( String.format( "JoeBot::hangSpecimen %s", bar ) );
+    debug( String.format( "JoeBot::hangSpecimen %s", bar ) );
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
@@ -285,7 +297,7 @@ public class JoeBot
   //this will prevent gear mash but allow this to work from farther away and allow us to extend arm quickly!
   public void levelOneAscent()
   {
-    telemetry.log().add( "JotBot::levelOneAscent()" );
+    debug( "JotBot::levelOneAscent()" );
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
@@ -301,11 +313,11 @@ public class JoeBot
 
   public void levelTwoAscent()
   {
-    telemetry.log().add( "JotBot::levelTwoAscent()" );
+    debug( "JotBot::levelTwoAscent()" );
 
     //Turning off for now as the robot gets stuck and the red line on the left lift motor can break
     /*
-    telemetry.log().add( "Level Two Ascent:" );
+    debug( "Level Two Ascent:" );
 
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed

@@ -74,12 +74,14 @@ public class ExtensionArm extends AbstractModule
     if( currentAction == Action.STOPPED )
     { return; }
 
-    final int diff = Math.abs( extensionArmMotor.getCurrentPosition() - extensionArmMotor.getTargetPosition() );
+    final int current = extensionArmMotor.getCurrentPosition();
+    final int target = extensionArmMotor.getTargetPosition();
+    final int diff = Math.abs( current - target );
 
     if( diff <= 1 )
     {
+      telemetry.log().add( String.format( "Arm stopping, cp %s tp %s", current, target ) );
       stop();
-//      telemetry.log().add( "Extension Arm Stopped" );
     }
   }
 
@@ -170,6 +172,7 @@ public class ExtensionArm extends AbstractModule
 
     if( position != extensionArmMotor.getCurrentPosition() )
     {
+      telemetry.log().add( String.format("Arm traveling to %s", position ) );
       extensionArmMotor.setTargetPosition( position );
       extensionArmMotor.setPower( power );
       currentAction = Action.MOVING;
@@ -190,6 +193,7 @@ public class ExtensionArm extends AbstractModule
       super.stop();
     }
 
+    telemetry.log().add( "Arm stopped" );
     currentAction = Action.STOPPED;
   }
 

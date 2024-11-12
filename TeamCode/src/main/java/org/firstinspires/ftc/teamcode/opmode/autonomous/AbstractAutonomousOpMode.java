@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -28,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@Config
 public abstract class AbstractAutonomousOpMode extends OpMode
 {
   private final Team team;
@@ -50,6 +54,12 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   @Override
   public void init()
   {
+    //print telemetry to Dashboard
+    if( JoeBot.debugging )
+    {
+      telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+    }
+
     time = new ElapsedTime();
 
     //setup bulk reads
@@ -152,7 +162,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private void level1Ascent()
   {
-    telemetry.log().add( "Autonomous:level1Ascent" );
+    robot.debug( "Autonomous:level1Ascent" );
     driveTo( Arrays.asList( new Pose2d( Location.NEAR_ASCENT_ZONE, Math.toRadians( -90 ) ),
                             new Pose2d( Location.ASCENT_ZONE, Math.toRadians( -90 ) ) ) );
 
@@ -162,7 +172,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private void park()
   {
-    telemetry.log().add( "Autonomous:park" );
+    robot.debug( "Autonomous:park" );
     driveTo( new Pose2d( Location.OBSERVATION_ZONE, 0 ) );
     state = AutonomousState.PARKED;
   }
@@ -171,14 +181,14 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     if( state == AutonomousState.HAVE_SPECIMEN )
     {
-      telemetry.log().add( "Autonomous:drive to and hangSpecimen" );
+      robot.debug( "Autonomous:drive to and hangSpecimen" );
       driveTo( new Pose2d( Location.SPECIMEN_BAR_LEFT, 0 ) );
       robot.hangSpecimen( Bar.HIGH_BAR );
       state = AutonomousState.HAVE_NOTHING;
     }
     else if( state == AutonomousState.HAVE_SAMPLE )
     {
-      telemetry.log().add( "Autonomous:drive to and placeSampleInBasket" );
+      robot.debug( "Autonomous:drive to and placeSampleInBasket" );
       driveTo( new Pose2d( Location.SAMPLE_BASKETS, Math.toRadians( 135 ) ) );
       robot.placeSampleInBasket( Basket.HIGH_BASKET );
       state = AutonomousState.HAVE_NOTHING;
@@ -187,35 +197,35 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     {
       if( neutralSamplesLeft < 4 )
       {
-        telemetry.log().add( "Autonomous:neutralSamplesLeft %s", neutralSamplesLeft );
+        robot.debug( String.format( "Autonomous:neutralSamplesLeft %s", neutralSamplesLeft ) );
         level1Ascent();
       }
       else if( timeRunningOut() )
       {
-        telemetry.log().add( "Autonomous:timeRunningOut!" );
+        robot.debug( "Autonomous:timeRunningOut!" );
         level1Ascent();
       }
       else
       {
         if( neutralSamplesLeft == 6 )
         {
-          telemetry.log().add( "Autonomous:driveTo1" );
+          robot.debug( "Autonomous:driveTo1" );
           driveTo( new Pose2d( Location.YELLOW_SAMPLE_1, 0 ) );
         }
         else if( neutralSamplesLeft == 5 )
         {
-          telemetry.log().add( "Autonomous:driveTo2" );
+          robot.debug( "Autonomous:driveTo2" );
           driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES, Math.PI ),
                                   new Pose2d( Location.YELLOW_SAMPLE_2, Math.PI ) ) );
         }
         else if( neutralSamplesLeft == 4 )
         {
-          telemetry.log().add( "Autonomous:driveTo3" );
+          robot.debug( "Autonomous:driveTo3" );
           driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES, Math.toRadians( 135 ) ),
                                   new Pose2d( Location.YELLOW_SAMPLE_2, Math.toRadians( 135 ) ) ) );
         }
 
-        telemetry.log().add( "Autonomous:grabSample" );
+        robot.debug( "Autonomous:grabSample" );
         robot.grabSample( false );
         neutralSamplesLeft--;
 
@@ -223,7 +233,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         robot.intake().updateState();
         if( robot.intake().hasSample() )
         {
-          telemetry.log().add( "Autonomous:haveSample!" );
+          robot.debug( "Autonomous:haveSample!" );
           state = AutonomousState.HAVE_SAMPLE;
         }
       }
@@ -329,7 +339,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
     if( timeLeft <= 4 )
     {
-      telemetry.log().add( String.format( "Autonomous::timeLeft %s", timeLeft ) );
+      robot.debug( String.format( "Autonomous::timeLeft %s", timeLeft ) );
       return true;
     }
     else

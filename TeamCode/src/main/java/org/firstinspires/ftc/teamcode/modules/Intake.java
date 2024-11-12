@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.JoeBot;
 
 public class Intake extends AbstractModule
 {
@@ -245,6 +246,9 @@ public class Intake extends AbstractModule
                       Action.PULL_IN_SAMPLE_FROM_BEHIND;
     }
 
+    if( JoeBot.debugging )
+    { telemetry.log().add( "Intake.turnOnServos - turning on" ); }
+
     int    multiplier = direction == Direction.PULL ? -1 : 1;
     double speed      = sampleDetected ? SPIT_OUT_SPEED : PULL_IN_SPEED;
 
@@ -254,6 +258,8 @@ public class Intake extends AbstractModule
   @Override
   public void stop()
   {
+    if( JoeBot.debugging )
+    { telemetry.log().add( "Intake.stop" ); }
     currentAction = Action.DOING_NOTHING;
     super.stop();
   }
@@ -273,6 +279,8 @@ public class Intake extends AbstractModule
         //ensure sample is centered before turning off servos
         if( sampleDetected )
         {
+          if( JoeBot.debugging )
+          { telemetry.log().add( "Intake sampleDetected, scheduling turning off" ); }
           currentAction = Action.TURN_OFF_AFTER_DELAY;
           time.reset();
           delay = CENTER_DELAY;
@@ -284,6 +292,8 @@ public class Intake extends AbstractModule
         //ensure sample is full ejected before turning off servos
         if( !sampleDetected )
         {
+          if( JoeBot.debugging )
+          { telemetry.log().add( "Intake sampleLost, scheduling turning off" ); }
           currentAction = Action.TURN_OFF_AFTER_DELAY;
           time.reset();
           delay = EJECT_DELAY;
@@ -292,7 +302,11 @@ public class Intake extends AbstractModule
 
       case TURN_OFF_AFTER_DELAY:
         if( time.milliseconds() >= delay )
-        { stop(); }
+        {
+          if( JoeBot.debugging )
+          { telemetry.log().add( "Intake delay met" ); }
+          stop();
+        }
 
       case DOING_NOTHING:
         break;
