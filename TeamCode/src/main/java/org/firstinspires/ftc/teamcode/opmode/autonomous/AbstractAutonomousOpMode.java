@@ -293,26 +293,29 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       }
       else
       {
-        final double faceLeft = Math.toRadians( 90 );
-
-        Vector2d samplePos;
-
-        if( teamSamplesLeft == 3 )
-        {
-          samplePos = Location.TEAM_SAMPLE_1;
-        }
-        else
-        {
-          samplePos = neutralSamplesLeft == 2 ?
-                      Location.TEAM_SAMPLE_2 :
-                      Location.TEAM_SAMPLE_3;
-        }
-
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> strafe and retrieve" );
-        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES, faceLeft ),
-                                new Pose2d( samplePos, faceLeft ),
-                                new Pose2d( Location.OBSERVATION_ZONE, faceLeft ) ) );
-        teamSamplesLeft--;
+
+        while( teamSamplesLeft > 0 )
+        {
+          Vector2d samplePos;
+          if( teamSamplesLeft == 3 )
+          {
+            samplePos = Location.TEAM_SAMPLE_1;
+          }
+          else
+          {
+            samplePos = neutralSamplesLeft == 2 ?
+                        Location.TEAM_SAMPLE_2 :
+                        Location.TEAM_SAMPLE_3;
+          }
+
+          final double faceLeft = Math.toRadians( 90 );
+          driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES, faceLeft ),
+                                  new Pose2d( samplePos, faceLeft ),
+                                  new Pose2d( Location.OBSERVATION_ZONE, faceLeft ) ) );
+          teamSamplesLeft--;
+        }
+
         state = retrieveSpecimen() ?
                 AutonomousState.HAVE_SPECIMEN :
                 AutonomousState.HAVE_NOTHING;
@@ -344,7 +347,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 //    robot.wait( 1000 );
 
     while( !timeRunningOut() )
-//    for( int i = 0; i < 3; i++ )
     {
       robot.grabSample( true );
       robot.updateState();
