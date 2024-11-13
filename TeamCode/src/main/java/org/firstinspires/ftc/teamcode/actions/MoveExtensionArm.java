@@ -12,7 +12,7 @@ public class MoveExtensionArm extends AbstractAction implements Action
 {
   private int position;
 
-  public static int defaultMaxTime = 1000;
+  public static int defaultMaxTime = 2000;
 
   public MoveExtensionArm( JoeBot robot, int position )
   {
