@@ -24,22 +24,25 @@ public class GrabSample extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
+      robot.updateState();
       final int currentPosition = robot.extensionArm().getMotorPosition();
       final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_GRAB_SAMPLE.value;
 
-      robot.telemetry().log().add( "GrabSample" );
+      robot.debug( "GrabSample" );
       robot.intake().pullSampleBack();
       robot.extensionArm().travelToWithPower( extendedPosition, 0.5 );
       super.initialize();
     }
-
-    robot.extensionArm().updateState();
-    robot.intake().updateState();
+    else
+    {
+      robot.extensionArm().updateState();
+      robot.intake().updateState();
+    }
 
     //stop if it is taking too long
     if( timeExceeded() )
     {
-      robot.telemetry().log().add( "GrabSample:timeExceeded - stopping arm and intake" );
+      robot.debug( "GrabSample:timeExceeded - stopping arm and intake" );
       robot.extensionArm().stop();
       robot.intake().stop();
     }
@@ -47,14 +50,14 @@ public class GrabSample extends AbstractAction implements Action
     else if( !robot.intake().isMoving() &&
              robot.extensionArm().isMoving() )
     {
-      robot.telemetry().log().add( "GrabSample:intake not moving -> stop extending" );
+      robot.debug( "GrabSample:intake not moving -> stop extending" );
       robot.extensionArm().stop();
     }
     //stop intake if extension arm can no longer extend
     else if( !robot.extensionArm().isMoving() &&
              robot.intake().isMoving() )
     {
-      robot.telemetry().log().add( "GrabSample:arm extended -> stop intake" );
+      robot.debug( "GrabSample:arm extended -> stop intake" );
       robot.intake().stop();
     }
 
@@ -65,7 +68,7 @@ public class GrabSample extends AbstractAction implements Action
     }
     else
     {
-      robot.telemetry().log().add( "GrabSample: we're done" );
+      robot.debug( "GrabSample: we're done" );
       return false;
     }
   }

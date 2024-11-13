@@ -75,7 +75,8 @@ public class JoeBot
   {
     if( debugging )
     {
-      telemetry.log().add( message );
+      telemetry.addLine( message );
+      telemetry.update();
     }
   }
 
@@ -244,6 +245,7 @@ public class JoeBot
     //while the motion if being performed
     stopDrive();
 
+    clearBulkCache();
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_DUMP_IN_BASKET.value;
 
@@ -270,6 +272,7 @@ public class JoeBot
     //while the motion if being performed
     stopDrive();
 
+    clearBulkCache();
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE.value;
 

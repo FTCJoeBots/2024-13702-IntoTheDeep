@@ -22,12 +22,15 @@ public class GiveUpSample extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      robot.telemetry().log().add( "GiveUpSample" );
+      robot.updateState();
+      robot.debug( "GiveUpSample" );
       robot.intake().pushSampleForward();
       super.initialize();
     }
-
-    robot.intake().updateState();
+    else
+    {
+      robot.intake().updateState();
+    }
 
     //stop if it is taking too long
     if( timeExceeded() )

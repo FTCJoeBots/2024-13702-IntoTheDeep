@@ -26,12 +26,15 @@ public class MoveExtensionArm extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      robot.telemetry().log().add( String.format( "MoveExtensionArm: %s", position ) );
+      robot.updateState();
+      robot.debug( String.format( "MoveExtensionArm: %s", position ) );
       robot.extensionArm().travelTo( position );
       super.initialize();
     }
-
-    robot.extensionArm().updateState();
+    else
+    {
+      robot.extensionArm().updateState();
+    }
 
     //stop if it is taking too long
     if( timeExceeded() )

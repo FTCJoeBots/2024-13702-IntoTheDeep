@@ -22,12 +22,15 @@ public class MoveExtensionArmToClimb extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      robot.telemetry().log().add( "MoveExtensionArmToClimb" );
+      robot.updateState();
+      robot.debug( "MoveExtensionArmToClimb" );
       robot.extensionArm().climb();
       super.initialize();
     }
-
-    robot.extensionArm().updateState();
+    else
+    {
+      robot.extensionArm().updateState();
+    }
 
     //stop if it is taking too long
     if( timeExceeded() )

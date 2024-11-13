@@ -60,6 +60,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     if( JoeBot.debugging )
     {
       telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+      telemetry.setAutoClear( false );
     }
 
     time = new ElapsedTime();
