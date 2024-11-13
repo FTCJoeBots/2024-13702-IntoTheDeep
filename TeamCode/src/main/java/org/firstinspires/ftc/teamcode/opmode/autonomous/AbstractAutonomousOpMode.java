@@ -168,9 +168,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   private void level1Ascent()
   {
     robot.debug( "Autonomous:level1Ascent" );
-    final double faceRight = -Math.PI / 2;
-    driveTo( Arrays.asList( new Pose2d( Location.NEAR_ASCENT_ZONE, -faceRight ),
-                            new Pose2d( Location.ASCENT_ZONE, -faceRight ) ) );
+    final double faceRight = Math.toRadians( -90 );
+    driveTo( Arrays.asList( new Pose2d( Location.NEAR_ASCENT_ZONE, faceRight ),
+                            new Pose2d( Location.ASCENT_ZONE, faceRight ) ) );
 
     robot.levelOneAscent();
     state  = AutonomousState.PARKED;
