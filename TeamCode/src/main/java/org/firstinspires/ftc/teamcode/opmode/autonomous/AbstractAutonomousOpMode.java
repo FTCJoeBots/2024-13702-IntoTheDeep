@@ -94,6 +94,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   @Override
   public void start()
   {
+    //reset the timer when the game starts
+    time.reset();
+
     //Prevent robot from being pushed around
     robot.brake();
 
