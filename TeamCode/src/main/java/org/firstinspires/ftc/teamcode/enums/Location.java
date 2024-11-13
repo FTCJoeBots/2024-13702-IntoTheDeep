@@ -6,15 +6,15 @@ import com.acmerobotics.roadrunner.Vector2d;
 @Config
 public class Location
 {
-  public static Vector2d SPECIMEN_BAR_LEFT = new Vector2d( 23, 9 );
-  public static Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 23, -9 );
+  public static Vector2d SPECIMEN_BAR_LEFT = new Vector2d( 23, 7 );
+  public static Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 23, -7 );
 
   //left edge of robot is 2 tiles over from left corner
   public static Vector2d STARTING_POSITION_BASKETS = new Vector2d( 0, 15.1 );
 
   //right edge of robot is 2 tiles over from right corner
   public static Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
-  public static Vector2d SAMPLE_BASKETS = new Vector2d( 13.4, 50.5 );
+  public static Vector2d SAMPLE_BASKETS = new Vector2d( 12.5, 51.6 );
 
   public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 11.8 , -49.6 );
   public static Vector2d OBSERVATION_ZONE = new Vector2d( -2.9, -53.3 );
