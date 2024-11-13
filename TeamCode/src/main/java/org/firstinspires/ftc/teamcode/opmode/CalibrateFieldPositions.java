@@ -24,7 +24,7 @@ public class CalibrateFieldPositions extends OpMode
   private Gamepads gamepads = null;
   private int targetIndex = 0;
   private final int numTargets = Location.NamedLocation.values().length;
-  
+
   //We run this when the user hits "INIT" on the app
   @Override
   public void init()
