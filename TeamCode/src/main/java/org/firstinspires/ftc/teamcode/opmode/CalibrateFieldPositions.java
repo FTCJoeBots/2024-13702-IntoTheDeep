@@ -63,23 +63,21 @@ public class CalibrateFieldPositions extends OpMode
   @Override
   public void loop()
   {
+    robot.updateState();
+
     if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_LEFT ) ||
         gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_UP ) )
     {
-      final Location.NamedLocation[] locations = Location.NamedLocation.values();
-
-      target = locations[ target.ordinal() > 0 ?
-                          target.ordinal() - 1 :
-                          locations.length - 1 ];
+      target = target.ordinal() > 0 ?
+        Location.NamedLocation.values()[ target.ordinal() - 1 ] :
+        Location.NamedLocation.values()[ Location.NamedLocation.values().length - 1 ];
     }
     else if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_RIGHT ) ||
              gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_DOWN ) )
     {
-      final Location.NamedLocation[] locations = Location.NamedLocation.values();
-
-      target = locations[ target.ordinal() < locations.length - 1 ?
-                          target.ordinal() + 1 :
-                          0 ];
+      target = target.ordinal() == Location.NamedLocation.values().length - 1 ?
+        Location.NamedLocation.values()[ 0 ] :
+        Location.NamedLocation.values()[ target.ordinal() + 1 ];
     }
     else if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.A ) ||
              gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.B ) ||
@@ -98,7 +96,7 @@ public class CalibrateFieldPositions extends OpMode
     }
     else
     {
-      telemetry.addLine( String.format( "%s", target ) );
+      telemetry.addLine( String.format( "Target %s", target ) );
       printPose();
       telemetry.update();
     }
