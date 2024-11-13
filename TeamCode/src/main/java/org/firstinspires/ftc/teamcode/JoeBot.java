@@ -255,7 +255,7 @@ public class JoeBot
                         Lift.Position.LOW_BASKET,
           8000 ),
         new MoveExtensionArm( this, extendedPosition ),
-        new OperateIntake( this, Intake.Direction.PUSH, 500 ),
+        new OperateIntake( this, Intake.Direction.PUSH, 2000 ),
         new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value ),
         new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
