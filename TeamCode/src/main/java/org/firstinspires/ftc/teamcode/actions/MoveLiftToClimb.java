@@ -20,12 +20,15 @@ public class MoveLiftToClimb extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      robot.telemetry().log().add( "MoveLiftToClimb" );
+      robot.updateState();
+      robot.debug( "MoveLiftToClimb" );
       robot.lift().climb();
       super.initialize();
     }
-
-    robot.lift().updateState();
+    else
+    {
+      robot.lift().updateState();
+    }
 
     //stop if it is taking too long
     if( timeExceeded() )

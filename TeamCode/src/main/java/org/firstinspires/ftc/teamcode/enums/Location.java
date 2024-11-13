@@ -4,35 +4,96 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Vector2d;
 
 @Config
-public enum Location
+public class Location
 {
-  SPECIMEN_BAR_LEFT( 23, 9 ),
-  SPECIMEN_BAR_RIGHT( 23, -9 ),
+  public static Vector2d SPECIMEN_BAR_LEFT = new Vector2d( 23, 7 );
+  public static Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 23, -7 );
 
-  STARTING_POSITION_BASKETS( 0, 15.1 ), //left edge of robot is 2 tiles over from corner
-  STARTING_POSITION_SPECIMENS( 0, -15.6 ),
-  SAMPLE_BASKETS( 13.4, 50.5 ), //11.1, 50.2 ),
+  //left edge of robot is 2 tiles over from left corner
+  public static Vector2d STARTING_POSITION_BASKETS = new Vector2d( 0, 15.1 );
 
-  NEAR_THE_OBSERVATION_ZONE( 11.8 , -49.6 ),
-  OBSERVATION_ZONE( -2.9, -53.3 ),
+  //right edge of robot is 2 tiles over from right corner
+  public static Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
+  public static Vector2d SAMPLE_BASKETS = new Vector2d( 12.5, 51.6 );
 
-  NEAR_ASCENT_ZONE( 63.9, 45.5 ), //65, 34.6 ),
-  ASCENT_ZONE( 60.3, 19.7 ), //65, 15.8 ),
+  public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 11.8 , -49.6 );
+  public static Vector2d OBSERVATION_ZONE = new Vector2d( -2.9, -53.3 );
 
-  NEAR_YELLOW_SAMPLES( 64.8, 29.3 ), //44.1, 27.3 ),
-  YELLOW_SAMPLE_1( 22, 49 ), //33.4, 43.8 ),
-  YELLOW_SAMPLE_2( 55.8, 51.9 ),//63.6, 44.5 ),
-  YELLOW_SAMPLE_3( 51.9, 51.1 ),//61.4, 47.2 ),
+  public static Vector2d NEAR_ASCENT_ZONE = new Vector2d( 63.9, 52 );
+  public static Vector2d ASCENT_ZONE = new Vector2d( 60.3, 19.7 );
 
-  NEAR_TEAM_SAMPLES( 28.0, -40 ),
-  TEAM_SAMPLE_1( 35, -50 ),
-  TEAM_SAMPLE_2( 35, -60 ),
-  TEAM_SAMPLE_3( 35, -67 );
+  public static Vector2d NEAR_YELLOW_SAMPLES = new Vector2d( 64.8, 29.3 );
+  public static Vector2d YELLOW_SAMPLE_1 = new Vector2d( 22, 49 );
+  public static Vector2d YELLOW_SAMPLE_2 = new Vector2d( 55.8, 51.9 );
+  public static Vector2d YELLOW_SAMPLE_3 = new Vector2d( 51.9, 51.1 );
 
-  Location( double x, double y )
+  public static Vector2d NEAR_TEAM_SAMPLES = new Vector2d( 28.0, -40 );
+  public static Vector2d TEAM_SAMPLE_1 = new Vector2d( 35, -50 );
+  public static Vector2d TEAM_SAMPLE_2 = new Vector2d( 35, -60 );
+  public static Vector2d TEAM_SAMPLE_3 = new Vector2d( 35, -67 );
+
+  public enum NamedLocation
   {
-    this.value = new Vector2d( x, y );
+    _SPECIMEN_BAR_LEFT,
+    _SPECIMEN_BAR_RIGHT,
+    _STARTING_POSITION_BASKETS,
+    _STARTING_POSITION_SPECIMENS,
+    _SAMPLE_BASKETS,
+    _NEAR_THE_OBSERVATION_ZONE,
+    _OBSERVATION_ZONE,
+    _NEAR_ASCENT_ZONE,
+    _ASCENT_ZONE,
+    _NEAR_YELLOW_SAMPLES,
+    _YELLOW_SAMPLE_1,
+    _YELLOW_SAMPLE_2,
+    _YELLOW_SAMPLE_3,
+    _NEAR_TEAM_SAMPLES,
+    _TEAM_SAMPLE_1,
+    _TEAM_SAMPLE_2,
+    _TEAM_SAMPLE_3
   }
 
-  public final Vector2d value;
+  public static Vector2d position( NamedLocation location )
+  {
+    switch( location )
+    {
+      case _SPECIMEN_BAR_LEFT:
+        return SPECIMEN_BAR_RIGHT;
+      case _SPECIMEN_BAR_RIGHT:
+        return SPECIMEN_BAR_RIGHT;
+      case _STARTING_POSITION_BASKETS:
+        return STARTING_POSITION_BASKETS;
+      case _STARTING_POSITION_SPECIMENS:
+        return STARTING_POSITION_SPECIMENS;
+      case _SAMPLE_BASKETS:
+        return SAMPLE_BASKETS;
+      case _NEAR_THE_OBSERVATION_ZONE:
+        return NEAR_THE_OBSERVATION_ZONE;
+      case _OBSERVATION_ZONE:
+        return OBSERVATION_ZONE;
+      case _NEAR_ASCENT_ZONE:
+        return NEAR_ASCENT_ZONE;
+      case _ASCENT_ZONE:
+        return ASCENT_ZONE;
+      case _NEAR_YELLOW_SAMPLES:
+        return NEAR_YELLOW_SAMPLES;
+      case _YELLOW_SAMPLE_1:
+        return YELLOW_SAMPLE_1;
+      case _YELLOW_SAMPLE_2:
+        return YELLOW_SAMPLE_2;
+      case _YELLOW_SAMPLE_3:
+        return YELLOW_SAMPLE_3;
+      case _NEAR_TEAM_SAMPLES:
+        return NEAR_TEAM_SAMPLES;
+      case _TEAM_SAMPLE_1:
+        return TEAM_SAMPLE_1;
+      case _TEAM_SAMPLE_2:
+        return TEAM_SAMPLE_2;
+      case _TEAM_SAMPLE_3:
+        return TEAM_SAMPLE_3;
+
+      default:
+        return new Vector2d( 0, 0 );
+    }
+  }
 }

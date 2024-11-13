@@ -24,21 +24,24 @@ public class OperateIntake extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
+      robot.updateState();
       if( direction == Intake.Direction.PULL  )
       {
-        robot.telemetry().log().add( "OperateIntake: pullSampleBack" );
+        robot.debug( "OperateIntake: pullSampleBack" );
         robot.intake().pullSampleBack();
       }
       else
       {
-        robot.telemetry().log().add( "OperateIntake: pushSampleForward" );
+        robot.debug( "OperateIntake: pushSampleForward" );
         robot.intake().pushSampleForward();
       }
 
       super.initialize();
     }
-
-    robot.intake().updateState();
+    else
+    {
+      robot.intake().updateState();
+    }
 
     //stop if it is taking too long
     if( timeExceeded() )

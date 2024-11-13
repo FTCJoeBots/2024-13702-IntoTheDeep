@@ -22,7 +22,8 @@ public class CalibrateFieldPositions extends OpMode
 {
   private JoeBot robot = null;
   private Gamepads gamepads = null;
-  private Location target = Location.values()[ 0 ];
+  private int targetIndex = 0;
+  private final int numTargets = Location.NamedLocation.values().length;
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -63,44 +64,43 @@ public class CalibrateFieldPositions extends OpMode
   @Override
   public void loop()
   {
-    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_LEFT ) ||
-        gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_UP ) )
-    {
-      final Location[] locations = Location.values();
+    robot.updateState();
 
-      target = locations[ target.ordinal() > 0 ?
-                          target.ordinal() - 1 :
-                          locations.length - 1 ];
-    }
-    else if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_RIGHT ) ||
-             gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_DOWN ) )
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.X ) )
     {
-      final Location[] locations = Location.values();
+      targetIndex = targetIndex > 0 ?
+                    targetIndex - 1 :
+                    numTargets - 1;
+    }
+    else if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.B ) )
+    {
+      targetIndex = targetIndex + 1 < numTargets ?
+                    targetIndex + 1 :
+                    0;
+    }
+    else if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.A ) )
+    {
+      Location.NamedLocation target = Location.NamedLocation.values()[ targetIndex ];
 
-      target = locations[ target.ordinal() < locations.length - 1 ?
-                          target.ordinal() + 1 :
-                          0 ];
-    }
-    else if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.A ) ||
-             gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.B ) ||
-             gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.X ) ||
-             gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.Y ) )
-    {
       telemetry.addLine( String.format( "Driving to: %s", target ) );
       telemetry.update();
 
       MecanumDrive drive = robot.mecanumDrive();
 
       TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
-      trajectory = trajectory.strafeToLinearHeading( target.value, 0 );
+      trajectory = trajectory.strafeToLinearHeading( Location.position( target ), 0 );
 
       ActionTools.runBlocking( robot, trajectory.build() );
     }
     else
     {
-      telemetry.addLine( String.format( "%s", target ) );
+      Location.NamedLocation target = Location.NamedLocation.values()[ targetIndex ];
+      Vector2d position = Location.position( target );
+      telemetry.addLine( String.format( "Target: %s ( %f, %f )", target, position.x, position.y ) );
       printPose();
       telemetry.update();
     }
+
+    gamepads.storeLastButtons();
   }
 }

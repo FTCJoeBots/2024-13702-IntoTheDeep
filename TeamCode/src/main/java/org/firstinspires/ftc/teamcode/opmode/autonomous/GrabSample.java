@@ -5,12 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.enums.Team;
 
-@Autonomous( name = "Red Team Specimens", group = "13702" )
+@Autonomous( name = "Grab Sample", group = "13702" )
 @Disabled
-public class RedTeamSpecimens extends AbstractAutonomousOpMode
+public class GrabSample extends AbstractAutonomousOpMode
 {
-  public RedTeamSpecimens()
+  public GrabSample()
   {
-    super( Team.RED, GameStrategy.HANG_SPECIMENS_ON_BARS, AutonomousState.HAVE_SPECIMEN );
+    super( Team.BLUE, GameStrategy.GRAB_SAMPLE, AutonomousState.HAVE_NOTHING );
   }
 }

@@ -32,12 +32,15 @@ public class MoveLift extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      robot.telemetry().log().add( String.format( "MoveLift: %s", position ) );
+      robot.updateState();
+      robot.debug( String.format( "MoveLift: %s", position ) );
       robot.lift().travelTo( position );
       super.initialize();
     }
-
-    robot.lift().updateState();
+    else
+    {
+      robot.lift().updateState();
+    }
 
     //let the action complete if the maximum time has been exceeded
     //that is ok, we sometimes want to let te lift continue to drift down while we are driving

@@ -39,13 +39,13 @@ public class Lift extends AbstractModule
     TRAVEL_WITH_SPECIMEN( 600 ),
 
     //putting samples in baskets
-    HIGH_BASKET( 9920 ),
+    HIGH_BASKET( 9980 ),
     LOW_BASKET( 6088 ),
 
     //hanging specimens
     ABOVE_HIGH_SPECIMEN_BAR( 6324 ),
     ABOVE_LOW_SPECIMEN_BAR( 3548 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 5750 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 6000 ),//5750 ),
     SPECIMEN_CLIPPED_ONTO_LOW_BAR( 3000 ),
 
     //leve 1 scent
@@ -204,11 +204,11 @@ public class Lift extends AbstractModule
     int diff = Math.min( leftDiff, rightDiff );
 
     //stop once we get close to our target position
-    telemetry.log().add( String.format( "lift diff: %s", diff ) );
+//    telemetry.log().add( String.format( "lift diff: %s", diff ) );
 
     if( diff <= 10 )
     {
-      telemetry.log().add( "close enough, auto stop" );
+      telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", diff ) );
       stop();
     }
 
