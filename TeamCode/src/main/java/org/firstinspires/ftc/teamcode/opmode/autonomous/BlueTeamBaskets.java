@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.enums.Team;
 @Config
 public class BlueTeamBaskets extends AbstractAutonomousOpMode
 {
-  public static AutonomousState defaultStartState = AutonomousState.HAVE_SAMPLE;
+  public static AutonomousState defaultStartState = AutonomousState.HAVE_SPECIMEN;
 
   public BlueTeamBaskets()
   {
