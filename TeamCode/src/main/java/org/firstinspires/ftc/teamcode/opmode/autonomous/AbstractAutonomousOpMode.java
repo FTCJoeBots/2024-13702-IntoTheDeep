@@ -42,7 +42,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   //set to false to speed up debugging by ejecting samples
   //without operating the lift
-  public static boolean enableLiftMotions = false;
+  public static boolean enableLiftMotions = true;
 
   protected AbstractAutonomousOpMode( Team team, GameStrategy gameStrategy, AutonomousState startState )
   {
@@ -59,7 +59,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     if( JoeBot.debugging )
     {
       telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-      telemetry.setAutoClear( false );
     }
 
     time = new ElapsedTime();
@@ -390,7 +389,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     double timeElapsed = time.seconds();
     double timeLeft = timeInMatch - timeElapsed;
 
-    if( timeLeft <= 4 )
+    if( timeLeft <= 6 )
     {
       robot.debug( String.format( "Autonomous::timeLeft %s", timeLeft ) );
       return true;
