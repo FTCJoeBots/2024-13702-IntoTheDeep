@@ -75,6 +75,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
     robot = new JoeBot( true, hardwareMap, telemetry );
 
+    //prevent resetting encoders again
+    AbstractModule.encodersReset = true;
+
     //always reset the position and heading at the beginning of Autonomous
     telemetry.addLine( "Resetting Position" );
     robot.resetPos( defaultPos() );
@@ -159,9 +162,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     //store position so it can be restored when we start TeleOp
     robot.cachePos();
-
-    //prevent resetting encoders when switching to TeleOp
-    AbstractModule.encodersReset = true;
   }
 
   private void level1Ascent()
