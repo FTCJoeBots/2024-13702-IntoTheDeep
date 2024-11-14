@@ -5,8 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.enums.Team;
 
-@Autonomous( name = "Red Team Basket", group = "13702" )
-@Disabled
+@Autonomous( name = "Red Team Baskets", group = "13702" )
 public class RedTeamBaskets extends AbstractAutonomousOpMode
 {
   public RedTeamBaskets()

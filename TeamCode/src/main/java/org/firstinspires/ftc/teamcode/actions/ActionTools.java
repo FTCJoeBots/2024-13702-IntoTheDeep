@@ -5,7 +5,10 @@ import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
+import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.enums.Button;
+import org.firstinspires.ftc.teamcode.enums.Participant;
 
 public class ActionTools
 {
@@ -20,12 +23,16 @@ public class ActionTools
     while( running &&
            !Thread.currentThread().isInterrupted() )
     {
-      //terminate action if the operator presses the B button
-      if( robot.operatorGamepad != null &&
-          robot.operatorGamepad.b )
+      if( robot.gamepads != null )
       {
-        robot.stop();
-        return;
+        robot.gamepads.storeLastButtons();
+
+        if( robot.gamepads.buttonPressed( Participant.OPERATOR, Button.B ) )
+        {
+          robot.stop();
+          robot.gamepads.storeLastButtons();
+          return;
+        }
       }
 
       TelemetryPacket packet = new TelemetryPacket();
