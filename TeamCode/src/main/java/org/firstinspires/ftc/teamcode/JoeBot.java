@@ -49,7 +49,9 @@ public class JoeBot
 
   public static boolean debugging = true;
 
-  public JoeBot( boolean forAutonomous, HardwareMap hardwareMap, Telemetry telemetry )
+  public JoeBot( boolean forAutonomous,
+                 HardwareMap hardwareMap,
+                 Telemetry telemetry )
   {
     if( !AbstractModule.encodersReset )
     { telemetry.addLine( "Resetting Encoders" ); }

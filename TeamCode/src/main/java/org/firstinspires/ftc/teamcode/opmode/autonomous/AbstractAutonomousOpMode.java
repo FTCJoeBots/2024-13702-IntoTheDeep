@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.enums.Location;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.enums.Team;
+import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
@@ -55,6 +56,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   @Override
   public void init()
   {
+    Intake.team = team;
+
     //print telemetry to Dashboard
     if( JoeBot.debugging )
     {

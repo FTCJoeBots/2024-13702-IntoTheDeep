@@ -14,9 +14,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.enums.Team;
 
 public class Intake extends AbstractModule
 {
+  public static Team team = Team.UNKNOWN;
+
   private CRServo leftServo = null;
   private CRServo rightServo = null;
   private NormalizedColorSensor colorSensor = null;
@@ -279,11 +282,27 @@ public class Intake extends AbstractModule
         //ensure sample is centered before turning off servos
         if( sampleDetected )
         {
-          if( JoeBot.debugging )
-          { telemetry.log().add( "Intake sampleDetected, scheduling turning off" ); }
-          currentAction = Action.TURN_OFF_AFTER_DELAY;
-          time.reset();
-          delay = CENTER_DELAY;
+          ObservedObject object = getObservedObject();
+          if( ( team == Team.RED &&
+                object == ObservedObject.BLUE_SAMPLE ) ||
+              ( team == Team.BLUE &&
+                object == ObservedObject.RED_SAMPLE ) )
+          {
+            if( JoeBot.debugging )
+            { telemetry.log().add( "Intake wrong color sample detected!" ); }
+
+            currentAction = currentAction == Action.PULL_IN_SAMPLE_FROM_IN_FRONT ?
+                            Action.SPIT_OUT_SAMPLE_BEHIND :
+                            Action.SPIT_OUT_SAMPLE_IN_FRONT;
+          }
+          else
+          {
+            if( JoeBot.debugging )
+            { telemetry.log().add( "Intake sampleDetected, scheduling turning off" ); }
+            currentAction = Action.TURN_OFF_AFTER_DELAY;
+            delay = CENTER_DELAY;
+            time.reset();
+          }
         }
         break;
 
@@ -295,8 +314,8 @@ public class Intake extends AbstractModule
           if( JoeBot.debugging )
           { telemetry.log().add( "Intake sampleLost, scheduling turning off" ); }
           currentAction = Action.TURN_OFF_AFTER_DELAY;
-          time.reset();
           delay = EJECT_DELAY;
+          time.reset();
         }
         break;
 
