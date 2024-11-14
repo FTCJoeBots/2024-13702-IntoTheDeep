@@ -227,6 +227,8 @@ public class JoeBot
         )
       )
     );
+  }
+
   public void retrieveSample()
   {
     debug( "JoeBot::retrieveSample" );
