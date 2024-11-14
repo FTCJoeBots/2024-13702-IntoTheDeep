@@ -179,7 +179,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   private void park()
   {
     robot.debug( "Autonomous:park" );
-    driveTo( new Pose2d( Location.OBSERVATION_ZONE, 0 ) );
+    driveTo( new Pose2d( Location.PARK_IN_OBSERVATION_ZONE, 0 ) );
     state = AutonomousState.PARKED;
   }
 
@@ -246,15 +246,17 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         {
           robot.debug( "BasketAuto:HAVE_NOTHING -> driveTo2" );
           final double faceBackwards = Math.PI;
-          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES, faceBackwards ),
-                                  new Pose2d( Location.YELLOW_SAMPLE_2, faceBackwards ) ) );
+          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES_1, faceBackwards ),
+            new Pose2d( Location.NEAR_YELLOW_SAMPLES_2, faceBackwards ),
+            new Pose2d( Location.YELLOW_SAMPLE_2, faceBackwards ) ) );
         }
         else if( neutralSamples == 1 )
         {
           robot.debug( "BasketAuto:HAVE_NOTHING -> driveTo3" );
           final double faceSample = Math.toRadians( 135 );
-          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES, faceSample ),
-                                  new Pose2d( Location.YELLOW_SAMPLE_2, faceSample ) ) );
+          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES_1, faceSample ),
+            new Pose2d( Location.NEAR_YELLOW_SAMPLES_2, faceSample ),
+            new Pose2d( Location.YELLOW_SAMPLE_2, faceSample ) ) );
         }
 
         robot.debug( "BasketAuto:HAVE_NOTHING -> grabSample" );
@@ -334,8 +336,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
           }
 
           final double faceLeft = Math.toRadians( 90 );
-          driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES, faceLeft ),
-                                  new Pose2d( samplePos, faceLeft ),
+          driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES_1, faceLeft ),
+            new Pose2d( Location.NEAR_TEAM_SAMPLES_2, faceLeft ),
+            new Pose2d( samplePos, faceLeft ),
                                   new Pose2d( Location.OBSERVATION_ZONE, faceLeft ) ) );
           teamSamples--;
         }
