@@ -38,9 +38,10 @@ public class ManualJoeBot extends OpMode
   {
     time = new ElapsedTime();
 
-    robot = new JoeBot( false, hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
-    robot.operatorGamepad = gamepad2;
+
+    robot = new JoeBot( false, hardwareMap, telemetry );
+    robot.gamepads = gamepads;
 
     telemetry.addLine( "Initialized Manual" );
     telemetry.update();

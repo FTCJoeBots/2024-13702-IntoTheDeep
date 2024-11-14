@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.enums.Team;
 
-@Autonomous( name = "Baskets", group = "13702" )
+@Autonomous( name = "Blue Team Baskets", group = "13702" )
 @Config
 public class BlueTeamBaskets extends AbstractAutonomousOpMode
 {
