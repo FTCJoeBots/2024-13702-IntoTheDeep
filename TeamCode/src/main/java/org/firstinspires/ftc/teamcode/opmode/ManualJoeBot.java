@@ -104,7 +104,7 @@ public class ManualJoeBot extends OpMode
     //Full retract - B + A
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
     {
-      robot.extensionArm().fullyRetract();
+      robot.retrieveSample();
     }
     //Manually retract - A
     else if( gamepad2.a )

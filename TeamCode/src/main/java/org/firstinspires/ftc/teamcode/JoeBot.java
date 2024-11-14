@@ -75,7 +75,7 @@ public class JoeBot
   {
     if( debugging )
     {
-      telemetry.addLine( message );
+      telemetry.log().add( message );
       telemetry.update();
     }
   }
@@ -222,6 +222,20 @@ public class JoeBot
           new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
           new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
         )
+      )
+    );
+  public void retrieveSample()
+  {
+    debug( "JoeBot::retrieveSample" );
+
+    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
+    //while the motion if being performed
+    stopDrive();
+
+    ActionTools.runBlocking( this,
+      new SequentialAction(
+        new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
+        new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
       )
     );
   }
