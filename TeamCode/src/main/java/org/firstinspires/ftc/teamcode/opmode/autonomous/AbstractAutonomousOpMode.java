@@ -320,8 +320,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       {
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> strafe and retrieve" );
 
-        while( teamSamples > 0 )
-        {
+//        while( teamSamples > 0 )
+//        {
           Vector2d samplePos;
           if( teamSamples == 3 )
           {
@@ -340,7 +340,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
             new Pose2d( samplePos, faceLeft ),
                                   new Pose2d( Location.OBSERVATION_ZONE, faceLeft ) ) );
           teamSamples--;
-        }
+//        }
 
         state = retrieveSpecimen() ?
                 AutonomousState.HAVE_SPECIMEN :
