@@ -35,18 +35,22 @@ public class Lift extends AbstractModule
     MAX_LIFT( 10000 ),
 
     SAMPLE_FLOOR( 50 ),
-    SPECIMEN_FLOOR( 300 ),
-    TRAVEL_WITH_SPECIMEN( 600 ),
+
+    //needs ot be just right, if it's too
+    SPECIMEN_FLOOR( 260 ),
+
+    //high enough that we don't hit the submersable bar when retracting
+    TRAVEL_WITH_SPECIMEN( 800 ),
 
     //putting samples in baskets
     HIGH_BASKET( 9980 ),
     LOW_BASKET( 6088 ),
 
     //hanging specimens
-    ABOVE_HIGH_SPECIMEN_BAR( 6324 ),
-    ABOVE_LOW_SPECIMEN_BAR( 3548 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 6000 ),//5750 ),
-    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 3000 ),
+    ABOVE_HIGH_SPECIMEN_BAR( 6585 ),
+    ABOVE_LOW_SPECIMEN_BAR( 3720 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 6200 ),
+    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 3180 ),
 
     //leve 1 scent
     AT_LOW_HANG_BAR( 3800 ),
@@ -172,14 +176,19 @@ public class Lift extends AbstractModule
 
   public void travelTo( Position position )
   {
-    double power = liftPosition() < position.value ?
+    travelTo( position.value );
+  }
+
+  public void travelTo( int value )
+  {
+    double power = liftPosition() < value ?
                    FAST_SPEED_UP :
                    FAST_SPEED_DOWN;
 
-    power = adjustPower( position.value, power );
+    power = adjustPower( value, power );
 
-    setMotorPosition( leftMotor, position.value, power );
-    setMotorPosition( rightMotor, position.value, power );
+    setMotorPosition( leftMotor, value, power );
+    setMotorPosition( rightMotor, value, power );
     currentAction = Action.MOVING;
   }
 
