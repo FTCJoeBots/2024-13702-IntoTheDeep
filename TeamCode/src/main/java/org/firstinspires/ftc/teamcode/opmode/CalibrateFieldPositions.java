@@ -87,8 +87,50 @@ public class CalibrateFieldPositions extends OpMode
 
       MecanumDrive drive = robot.mecanumDrive();
 
+      double angle = 0;
+      switch( target )
+      {
+        case _YELLOW_SAMPLE_3:
+        case _SAMPLE_BASKETS:
+        {
+          angle = 135;
+          break;
+        }
+        case _NEAR_YELLOW_SAMPLES_1:
+        case _NEAR_YELLOW_SAMPLES_2:
+        case _YELLOW_SAMPLE_2:
+        case _NEAR_THE_OBSERVATION_ZONE:
+        case _OBSERVATION_ZONE:
+        {
+          angle = 180;
+          break;
+        }
+
+        case _TEAM_SAMPLE_1:
+        case _TEAM_SAMPLE_2:
+        case _TEAM_SAMPLE_3:
+        case _NEAR_TEAM_SAMPLES_1:
+        case _NEAR_TEAM_SAMPLES_2:
+        {
+          angle = 90;
+          break;
+        }
+
+        case _NEAR_ASCENT_ZONE:
+        case _ASCENT_ZONE:
+        {
+          angle = -90;
+          break;
+        }
+
+
+        default:
+          break;
+      }
+      double heading = Math.toRadians( angle );
+
       TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
-      trajectory = trajectory.strafeToLinearHeading( Location.position( target ), 0 );
+      trajectory = trajectory.strafeToLinearHeading( Location.position( target ), heading );
 
       ActionTools.runBlocking( robot, trajectory.build() );
     }
