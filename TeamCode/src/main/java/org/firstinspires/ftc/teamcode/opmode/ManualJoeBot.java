@@ -40,6 +40,7 @@ public class ManualJoeBot extends OpMode
 
     robot = new JoeBot( false, hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
+    robot.operatorGamepad = gamepad2;
 
     telemetry.addLine( "Initialized Manual" );
     telemetry.update();
@@ -104,7 +105,7 @@ public class ManualJoeBot extends OpMode
     //Full retract - B + A
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
     {
-      robot.extensionArm().fullyRetract();
+      robot.retrieveSample();
     }
     //Manually retract - A
     else if( gamepad2.a )

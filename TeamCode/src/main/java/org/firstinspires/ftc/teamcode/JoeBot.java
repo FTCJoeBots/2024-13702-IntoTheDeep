@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
@@ -38,6 +39,8 @@ public class JoeBot
   private Lift lift = null;
   private Intake intake = null;
 
+  public Gamepad operatorGamepad = null;
+
   private List<LynxModule> hubs;
   private MecanumDrive mecanumDrive = null;
   private Drive drive = null;
@@ -46,7 +49,9 @@ public class JoeBot
 
   public static boolean debugging = true;
 
-  public JoeBot( boolean forAutonomous, HardwareMap hardwareMap, Telemetry telemetry )
+  public JoeBot( boolean forAutonomous,
+                 HardwareMap hardwareMap,
+                 Telemetry telemetry )
   {
     if( !AbstractModule.encodersReset )
     { telemetry.addLine( "Resetting Encoders" ); }
@@ -75,7 +80,7 @@ public class JoeBot
   {
     if( debugging )
     {
-      telemetry.addLine( message );
+      telemetry.log().add( message );
       telemetry.update();
     }
   }
@@ -222,6 +227,22 @@ public class JoeBot
           new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
           new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
         )
+      )
+    );
+  }
+
+  public void retrieveSample()
+  {
+    debug( "JoeBot::retrieveSample" );
+
+    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
+    //while the motion if being performed
+    stopDrive();
+
+    ActionTools.runBlocking( this,
+      new SequentialAction(
+        new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
+        new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
       )
     );
   }

@@ -16,9 +16,18 @@ public class ActionTools
     action.preview(previewCanvas);
 
     boolean running = true;
+
     while( running &&
            !Thread.currentThread().isInterrupted() )
     {
+      //terminate action if the operator presses the B button
+      if( robot.operatorGamepad != null &&
+          robot.operatorGamepad.b )
+      {
+        robot.stop();
+        return;
+      }
+
       TelemetryPacket packet = new TelemetryPacket();
       packet.fieldOverlay().getOperations().addAll(previewCanvas.getOperations());
 
