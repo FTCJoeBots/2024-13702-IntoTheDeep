@@ -40,6 +40,7 @@ public class ManualJoeBot extends OpMode
 
     robot = new JoeBot( false, hardwareMap, telemetry );
     gamepads = new Gamepads( gamepad1, gamepad2 );
+    robot.operatorGamepad = gamepad2;
 
     telemetry.addLine( "Initialized Manual" );
     telemetry.update();

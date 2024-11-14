@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
@@ -37,6 +38,8 @@ public class JoeBot
   private ExtensionArm extensionArm = null;
   private Lift lift = null;
   private Intake intake = null;
+
+  public Gamepad operatorGamepad = null;
 
   private List<LynxModule> hubs;
   private MecanumDrive mecanumDrive = null;
