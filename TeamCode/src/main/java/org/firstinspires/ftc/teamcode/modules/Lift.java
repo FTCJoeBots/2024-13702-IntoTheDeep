@@ -39,7 +39,7 @@ public class Lift extends AbstractModule
     //needs ot be just right, if it's too
     SPECIMEN_FLOOR( 260 ),
 
-    //high enough that we don't hit the submersable bar when retracting
+    //high enough that we don't hit the submersible bar when retracting
     TRAVEL_WITH_SPECIMEN( 800 ),
 
     //putting samples in baskets
