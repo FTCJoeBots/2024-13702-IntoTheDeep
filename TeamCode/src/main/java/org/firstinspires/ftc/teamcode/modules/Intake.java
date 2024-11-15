@@ -39,13 +39,13 @@ public class Intake extends AbstractModule
   private int delay = 0;
 
   private static final double SPIT_OUT_SPEED = 1;
-  private static final double PULL_IN_SPEED = 0.25; //0.2;
+  private static final double PULL_IN_SPEED = 0.25;
   private static final double STOP_SPEED = 0;
 
   //continue running the servos briefly after we see the sample
   //to ensure it is *centered* within the intake
-  private static final int CENTER_DELAY = 100;
-  private static final int EJECT_DELAY = 1000;
+  private static final int CENTER_DELAY = 0;
+  private static final int EJECT_DELAY = 250;
 
   public enum Direction
   {
@@ -338,6 +338,9 @@ public class Intake extends AbstractModule
   {
     printServo( "Left Intake Servo", leftServo );
     printServo( "Right Intake Servo", rightServo );
+
+    //force color to be refreshed
+    colorKnown = false;
     printColor();
   }
 

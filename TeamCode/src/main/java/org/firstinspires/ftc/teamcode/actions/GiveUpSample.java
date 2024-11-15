@@ -35,7 +35,7 @@ public class GiveUpSample extends AbstractAction implements Action
     //stop if it is taking too long
     if( timeExceeded() )
     {
-      robot.intake().stop();
+      return false;
     }
 
     return robot.intake().isMoving();

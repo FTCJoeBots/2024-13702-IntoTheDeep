@@ -21,6 +21,13 @@ public class MoveExtensionArm extends AbstractAction implements Action
     this.position = position;
   }
 
+  public MoveExtensionArm( JoeBot robot, int position, int maxTime )
+  {
+    super( robot, maxTime );
+    this.robot = robot;
+    this.position = position;
+  }
+
   @Override
   public boolean run( @NonNull TelemetryPacket packet )
   {
@@ -39,7 +46,7 @@ public class MoveExtensionArm extends AbstractAction implements Action
     //stop if it is taking too long
     if( timeExceeded() )
     {
-      robot.extensionArm().stop();
+      return false;
     }
 
     return robot.extensionArm().isMoving();
