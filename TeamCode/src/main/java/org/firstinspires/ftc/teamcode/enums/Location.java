@@ -6,8 +6,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 @Config
 public class Location
 {
-  public static Vector2d SPECIMEN_BAR_LEFT = new Vector2d( 23, 7 );
-  public static Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 23, -7 );
+  public static Vector2d SPECIMEN_BAR_LEFT = new Vector2d( 25, 7 );
+  public static Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 25, -7 );
 
   //left edge of robot is 2 tiles over from left corner
   public static Vector2d STARTING_POSITION_BASKETS = new Vector2d( 0, 15.1 );
@@ -16,7 +16,8 @@ public class Location
   public static Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
   public static Vector2d SAMPLE_BASKETS = new Vector2d( 8.8, 53 );
 
-  public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20.5, -61.9 );
+  public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 16.3, -61.9 );
+  public static Vector2d IN_THE_OBSERVATION_ZONE = new Vector2d( 10, -61.9 );
   public static Vector2d OBSERVATION_ZONE = new Vector2d( 7, -53.8 );
   public static Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 4.5, -53.8 );
 
@@ -25,15 +26,15 @@ public class Location
 
   public static Vector2d NEAR_YELLOW_SAMPLES_1 = new Vector2d( 30, 40 );
   public static Vector2d NEAR_YELLOW_SAMPLES_2 = new Vector2d( 60, 40 );
-  public static Vector2d YELLOW_SAMPLE_1 = new Vector2d( 22.3, 48 );
-  public static Vector2d YELLOW_SAMPLE_2 = new Vector2d( 52.9, 59.2 );
-  public static Vector2d YELLOW_SAMPLE_3 = new Vector2d( 50, 57.6 );
+  public static Vector2d YELLOW_SAMPLE_1 = new Vector2d( 27.2, 49.3 );
+  public static Vector2d YELLOW_SAMPLE_2 = new Vector2d( 27.2, 58.0 );
+  public static Vector2d YELLOW_SAMPLE_3 = new Vector2d( 28.4, 59.1  );
 
   public static Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 30.0, -34 );
   public static Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 50.0, -34 );
-  public static Vector2d TEAM_SAMPLE_1 = new Vector2d( 60, -45 );
-  public static Vector2d TEAM_SAMPLE_2 = new Vector2d( 60, -52 );
-  public static Vector2d TEAM_SAMPLE_3 = new Vector2d( 60, -61.9 );
+  public static Vector2d TEAM_SAMPLE_1 = new Vector2d( 51, -45 );
+  public static Vector2d TEAM_SAMPLE_2 = new Vector2d( 51, -52 );
+  public static Vector2d TEAM_SAMPLE_3 = new Vector2d( 51, -61.9 );
 
   public enum NamedLocation
   {
@@ -43,6 +44,7 @@ public class Location
     _STARTING_POSITION_SPECIMENS,
     _SAMPLE_BASKETS,
     _NEAR_THE_OBSERVATION_ZONE,
+    _IN_THE_OBSERVATION_ZONE,
     _OBSERVATION_ZONE,
     _PARK_IN_OBSERVATION_ZONE,
     _NEAR_ASCENT_ZONE,
@@ -75,6 +77,8 @@ public class Location
         return SAMPLE_BASKETS;
       case _NEAR_THE_OBSERVATION_ZONE:
         return NEAR_THE_OBSERVATION_ZONE;
+      case _IN_THE_OBSERVATION_ZONE:
+        return IN_THE_OBSERVATION_ZONE;
       case _OBSERVATION_ZONE:
         return OBSERVATION_ZONE;
       case _PARK_IN_OBSERVATION_ZONE:

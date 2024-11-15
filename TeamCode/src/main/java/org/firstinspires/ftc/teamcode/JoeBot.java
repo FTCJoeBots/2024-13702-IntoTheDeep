@@ -309,7 +309,7 @@ public class JoeBot
                         Lift.Position.SPECIMEN_CLIPPED_ONTO_HIGH_BAR :
                         Lift.Position.SPECIMEN_CLIPPED_ONTO_LOW_BAR,
                         1000 ),
-        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value ),
+        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, 1000 ),
         new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );
@@ -325,6 +325,8 @@ public class JoeBot
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
     stopDrive();
+
+    clearBulkCache();
 
     ActionTools.runBlocking( this,
       new SequentialAction(
@@ -345,6 +347,8 @@ public class JoeBot
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
     stopDrive();
+
+    clearBulkCache();
 
     ActionTools.runBlocking( this,
       new SequentialAction(

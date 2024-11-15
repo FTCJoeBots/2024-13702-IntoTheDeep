@@ -171,11 +171,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     robot.debug( "Autonomous:level1Ascent" );
     final double faceRight = Math.toRadians( -90 );
-    driveTo( Arrays.asList( new Pose2d( Location.NEAR_ASCENT_ZONE, faceRight ),
-                            new Pose2d( Location.ASCENT_ZONE, faceRight ) ) );
-
+    driveTo( new Pose2d( Location.ASCENT_ZONE, faceRight ) ) ;
     robot.levelOneAscent();
-    state  = AutonomousState.PARKED;
+    state = AutonomousState.PARKED;
   }
 
   private void park()
@@ -247,18 +245,21 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         else if( neutralSamples == 2 )
         {
           robot.debug( "BasketAuto:HAVE_NOTHING -> driveTo2" );
-          final double faceBackwards = Math.PI;
-          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES_1, faceBackwards ),
-            new Pose2d( Location.NEAR_YELLOW_SAMPLES_2, faceBackwards ),
-            new Pose2d( Location.YELLOW_SAMPLE_2, faceBackwards ) ) );
+          final double faceForward = 0;
+          driveTo( new Pose2d( Location.YELLOW_SAMPLE_2, faceForward ) );
         }
         else if( neutralSamples == 1 )
         {
           robot.debug( "BasketAuto:HAVE_NOTHING -> driveTo3" );
-          final double faceSample = Math.toRadians( 135 );
-          driveTo( Arrays.asList( new Pose2d( Location.NEAR_YELLOW_SAMPLES_1, faceSample ),
-            new Pose2d( Location.NEAR_YELLOW_SAMPLES_2, faceSample ),
-            new Pose2d( Location.YELLOW_SAMPLE_2, faceSample ) ) );
+          final double faceSample = Math.toRadians( 45 );
+          driveTo( new Pose2d( Location.YELLOW_SAMPLE_3, faceSample ) );
+        }
+
+        if( timeRunningOut() )
+        {
+          robot.debug( "BasketAuto:timeRunningOut!" );
+          level1Ascent();
+          return;
         }
 
         robot.debug( "BasketAuto:HAVE_NOTHING -> grabSample" );
@@ -289,7 +290,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     else if( state == AutonomousState.HAVE_SPECIMEN )
     {
       robot.debug( "SpecimenAuto:HAVE_SPECIMEN -> hangSpecimen" );
-      Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.x,
+      Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.x + 2 * specimensHung,
                                         Location.SPECIMEN_BAR_RIGHT.y + 3 * specimensHung );
       driveTo( new Pose2d( location, 0 ) );
       if( enableLiftMotions )
@@ -323,27 +324,26 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       {
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> strafe and retrieve" );
 
-//        while( teamSamples > 0 )
-//        {
-          Vector2d samplePos;
-          if( teamSamples == 3 )
-          {
-            samplePos = Location.TEAM_SAMPLE_1;
-          }
-          else
-          {
-            samplePos = teamSamples == 2 ?
-                        Location.TEAM_SAMPLE_2 :
-                        Location.TEAM_SAMPLE_3;
-          }
+        Vector2d samplePos;
+        if( teamSamples == 3 )
+        {
+          samplePos = Location.TEAM_SAMPLE_1;
+        }
+        else
+        {
+          samplePos = teamSamples == 2 ?
+                      Location.TEAM_SAMPLE_2 :
+                      Location.TEAM_SAMPLE_3;
+        }
 
-          final double faceLeft = Math.toRadians( 90 );
-          driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES_1, faceLeft ),
-            new Pose2d( Location.NEAR_TEAM_SAMPLES_2, faceLeft ),
-            new Pose2d( samplePos, faceLeft ),
-                                  new Pose2d( Location.OBSERVATION_ZONE, faceLeft ) ) );
-          teamSamples--;
-//        }
+        Vector2d strafePos = new Vector2d( Location.OBSERVATION_ZONE.x, samplePos.y );
+
+        final double faceLeft = Math.toRadians( 90 );
+        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES_1, faceLeft ),
+                                new Pose2d( Location.NEAR_TEAM_SAMPLES_2, faceLeft ),
+                                new Pose2d( samplePos, faceLeft ),
+                                new Pose2d( strafePos, faceLeft ) ) );
+        teamSamples--;
 
         state = retrieveSpecimen() ?
                 AutonomousState.HAVE_SPECIMEN :
@@ -373,6 +373,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   private boolean retrieveSpecimen()
   {
     driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+    driveTo( new Pose2d( Location.IN_THE_OBSERVATION_ZONE, Math.PI ) );
 //    robot.wait( 1000 );
 
     while( !timeRunningOut() )
@@ -381,6 +382,10 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       robot.updateState();
       if( robot.intake().hasSample() )
       { return true; }
+      else
+      {
+        driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+      }
     }
 
     return false;
