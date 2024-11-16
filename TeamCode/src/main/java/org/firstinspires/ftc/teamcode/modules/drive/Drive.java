@@ -308,9 +308,9 @@ public class Drive extends AbstractModule
 //      telemetry.addLine().addData( "XR: ", "%s", localizer.par1.getPositionAndVelocity().position );
 //      telemetry.addLine().addData( "XS: ", "%s", localizer.perp.getPositionAndVelocity().position );
 
-      telemetry.addLine().addData( "Heading: ", "%.1f", Math.toDegrees( pose.heading.toDouble() ) );
       telemetry.addLine().addData( "X: ", "%.1f", pose.position.x );
       telemetry.addLine().addData( "Y: ", "%.1f", pose.position.y );
+      telemetry.addLine().addData( "Heading: ", "%.1f", Math.toDegrees( pose.heading.toDouble() ) );
     }
 
     if( inertialMeasurementUnit != null )

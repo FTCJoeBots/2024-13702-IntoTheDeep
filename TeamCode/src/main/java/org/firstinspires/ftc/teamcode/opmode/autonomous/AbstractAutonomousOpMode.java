@@ -11,12 +11,15 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
 import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
+import org.firstinspires.ftc.teamcode.enums.Button;
 import org.firstinspires.ftc.teamcode.enums.Location;
+import org.firstinspires.ftc.teamcode.enums.Participant;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.enums.Team;
 import org.firstinspires.ftc.teamcode.modules.Intake;
@@ -37,9 +40,10 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   private int neutralSamples = 3;
   private int teamSamples = 3;
   private int specimensHung = 0;
-  ElapsedTime time = null;
-  List<LynxModule> hubs;
-  JoeBot robot = null;
+  private ElapsedTime time = null;
+  private List<LynxModule> hubs;
+  private JoeBot robot = null;
+  private Gamepads gamepads = null;
 
   //set to false to speed up debugging by ejecting samples
   //without operating the lift
@@ -78,22 +82,41 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
     robot = new JoeBot( true, hardwareMap, telemetry );
 
+    gamepads = new Gamepads( gamepad1, gamepad2 );
+
     //prevent resetting encoders again
     AbstractModule.encodersReset = true;
 
     //always reset the position and heading at the beginning of Autonomous
-    telemetry.addLine( "Resetting Position" );
+    telemetry.log().add( "Resetting Position" );
     robot.resetPos( defaultPos() );
 
-    telemetry.addLine( "Initialized Auto" );
+    telemetry.log().add( "Initialized Auto" );
     telemetry.update();
+
+    //Allow robot to be pushed around before the start button is pressed
+    robot.coast();
   }
 
   @Override
   public void init_loop()
   {
-    //Allow robot to be pushed around before the start button is pressed
-    robot.coast();
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.GUIDE ) )
+    {
+      final AutonomousState[] states = AutonomousState.values();
+      state = states[ state.ordinal() < states.length - 1 ?
+                      state.ordinal() + 1 :
+                      0 ];
+    }
+
+    final Pose2d pose = robot.mecanumDrive().pose;
+    telemetry.addLine( String.format( "%s", state ) );
+    telemetry.addLine( String.format( "X: %.1f", pose.position.x ) );
+    telemetry.addLine( String.format( "Y: %.1f", pose.position.y ) );
+    telemetry.addLine( String.format( "Heading: %.1f", Math.toDegrees( pose.heading.toDouble() ) ) );
+    telemetry.update();
+
+    gamepads.storeLastButtons();
   }
 
   @Override

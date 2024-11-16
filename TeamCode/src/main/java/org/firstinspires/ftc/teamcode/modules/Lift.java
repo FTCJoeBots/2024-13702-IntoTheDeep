@@ -32,7 +32,7 @@ public class Lift extends AbstractModule
   public enum Position
   {
     FLOOR( 0 ),
-    MAX_LIFT( 10000 ),
+    MAX_LIFT( 10200 ),
 
     SAMPLE_FLOOR( 50 ),
 
@@ -43,7 +43,7 @@ public class Lift extends AbstractModule
     TRAVEL_WITH_SPECIMEN( 800 ),
 
     //putting samples in baskets
-    HIGH_BASKET( 9980 ),
+    HIGH_BASKET( 10160 ),
     LOW_BASKET( 6088 ),
 
     //hanging specimens
