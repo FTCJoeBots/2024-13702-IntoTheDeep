@@ -1,14 +1,16 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class ExtensionArm extends AbstractModule
 {
-  private DcMotor extensionArmMotor = null;
+  private DcMotorEx extensionArmMotor = null;
 
   //Relative position for manually extending and contracting the arm
   private static final int MANUAL_POSITION_ADJUST = 100;
@@ -57,6 +59,9 @@ public class ExtensionArm extends AbstractModule
 
   private Action currentAction = Action.STOPPED;
 
+  private boolean autoResetMotorPosition = false;
+  ElapsedTime autoResetTimer = null;
+
   public ExtensionArm( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( hardwareMap, telemetry );
@@ -83,6 +88,26 @@ public class ExtensionArm extends AbstractModule
       telemetry.log().add( String.format( "Arm stopping, cp %s tp %s", current, target ) );
       stop();
     }
+    //####
+    else if( currentAction == Action.MOVING &&
+             extensionArmMotor.getCurrentPosition() > 0 &&
+             extensionArmMotor.getTargetPosition() < extensionArmMotor.getCurrentPosition() &&
+             Math.abs( extensionArmMotor.getVelocity() ) <= 0.2 &&
+             autoResetMotorPosition &&
+             autoResetTimer.milliseconds() > 3000 )
+    {
+      telemetry.log().add( "Stall when retracting detected, resetting motor position" );
+      telemetry.log().add( String.format( "currentPosition: %s", extensionArmMotor.getCurrentPosition() ) );
+      telemetry.log().add( String.format( "targetPosition: %s", extensionArmMotor.getTargetPosition() ) );
+      telemetry.log().add( String.format( "currentVelocity: %f", extensionArmMotor.getVelocity() ) );
+      telemetry.log().add( String.format( "ellapsed: %s", autoResetTimer.milliseconds() ) );
+      super.stop();
+      extensionArmMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+      extensionArmMotor.setMode( DcMotor.RunMode.RUN_TO_POSITION );
+      currentAction = Action.STOPPED;
+      autoResetMotorPosition = false;
+    }
+    //####
   }
 
   public void fullyExtend()
@@ -177,6 +202,18 @@ public class ExtensionArm extends AbstractModule
       extensionArmMotor.setPower( power );
       currentAction = Action.MOVING;
     }
+
+    if( position == Position.FULLY_RETRACTED.value )
+    {
+      autoResetMotorPosition = true;
+      autoResetTimer.reset();
+      telemetry.log().add( "Starting auto reset timer" );
+    }
+    else if( autoResetMotorPosition )
+    {
+      telemetry.log().add( "Canceling auto reset timer" );
+      autoResetMotorPosition = false;
+    }
   }
 
   public void stop()
@@ -195,6 +232,12 @@ public class ExtensionArm extends AbstractModule
 
     telemetry.log().add( "Arm stopped" );
     currentAction = Action.STOPPED;
+
+    if( autoResetMotorPosition )
+    {
+      telemetry.log().add( "Since arm was stopped canceling auto reset" );
+      autoResetMotorPosition = false;
+    }
   }
 
   //Prints out the extension arm motor position
@@ -213,6 +256,7 @@ public class ExtensionArm extends AbstractModule
   private void initObjects()
   {
     extensionArmMotor = createMotor( "extensionArmMotor" );
+    autoResetTimer = new ElapsedTime();
   }
 
   private void initState()

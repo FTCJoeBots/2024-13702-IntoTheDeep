@@ -26,9 +26,9 @@ public class Location
 
   public static Vector2d NEAR_YELLOW_SAMPLES_1 = new Vector2d( 30, 40 );
   public static Vector2d NEAR_YELLOW_SAMPLES_2 = new Vector2d( 60, 40 );
-  public static Vector2d YELLOW_SAMPLE_1 = new Vector2d( 27.2, 49.3 );
-  public static Vector2d YELLOW_SAMPLE_2 = new Vector2d( 27.2, 58.0 );
-  public static Vector2d YELLOW_SAMPLE_3 = new Vector2d( 28.4, 59.1  );
+  public static Vector2d YELLOW_SAMPLE_1 = new Vector2d( 24.2, 49.3 );
+  public static Vector2d YELLOW_SAMPLE_2 = new Vector2d( 24.2, 58.0 );
+  public static Vector2d YELLOW_SAMPLE_3 = new Vector2d( 25.4, 59.1  );
 
   public static Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 30.0, -34 );
   public static Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 50.0, -34 );

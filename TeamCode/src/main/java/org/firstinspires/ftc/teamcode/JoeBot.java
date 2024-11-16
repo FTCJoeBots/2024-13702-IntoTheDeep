@@ -127,10 +127,10 @@ public class JoeBot
 
     if( mecanumDrive != null )
     {
-      mecanumDrive.leftFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-      mecanumDrive.leftBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-      mecanumDrive.rightBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-      mecanumDrive.rightFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      mecanumDrive.leftFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+      mecanumDrive.leftBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+      mecanumDrive.rightBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+      mecanumDrive.rightFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
     }
   }
 
@@ -143,10 +143,10 @@ public class JoeBot
 
     if( mecanumDrive != null )
     {
-      mecanumDrive.leftFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
-      mecanumDrive.leftBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
-      mecanumDrive.rightBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
-      mecanumDrive.rightFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+      mecanumDrive.leftFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      mecanumDrive.leftBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      mecanumDrive.rightBack.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      mecanumDrive.rightFront.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
     }
   }
 
@@ -315,9 +315,6 @@ public class JoeBot
     );
   }
 
-  //TODO - once lift is moved set drive wheels to coast and FULLY exten the arm.
-  //stop that action once the velocity of hte extension arm drops below a certain amount.
-  //this will prevent gear mash but allow this to work from farther away and allow us to extend arm quickly!
   public void levelOneAscent()
   {
     debug( "JotBot::levelOneAscent()" );
@@ -328,12 +325,19 @@ public class JoeBot
 
     clearBulkCache();
 
+    //prevent slipping gears on the extension arm by letting the robot move backwards as the
+    //extension arm comes in contact with the submersible frame
+    coast();
+
     ActionTools.runBlocking( this,
       new SequentialAction(
         new MoveLift( this, Lift.Position.AT_LOW_HANG_BAR ),
         new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_TOUCH_BAR.value )
       )
     );
+
+    //restore normal drive system behavior
+    brake();
   }
 
   public void levelTwoAscent()
