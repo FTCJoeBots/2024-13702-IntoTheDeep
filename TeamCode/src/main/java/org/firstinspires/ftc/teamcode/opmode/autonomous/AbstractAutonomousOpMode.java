@@ -128,7 +128,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     //Prevent robot from being pushed around
     robot.brake();
 
-    //raise lift so that the speicen does not drag and slow down the robot
+    robot.updateState();
+
+    //raise lift so that the specimen does not drag and slow down the robot
     ActionTools.runBlocking( robot,
       new SequentialAction(
         new MoveLift( robot, Lift.Position.TRAVEL_WITH_SPECIMEN, 500 )

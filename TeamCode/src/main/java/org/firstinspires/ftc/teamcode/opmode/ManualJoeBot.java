@@ -75,6 +75,8 @@ public class ManualJoeBot extends OpMode
   {
     //Prevent robot from being pushed around
     robot.brake();
+
+    robot.updateState();
   }
 
   private void addMessage( String message)
