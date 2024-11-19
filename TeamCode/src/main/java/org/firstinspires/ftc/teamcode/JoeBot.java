@@ -222,7 +222,7 @@ public class JoeBot
           isSpecimen ?
             Lift.Position.SPECIMEN_FLOOR :
             Lift.Position.SAMPLE_FLOOR ),
-        new GrabSample( this ),
+        new GrabSample( this, isSpecimen ),
         new ParallelAction(
           new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
           new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
@@ -295,23 +295,35 @@ public class JoeBot
 
     clearBulkCache();
     final int currentPosition = extensionArm.getMotorPosition();
+    final int extendBeforeBar = currentPosition + ExtensionArm.Position.EXTEND_TO_BEFORE_BAR.value;
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE.value;
 
     ActionTools.runBlocking( this,
       new SequentialAction(
-        new MoveLift( this,
-          bar == Bar.HIGH_BAR ?
+        //move up and out to just above the bar in parallel
+        new ParallelAction(
+          new MoveLift( this,
+                        bar == Bar.HIGH_BAR ?
                         Lift.Position.ABOVE_HIGH_SPECIMEN_BAR :
                         Lift.Position.ABOVE_LOW_SPECIMEN_BAR,
-          6000 ),
-        new MoveExtensionArm( this, extendedPosition ),
+                        6000 ),
+          new MoveExtensionArm( this, extendBeforeBar, 1, 0 )
+        ),
+        //extend past bar
+        new MoveExtensionArm( this, extendedPosition, 1, 200 ),
+        //drop down so when we pull back the specimen will be clipped to the bar
         new MoveLift( this,
                       bar == Bar.HIGH_BAR ?
-                        Lift.Position.SPECIMEN_CLIPPED_ONTO_HIGH_BAR :
-                        Lift.Position.SPECIMEN_CLIPPED_ONTO_LOW_BAR,
-                        1000 ),
-        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, 1000 ),
-        new MoveLift( this, Lift.Position.FLOOR, 0 )
+                      Lift.Position.SPECIMEN_CLIPPED_ONTO_HIGH_BAR :
+                      Lift.Position.SPECIMEN_CLIPPED_ONTO_LOW_BAR,
+                      1000 ),
+        //move back to clip specimen onto bar
+        new MoveExtensionArm( this, extendBeforeBar, 0.2, 4000 ),
+        //move down and in the rest of the way in parallel
+        new ParallelAction(
+          new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, 1, 0 ),
+          new MoveLift( this, Lift.Position.FLOOR, 0 )
+        )
       )
     );
   }
