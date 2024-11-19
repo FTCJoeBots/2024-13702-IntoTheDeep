@@ -16,8 +16,8 @@ public class Location
   public static Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
   public static Vector2d SAMPLE_BASKETS = new Vector2d( 8.8, 53 );
 
-  public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 16.3, -61.9 );
-  public static Vector2d IN_THE_OBSERVATION_ZONE = new Vector2d( 10, -61.9 );
+  public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 16.3, -61 );
+  public static Vector2d IN_THE_OBSERVATION_ZONE = new Vector2d( 10, -61 );
   public static Vector2d OBSERVATION_ZONE = new Vector2d( 7, -53.8 );
   public static Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 4.5, -53.8 );
 
