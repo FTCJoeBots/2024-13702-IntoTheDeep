@@ -135,13 +135,13 @@ public class Intake extends AbstractModule
 
     //samples have a saturation of .7
     //the ground has a saturation of .2
-    float saturation = hsvValues[ 1 ];
+    final float saturation = hsvValues[ 1 ];
     if( saturation < 0.4 )
     {
       return ObservedObject.NOTHING;
     }
 
-    float hue = hsvValues[ 0 ];
+    final float hue = hsvValues[ 0 ];
 
     //~24
      if( hue < 40 || hue > 325 )
