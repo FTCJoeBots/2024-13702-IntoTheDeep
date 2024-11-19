@@ -47,6 +47,7 @@ public class JoeBot
   private static Pose2d pose = new Pose2d( 0, 0, 0 );
 
   public static boolean debugging = true;
+  public static boolean competition = false;
 
   public JoeBot( boolean forAutonomous,
                  HardwareMap hardwareMap,
