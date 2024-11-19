@@ -125,6 +125,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     //reset the timer when the game starts
     time.reset();
 
+    JoeBot.competition = true;
+
     //Prevent robot from being pushed around
     robot.brake();
 
@@ -222,6 +224,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     {
       robot.debug( "BasketAuto:HAVE_SPECIMEN -> hangSpecimen" );
       final double faceForward = 0;
+      robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
       driveTo( new Pose2d( Location.SPECIMEN_BAR_LEFT, faceForward ) );
 
       if( enableLiftMotions )
@@ -239,6 +242,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     {
       robot.debug( "BasketAuto:HAVE_SAMPLE -> placeSampleInBasket" );
       final double faceBasket = Math.toRadians( 135 );
+      robot.lift().travelTo( Lift.Position.HIGH_BASKET );
       driveTo( new Pose2d( Location.SAMPLE_BASKETS, faceBasket ) );
 
       if( enableLiftMotions )
@@ -317,6 +321,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       robot.debug( "SpecimenAuto:HAVE_SPECIMEN -> hangSpecimen" );
       Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.x + 2 * specimensHung,
                                         Location.SPECIMEN_BAR_RIGHT.y + 3 * specimensHung );
+      robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
       driveTo( new Pose2d( location, 0 ) );
       if( enableLiftMotions )
       {

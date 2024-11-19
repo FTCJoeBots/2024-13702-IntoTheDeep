@@ -192,6 +192,7 @@ public class ManualJoeBot extends OpMode
         gamepad2.left_stick_y > 0 )
     {
       robot.grabSample( false );
+      robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
     }
     //Grab specimen - X + push forward left stick
     else if( !robot.intake().hasSample() &&
@@ -199,6 +200,7 @@ public class ManualJoeBot extends OpMode
              gamepad2.left_stick_y < 0 )
     {
       robot.grabSample( true );
+      robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
     }
     //Pull in sample
     else if( gamepad2.left_stick_y > 0 &&
@@ -342,6 +344,8 @@ public class ManualJoeBot extends OpMode
 
     //allow robot to be pushed around
     robot.coast();
+
+    JoeBot.competition = false;
   }
 
 }
