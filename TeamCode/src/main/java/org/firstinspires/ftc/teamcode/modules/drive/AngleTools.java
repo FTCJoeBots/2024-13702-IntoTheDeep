@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modules.drive;
 
+import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.enums.PresetDirection;
 import org.firstinspires.ftc.teamcode.enums.RotateDirection;
 
@@ -51,5 +52,11 @@ public class AngleTools
       default:
         return 0;
     }
+  }
+
+  public static double angleDifference( JoeBot robot, double angle )
+  {
+    double robotHeading = Math.toDegrees( robot.drive().getPos().heading.toDouble() );
+    return Math.abs( robotHeading - angle );
   }
 }

@@ -25,12 +25,12 @@ public class ActionTools
     {
       if( robot.gamepads != null )
       {
+        boolean bPressed = robot.gamepads.buttonPressed( Participant.OPERATOR, Button.B );
         robot.gamepads.storeLastButtons();
 
-        if( robot.gamepads.buttonPressed( Participant.OPERATOR, Button.B ) )
+        if( bPressed )
         {
           robot.stop();
-          robot.gamepads.storeLastButtons();
           return;
         }
       }
