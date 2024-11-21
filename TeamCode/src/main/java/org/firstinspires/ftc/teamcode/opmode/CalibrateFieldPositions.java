@@ -100,6 +100,7 @@ public class CalibrateFieldPositions extends OpMode
         case _NEAR_YELLOW_SAMPLES_2:
         case _YELLOW_SAMPLE_2:
         case _NEAR_THE_OBSERVATION_ZONE:
+        case _IN_THE_OBSERVATION_ZONE:
         case _OBSERVATION_ZONE:
         {
           angle = 180;

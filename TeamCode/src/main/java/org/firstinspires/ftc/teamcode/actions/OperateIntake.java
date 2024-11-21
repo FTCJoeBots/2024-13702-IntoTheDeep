@@ -24,7 +24,7 @@ public class OperateIntake extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      robot.updateState();
+      robot.updateState( true );
       if( direction == Intake.Direction.PULL  )
       {
         robot.debug( "OperateIntake: pullSampleBack" );
@@ -40,7 +40,7 @@ public class OperateIntake extends AbstractAction implements Action
     }
     else
     {
-      robot.intake().updateState();
+      robot.intake().updateState( true );
     }
 
     //stop if it is taking too long

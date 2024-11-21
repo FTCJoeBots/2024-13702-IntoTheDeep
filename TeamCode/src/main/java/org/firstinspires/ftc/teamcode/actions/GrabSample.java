@@ -13,10 +13,12 @@ import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 public class GrabSample extends AbstractAction implements Action
 {
   public static int defaultMaxTime = 4000;
+  private boolean isSpecimen;
 
-  public GrabSample( JoeBot robot )
+  public GrabSample( JoeBot robot, boolean isSpecimen )
   {
-    super( robot, defaultMaxTime );
+    super( robot, isSpecimen ? 2000 : defaultMaxTime );
+    this.isSpecimen = isSpecimen;
   }
 
   @Override
@@ -24,19 +26,21 @@ public class GrabSample extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      robot.updateState();
+      robot.updateState( true );
       final int currentPosition = robot.extensionArm().getMotorPosition();
-      final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_GRAB_SAMPLE.value;
+      final int extendedPosition = currentPosition +
+        ( isSpecimen ?
+        ExtensionArm.Position.EXTEND_TO_GRAB_SPECIMEN.value :
+        ExtensionArm.Position.EXTEND_TO_GRAB_SAMPLE.value );
 
-      robot.debug( "GrabSample" );
+      robot.debug( isSpecimen ? "GrabSpecimen" : "GrabSample" );
       robot.intake().pullSampleBack();
-      robot.extensionArm().travelToWithPower( extendedPosition, 0.5 );
+      robot.extensionArm().travelToWithPower( extendedPosition, 0.167 ); //TODO - update this when changing motors
       super.initialize();
     }
     else
     {
-      robot.extensionArm().updateState();
-      robot.intake().updateState();
+      robot.updateState();
     }
 
     //stop if it is taking too long

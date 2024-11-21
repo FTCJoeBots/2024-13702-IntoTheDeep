@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -125,17 +126,24 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     //reset the timer when the game starts
     time.reset();
 
+    JoeBot.competition = true;
+
+    //clear screen
+    telemetry.update();
+
     //Prevent robot from being pushed around
     robot.brake();
 
     robot.updateState();
 
-    //raise lift so that the specimen does not drag and slow down the robot
-    ActionTools.runBlocking( robot,
-      new SequentialAction(
-        new MoveLift( robot, Lift.Position.TRAVEL_WITH_SPECIMEN, 500 )
-      )
-    );
+    //raise list before driving to avoid dragging sample on the ground
+    //if lift motions are enabled we'll immediately raise the lift before driving so
+    //this step is not necessary
+    if( !enableLiftMotions )
+    {
+      ActionTools.runBlocking( robot,
+        new MoveLift( robot, Lift.Position.TRAVEL_WITH_SPECIMEN, 500 ) );
+    }
   }
 
   @Override
@@ -158,8 +166,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         break;
 
       case GRAB_SAMPLE:
-        robot.clearBulkCache();
-        robot.intake().updateState();
+        robot.intake().updateState( true );
         if( !robot.intake().hasSample() )
         {
           robot.grabSample( false );
@@ -167,8 +174,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         break;
 
       case GIVE_UP_SAMPLE:
-        robot.clearBulkCache();
-        robot.intake().updateState();
+        robot.intake().updateState( true );
         if( robot.intake().hasSample() )
         {
           robot.giveUpSample();
@@ -222,6 +228,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     {
       robot.debug( "BasketAuto:HAVE_SPECIMEN -> hangSpecimen" );
       final double faceForward = 0;
+      robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
       driveTo( new Pose2d( Location.SPECIMEN_BAR_LEFT, faceForward ) );
 
       if( enableLiftMotions )
@@ -239,6 +246,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     {
       robot.debug( "BasketAuto:HAVE_SAMPLE -> placeSampleInBasket" );
       final double faceBasket = Math.toRadians( 135 );
+      robot.lift().travelTo( Lift.Position.HIGH_BASKET );
       driveTo( new Pose2d( Location.SAMPLE_BASKETS, faceBasket ) );
 
       if( enableLiftMotions )
@@ -254,7 +262,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     }
     else if( state == AutonomousState.HAVE_NOTHING )
     {
-      if( neutralSamples <= 0 )
+      //we're not fast enough to get all three yellow samples so once we have picked up to
+      //perform a level 1 ascent if there is still time
+      if( neutralSamples <= 1 )
       {
         robot.debug( String.format( "BasketAuto:HAVE_NOTHING -> neutralSamplesLeft %s", neutralSamples ) );
         level1Ascent();
@@ -291,8 +301,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         robot.grabSample( false );
         neutralSamples--;
 
-        robot.clearBulkCache();
-        robot.intake().updateState();
+        robot.intake().updateState( true );
         if( robot.intake().hasSample() )
         {
           robot.debug( "BasketAuto:HAVE_NOTHING -> HAVE_SAMPLE" );
@@ -317,7 +326,13 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       robot.debug( "SpecimenAuto:HAVE_SPECIMEN -> hangSpecimen" );
       Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.x + 2 * specimensHung,
                                         Location.SPECIMEN_BAR_RIGHT.y + 3 * specimensHung );
+      if( enableLiftMotions )
+      {
+        robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
+      }
+
       driveTo( new Pose2d( location, 0 ) );
+
       if( enableLiftMotions )
       {
         robot.hangSpecimen( Bar.HIGH_BAR );
@@ -345,6 +360,14 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> no team samples left" );
         park();
       }
+      //we don't have enough time to strafe in another sample before hanging
+      //a 3rd specimen so race to the observation zone and try to hang one more if there is time
+      else if( specimensHung == 2 )
+      {
+        state = retrieveSpecimen() ?
+          AutonomousState.HAVE_SPECIMEN :
+          AutonomousState.HAVE_NOTHING;
+      }
       else
       {
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> strafe and retrieve" );
@@ -361,13 +384,16 @@ public abstract class AbstractAutonomousOpMode extends OpMode
                       Location.TEAM_SAMPLE_3;
         }
 
+        final double faceLeft = Math.toRadians( 90 );
+
         Vector2d strafePos = new Vector2d( Location.OBSERVATION_ZONE.x, samplePos.y );
 
-        final double faceLeft = Math.toRadians( 90 );
         driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES_1, faceLeft ),
-                                new Pose2d( Location.NEAR_TEAM_SAMPLES_2, faceLeft ),
-                                new Pose2d( samplePos, faceLeft ),
-                                new Pose2d( strafePos, faceLeft ) ) );
+                                new Pose2d( Location.NEAR_TEAM_SAMPLES_2, faceLeft ) ) );
+
+        driveTo( new Pose2d( samplePos, faceLeft ) );
+        driveTo( new Pose2d( strafePos, faceLeft ) );
+
         teamSamples--;
 
         state = retrieveSpecimen() ?
@@ -397,14 +423,12 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private boolean retrieveSpecimen()
   {
-    driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
     driveTo( new Pose2d( Location.IN_THE_OBSERVATION_ZONE, Math.PI ) );
-//    robot.wait( 1000 );
 
     while( !timeRunningOut() )
     {
       robot.grabSample( true );
-      robot.updateState();
+      robot.intake().updateState( true );
       if( robot.intake().hasSample() )
       { return true; }
       else

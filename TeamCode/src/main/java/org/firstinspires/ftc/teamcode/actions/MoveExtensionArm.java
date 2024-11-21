@@ -10,7 +10,8 @@ import org.firstinspires.ftc.teamcode.JoeBot;
 @Config
 public class MoveExtensionArm extends AbstractAction implements Action
 {
-  private int position;
+  private final int position;
+  private final double power;
 
   public static int defaultMaxTime = 2000;
 
@@ -19,13 +20,15 @@ public class MoveExtensionArm extends AbstractAction implements Action
     super( robot, defaultMaxTime );
     this.robot = robot;
     this.position = position;
+    this.power = 1;
   }
 
-  public MoveExtensionArm( JoeBot robot, int position, int maxTime )
+  public MoveExtensionArm( JoeBot robot, int position, double power, int maxTime )
   {
     super( robot, maxTime );
     this.robot = robot;
     this.position = position;
+    this.power = power;
   }
 
   @Override
@@ -35,7 +38,7 @@ public class MoveExtensionArm extends AbstractAction implements Action
     {
       robot.updateState();
       robot.debug( String.format( "MoveExtensionArm: %s", position ) );
-      robot.extensionArm().travelTo( position );
+      robot.extensionArm().travelToWithPower( position, power );
       super.initialize();
     }
     else

@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
+import org.firstinspires.ftc.teamcode.modules.drive.AngleTools;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -31,6 +32,8 @@ public class ManualJoeBot extends OpMode
   private Module currentModule = Module.values()[ 0 ];
   private JoeBot robot = null;
   private Gamepads gamepads = null;
+
+  private final double angleTolerance = 20;
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -75,8 +78,7 @@ public class ManualJoeBot extends OpMode
   {
     //Prevent robot from being pushed around
     robot.brake();
-
-    robot.updateState();
+    robot.updateState( true );
   }
 
   private void addMessage( String message)
@@ -87,7 +89,8 @@ public class ManualJoeBot extends OpMode
   @Override
   public void loop()
   {
-    robot.updateState();
+    //always update the color sensor so we can check if we have a sample before triggering a motion
+    robot.updateState( true );
 
     //==================
     //Extension Arm
@@ -120,16 +123,16 @@ public class ManualJoeBot extends OpMode
     //Lift
     //==================
     //High basket - x + dpad_up
-    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) )
-        // && robot.intake().hasSample()
-     )
+    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) &&
+         robot.intake().hasSample() )
+//        ( AngleTools.angleDifference( robot, 135 ) < angleTolerance || !JoeBot.competition ) )
     {
       robot.placeSampleInBasket( Basket.HIGH_BASKET );
     }
     //Low basket - x + dpad_down
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) )
-    //  && robot.intake().hasSample()
-    )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) &&
+      robot.intake().hasSample() )
+//             ( AngleTools.angleDifference( robot, 135 ) < angleTolerance || !JoeBot.competition ) )
     {
       robot.placeSampleInBasket( Basket.LOW_BASKET );
     }
@@ -141,16 +144,16 @@ public class ManualJoeBot extends OpMode
     }
 
     //Hang specimen from high bar - x + dpad_left
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) )
-    //  && robot.intake().hasSample()
-    )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) &&
+      robot.intake().hasSample() )
+    //             ( AngleTools.angleDifference( robot, 0 ) < angleTolerance || !JoeBot.competition ) )
     {
       robot.hangSpecimen( Bar.HIGH_BAR );
     }
     //Hang specimen from low bar - x + dpad_right
-    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) )
-    //  && robot.intake().hasSample()
-    )
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) &&
+      robot.intake().hasSample() )
+    //             ( AngleTools.angleDifference( robot, 0 ) < angleTolerance || !JoeBot.competition ) )
     {
       robot.hangSpecimen( Bar.LOW_BAR );
     }
@@ -193,6 +196,9 @@ public class ManualJoeBot extends OpMode
         gamepad2.left_stick_y > 0 )
     {
       robot.grabSample( false );
+      robot.intake().updateState( true );
+      if( robot.intake().hasSample() )
+      { robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR ); }
     }
     //Grab specimen - X + push forward left stick
     else if( !robot.intake().hasSample() &&
@@ -200,6 +206,9 @@ public class ManualJoeBot extends OpMode
              gamepad2.left_stick_y < 0 )
     {
       robot.grabSample( true );
+      robot.intake().updateState( true );
+      if( robot.intake().hasSample() )
+      { robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR ); }
     }
     //Pull in sample
     else if( gamepad2.left_stick_y > 0 &&
@@ -343,6 +352,8 @@ public class ManualJoeBot extends OpMode
 
     //allow robot to be pushed around
     robot.coast();
+
+    JoeBot.competition = false;
   }
 
 }

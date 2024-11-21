@@ -25,12 +25,12 @@ public class ActionTools
     {
       if( robot.gamepads != null )
       {
+        final boolean bPressed = robot.gamepads.buttonPressed( Participant.OPERATOR, Button.B );
         robot.gamepads.storeLastButtons();
 
-        if( robot.gamepads.buttonPressed( Participant.OPERATOR, Button.B ) )
+        if( bPressed )
         {
           robot.stop();
-          robot.gamepads.storeLastButtons();
           return;
         }
       }
@@ -39,9 +39,9 @@ public class ActionTools
       packet.fieldOverlay().getOperations().addAll(previewCanvas.getOperations());
 
       robot.clearBulkCache();
-      running = action.run(packet);
+      running = action.run( packet );
 
-      dash.sendTelemetryPacket(packet);
+      dash.sendTelemetryPacket( packet );
     }
   }
 }

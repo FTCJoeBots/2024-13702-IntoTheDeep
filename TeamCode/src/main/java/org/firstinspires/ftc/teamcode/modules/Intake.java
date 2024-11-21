@@ -60,6 +60,7 @@ public class Intake extends AbstractModule
     TURN_OFF_AFTER_DELAY,
     SPIT_OUT_SAMPLE_IN_FRONT,
     SPIT_OUT_SAMPLE_BEHIND,
+    RUNNING,
     DOING_NOTHING
   }
 
@@ -91,6 +92,12 @@ public class Intake extends AbstractModule
   public void pushSampleForward()
   {
     turnOnServos( Direction.PUSH );
+  }
+
+  public void turnOn( double power )
+  {
+    currentAction = Action.RUNNING;
+    setServoSpeed( power );
   }
 
   public void resetColor()
@@ -128,23 +135,23 @@ public class Intake extends AbstractModule
     //tape on ground is 8.8
     //samples are 5.5
     if( Double.valueOf( distance ).isNaN() ||
-        distance > 7 )
+        distance >= 7 )
     {
       return ObservedObject.NOTHING;
     }
 
     //samples have a saturation of .7
     //the ground has a saturation of .2
-    float saturation = hsvValues[ 1 ];
+    final float saturation = hsvValues[ 1 ];
     if( saturation < 0.4 )
     {
       return ObservedObject.NOTHING;
     }
 
-    float hue = hsvValues[ 0 ];
+    final float hue = hsvValues[ 0 ];
 
     //~24
-     if( hue < 40 || hue > 325 )
+    if( hue < 50 || hue > 325 )
     { return ObservedObject.RED_SAMPLE; }
      //~90
     else if( hue > 70 && hue < 110 )
@@ -267,9 +274,10 @@ public class Intake extends AbstractModule
     super.stop();
   }
 
-  public void updateState()
+  public void updateState( boolean force )
   {
-    if( currentAction == Action.DOING_NOTHING )
+    if( !force &&
+        currentAction == Action.DOING_NOTHING )
     { return; }
 
     resetColor();
@@ -289,7 +297,10 @@ public class Intake extends AbstractModule
                 object == ObservedObject.RED_SAMPLE ) )
           {
             if( JoeBot.debugging )
-            { telemetry.log().add( "Intake wrong color sample detected!" ); }
+            {
+              telemetry.log().add( "Intake wrong color sample detected!" );
+              telemetry.update();
+            }
 
             currentAction = currentAction == Action.PULL_IN_SAMPLE_FROM_IN_FRONT ?
                             Action.SPIT_OUT_SAMPLE_BEHIND :
@@ -298,7 +309,11 @@ public class Intake extends AbstractModule
           else
           {
             if( JoeBot.debugging )
-            { telemetry.log().add( "Intake sampleDetected, scheduling turning off" ); }
+            {
+              telemetry.log().add( "Intake sampleDetected, scheduling turning off" );
+              telemetry.update();
+            }
+
             currentAction = Action.TURN_OFF_AFTER_DELAY;
             delay = CENTER_DELAY;
             time.reset();
