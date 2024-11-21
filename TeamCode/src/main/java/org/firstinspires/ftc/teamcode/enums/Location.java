@@ -16,19 +16,19 @@ public class Location
   public static Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
   public static Vector2d SAMPLE_BASKETS = new Vector2d( 8.8, 53 );
 
-  public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 16.3, -61 );
-  public static Vector2d IN_THE_OBSERVATION_ZONE = new Vector2d( 10, -61 );
+  public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 16, -63 );
+  public static Vector2d IN_THE_OBSERVATION_ZONE = new Vector2d( 10, -63 );
   public static Vector2d OBSERVATION_ZONE = new Vector2d( 7, -53.8 );
   public static Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 4.5, -53.8 );
 
   public static Vector2d NEAR_ASCENT_ZONE = new Vector2d( 63.9, 52 );
-  public static Vector2d ASCENT_ZONE = new Vector2d( 62.2, 25 );
+  public static Vector2d ASCENT_ZONE = new Vector2d( 60, 24 );
 
   public static Vector2d NEAR_YELLOW_SAMPLES_1 = new Vector2d( 30, 40 );
   public static Vector2d NEAR_YELLOW_SAMPLES_2 = new Vector2d( 60, 40 );
-  public static Vector2d YELLOW_SAMPLE_1 = new Vector2d( 24.2, 49.3 );
-  public static Vector2d YELLOW_SAMPLE_2 = new Vector2d( 24.2, 58.0 );
-  public static Vector2d YELLOW_SAMPLE_3 = new Vector2d( 25.4, 59.1  );
+  public static Vector2d YELLOW_SAMPLE_1 = new Vector2d( 25, 48.7 );
+  public static Vector2d YELLOW_SAMPLE_2 = new Vector2d( 25, 58 );
+  public static Vector2d YELLOW_SAMPLE_3 = new Vector2d( 24.5, 58.8 );
 
   public static Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 30.0, -34 );
   public static Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 50.0, -34 );

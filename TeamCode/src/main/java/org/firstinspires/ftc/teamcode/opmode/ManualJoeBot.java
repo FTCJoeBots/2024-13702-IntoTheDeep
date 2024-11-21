@@ -78,8 +78,7 @@ public class ManualJoeBot extends OpMode
   {
     //Prevent robot from being pushed around
     robot.brake();
-
-    robot.updateState();
+    robot.updateState( true );
   }
 
   private void addMessage( String message)
@@ -90,7 +89,8 @@ public class ManualJoeBot extends OpMode
   @Override
   public void loop()
   {
-    robot.updateState();
+    //always update the color sensor so we can check if we have a sample before triggering a motion
+    robot.updateState( true );
 
     //==================
     //Extension Arm
@@ -124,13 +124,15 @@ public class ManualJoeBot extends OpMode
     //==================
     //High basket - x + dpad_up
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) &&
-        ( AngleTools.angleDifference( robot, 135 ) < angleTolerance || !JoeBot.competition ) )
+         robot.intake().hasSample() )
+//        ( AngleTools.angleDifference( robot, 135 ) < angleTolerance || !JoeBot.competition ) )
     {
       robot.placeSampleInBasket( Basket.HIGH_BASKET );
     }
     //Low basket - x + dpad_down
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) &&
-             ( AngleTools.angleDifference( robot, 135 ) < angleTolerance || !JoeBot.competition ) )
+      robot.intake().hasSample() )
+//             ( AngleTools.angleDifference( robot, 135 ) < angleTolerance || !JoeBot.competition ) )
     {
       robot.placeSampleInBasket( Basket.LOW_BASKET );
     }
@@ -143,13 +145,15 @@ public class ManualJoeBot extends OpMode
 
     //Hang specimen from high bar - x + dpad_left
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) &&
-             ( AngleTools.angleDifference( robot, 0 ) < angleTolerance || !JoeBot.competition ) )
+      robot.intake().hasSample() )
+    //             ( AngleTools.angleDifference( robot, 0 ) < angleTolerance || !JoeBot.competition ) )
     {
       robot.hangSpecimen( Bar.HIGH_BAR );
     }
     //Hang specimen from low bar - x + dpad_right
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) &&
-             ( AngleTools.angleDifference( robot, 0 ) < angleTolerance || !JoeBot.competition ) )
+      robot.intake().hasSample() )
+    //             ( AngleTools.angleDifference( robot, 0 ) < angleTolerance || !JoeBot.competition ) )
     {
       robot.hangSpecimen( Bar.LOW_BAR );
     }
@@ -192,7 +196,9 @@ public class ManualJoeBot extends OpMode
         gamepad2.left_stick_y > 0 )
     {
       robot.grabSample( false );
-      robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
+      robot.intake().updateState( true );
+      if( robot.intake().hasSample() )
+      { robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR ); }
     }
     //Grab specimen - X + push forward left stick
     else if( !robot.intake().hasSample() &&
@@ -200,7 +206,9 @@ public class ManualJoeBot extends OpMode
              gamepad2.left_stick_y < 0 )
     {
       robot.grabSample( true );
-      robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
+      robot.intake().updateState( true );
+      if( robot.intake().hasSample() )
+      { robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR ); }
     }
     //Pull in sample
     else if( gamepad2.left_stick_y > 0 &&

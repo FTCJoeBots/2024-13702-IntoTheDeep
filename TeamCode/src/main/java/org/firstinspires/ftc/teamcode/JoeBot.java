@@ -6,15 +6,13 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
-import org.firstinspires.ftc.teamcode.actions.MoveExtensionArmToClimb;
-import org.firstinspires.ftc.teamcode.actions.MoveLiftToClimb;
+import org.firstinspires.ftc.teamcode.actions.RunIntake;
 import org.firstinspires.ftc.teamcode.actions.GrabSample;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
@@ -185,6 +183,11 @@ public class JoeBot
 
   public void updateState()
   {
+    updateState( false );
+  }
+
+  public void updateState( boolean force )
+  {
     clearBulkCache();
 
     if( drive != null )
@@ -194,7 +197,7 @@ public class JoeBot
 
     lift.updateState();
     extensionArm.updateState();
-    intake.updateState();
+    intake.updateState( force );
   }
 
   public void wait( int milliseconds )
@@ -295,35 +298,36 @@ public class JoeBot
 
     clearBulkCache();
     final int currentPosition = extensionArm.getMotorPosition();
-    final int extendBeforeBar = currentPosition + ExtensionArm.Position.EXTEND_TO_BEFORE_BAR.value;
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_HANG_SAMPLE.value;
+
+    final Lift.Position abovePosition =
+      bar == Bar.HIGH_BAR ?
+        Lift.Position.ABOVE_HIGH_SPECIMEN_BAR :
+        Lift.Position.ABOVE_LOW_SPECIMEN_BAR;
+
+    final Lift.Position clippedPosition =
+      bar == Bar.HIGH_BAR ?
+        Lift.Position.SPECIMEN_CLIPPED_ONTO_HIGH_BAR :
+        Lift.Position.SPECIMEN_CLIPPED_ONTO_LOW_BAR;
 
     ActionTools.runBlocking( this,
       new SequentialAction(
-        //move up and out to just above the bar in parallel
-        new ParallelAction(
-          new MoveLift( this,
-                        bar == Bar.HIGH_BAR ?
-                        Lift.Position.ABOVE_HIGH_SPECIMEN_BAR :
-                        Lift.Position.ABOVE_LOW_SPECIMEN_BAR,
-                        6000 ),
-          new MoveExtensionArm( this, extendBeforeBar, 1, 0 )
-        ),
+        //raise lift above bar
+        new MoveLift( this, abovePosition, 6000 ),
         //extend past bar
-        new MoveExtensionArm( this, extendedPosition, 1, 200 ),
+        new MoveExtensionArm( this, extendedPosition, 1, 500  ),
         //drop down so when we pull back the specimen will be clipped to the bar
-        new MoveLift( this,
-                      bar == Bar.HIGH_BAR ?
-                      Lift.Position.SPECIMEN_CLIPPED_ONTO_HIGH_BAR :
-                      Lift.Position.SPECIMEN_CLIPPED_ONTO_LOW_BAR,
-                      1000 ),
-        //move back to clip specimen onto bar
-        new MoveExtensionArm( this, extendBeforeBar, 0.2, 4000 ),
-        //move down and in the rest of the way in parallel
+        new MoveLift( this, clippedPosition, 1000 ),
+        //run intake slowly while we retract the arm to clip the specimen onto the bar
         new ParallelAction(
-          new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, 1, 0 ),
-          new MoveLift( this, Lift.Position.FLOOR, 0 )
-        )
+          new RunIntake( this, 500 ),
+          new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, 1, 2000 ) //was 0.4
+        ),
+        //check for and raise lift if the arm gets stuck while retracting
+        //so we don't get hung up on the bar and tangle the lift strings
+//        new LiftStuckArm( this, extendBeforeBar, abovePosition.value ),
+//        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, 1, 2000 ),
+        new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );
   }

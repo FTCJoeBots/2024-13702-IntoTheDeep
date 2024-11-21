@@ -2,19 +2,17 @@ package org.firstinspires.ftc.teamcode.actions;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
 
-@Config
-public class GiveUpSample extends AbstractAction implements Action
+public class RunIntake extends AbstractAction implements Action
 {
-  public static int defaultMaxTime = 500;
-  public GiveUpSample( JoeBot robot )
+  public RunIntake( JoeBot robot, int maxTime )
   {
-    super( robot, defaultMaxTime );
+    super( robot, maxTime );
+    this.robot = robot;
   }
 
   @Override
@@ -22,22 +20,17 @@ public class GiveUpSample extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      robot.debug( "GiveUpSample" );
-      robot.intake().updateState( true );
-      robot.intake().pushSampleForward();
+      robot.intake().turnOn( -0.2 );
       super.initialize();
-    }
-    else
-    {
-      robot.intake().updateState( true );
     }
 
     //stop if it is taking too long
     if( timeExceeded() )
     {
+      robot.intake().stop();
       return false;
     }
 
-    return robot.intake().isMoving();
+    return true;
   }
 }

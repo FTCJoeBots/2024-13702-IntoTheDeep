@@ -1,26 +1,27 @@
 package org.firstinspires.ftc.teamcode.actions;
 
 import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 
-public class MoveLift extends AbstractAction implements Action
+public class MoveLiftIfHaveSample extends AbstractAction implements Action
 {
   private Lift.Position position;
 
-  public MoveLift( JoeBot robot, Lift.Position position )
+  public MoveLiftIfHaveSample( JoeBot robot, Lift.Position position )
   {
     super( robot );
     this.robot = robot;
     this.position = position;
   }
 
-  public MoveLift( JoeBot robot,
-                   Lift.Position position,
-                   int maxTime )
+  public MoveLiftIfHaveSample( JoeBot robot,
+                               Lift.Position position,
+                               int maxTime )
   {
     super( robot, maxTime );
     this.robot = robot;
@@ -33,7 +34,13 @@ public class MoveLift extends AbstractAction implements Action
     if( !isInitialized() )
     {
       robot.debug( String.format( "MoveLift: %s", position ) );
-      robot.updateState();
+      robot.updateState( true );
+
+      if( !robot.intake().hasSample() )
+      {
+        return false;
+      }
+
       robot.lift().travelTo( position );
       super.initialize();
     }

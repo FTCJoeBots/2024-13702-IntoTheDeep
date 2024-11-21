@@ -13,20 +13,21 @@ public class ExtensionArm extends AbstractModule
   private DcMotorEx extensionArmMotor = null;
 
   //Relative position for manually extending and contracting the arm
-  private static final int MANUAL_POSITION_ADJUST = 100;
+  private static final int MANUAL_POSITION_ADJUST = 35;
 
   //Preset positions we can extend the arm to
   public enum Position
   {
     FULLY_RETRACTED( 0 ),
-    RETRACTED_WITH_SAMPLE( 90 ),
-    FULLY_EXTENDED( 2876 ),
-    EXTEND_TO_GRAB_SAMPLE( 1600 ),
-    EXTEND_TO_DUMP_IN_BASKET( 800 ),
-    EXTEND_TO_HANG_SAMPLE( 1100 ),
-    EXTEND_TO_TOUCH_BAR( 455 ),
+    RETRACTED_WITH_SAMPLE( 13 ),
+    FULLY_EXTENDED( 759 ),
+    EXTEND_TO_GRAB_SAMPLE( 598 ),
+    EXTEND_TO_GRAB_SPECIMEN( 398 ),
+    EXTEND_TO_DUMP_IN_BASKET( 222 ),
+    EXTEND_TO_HANG_SAMPLE( 280 ),
+    EXTEND_TO_TOUCH_BAR( 110 ),
     EXTEND_TO_CLIMB( 834 ),
-    MAX_EXTENSION_WHILE_HIGH( 1000 );
+    MAX_EXTENSION_WHILE_HIGH( 400 );
 
     Position( int value )
     {
@@ -59,8 +60,8 @@ public class ExtensionArm extends AbstractModule
 
   private Action currentAction = Action.STOPPED;
 
-  private boolean autoResetMotorPosition = false;
-  ElapsedTime autoResetTimer = null;
+  private boolean autoDetectStall = false;
+  ElapsedTime stallTimer = null;
 
   public ExtensionArm( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -85,29 +86,39 @@ public class ExtensionArm extends AbstractModule
 
     if( diff <= 1 )
     {
-      telemetry.log().add( String.format( "Arm stopping, cp %s tp %s", current, target ) );
+      telemetry.log().add( String.format( "Arm stopping, current %s target %s", current, target ) );
+
       stop();
     }
-    //####
+    //Detect if the extension arm stalls when extending or retracting.
+    //When a stall is detected stop the motor to avoid damaging the belt.
+    //If the arm stalls when retracting fully reset the motor position since
+    //this is due to belt slippage and the arm is likely fully retracted.
     else if( currentAction == Action.MOVING &&
-             extensionArmMotor.getCurrentPosition() > 0 &&
-             extensionArmMotor.getTargetPosition() < extensionArmMotor.getCurrentPosition() &&
+             autoDetectStall &&
              Math.abs( extensionArmMotor.getVelocity() ) <= 0.2 &&
-             autoResetMotorPosition &&
-             autoResetTimer.milliseconds() > 3000 )
+             stallTimer.milliseconds() > 3000 )
     {
-      telemetry.log().add( "Stall when retracting detected, resetting motor position" );
-      telemetry.log().add( String.format( "currentPosition: %s", extensionArmMotor.getCurrentPosition() ) );
-      telemetry.log().add( String.format( "targetPosition: %s", extensionArmMotor.getTargetPosition() ) );
+      telemetry.log().add( "Stall detected, stopping extension arm!" );
+      telemetry.log().add( String.format( "ellapsed: %s", stallTimer.milliseconds() ) );
       telemetry.log().add( String.format( "currentVelocity: %f", extensionArmMotor.getVelocity() ) );
-      telemetry.log().add( String.format( "ellapsed: %s", autoResetTimer.milliseconds() ) );
+      telemetry.log().add( String.format( "currentPosition: %s", current ) );
+      telemetry.log().add( String.format( "targetPosition: %s", target ) );
       super.stop();
-      extensionArmMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
-      extensionArmMotor.setMode( DcMotor.RunMode.RUN_TO_POSITION );
       currentAction = Action.STOPPED;
-      autoResetMotorPosition = false;
+      autoDetectStall = false;
+
+      //only reset the motor position if the difference is small and likely due to belt slippage
+      //avoid resetting the motor position if the arm appears to have gotten hung up on the submersible
+      if( target == Position.FULLY_RETRACTED.value &&
+          current > target &&
+          diff < 100 )
+      {
+        telemetry.log().add( "Resetting motor position" );
+        extensionArmMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+        extensionArmMotor.setMode( DcMotor.RunMode.RUN_TO_POSITION );
+      }
     }
-    //####
   }
 
   public void fullyExtend()
@@ -195,25 +206,31 @@ public class ExtensionArm extends AbstractModule
       position = Position.FULLY_RETRACTED.value;
     }
 
-    if( position != extensionArmMotor.getCurrentPosition() )
+    final int currentPosition = extensionArmMotor.getCurrentPosition();
+
+    if( position != currentPosition )
     {
       telemetry.log().add( String.format("Arm traveling to %s", position ) );
       extensionArmMotor.setTargetPosition( position );
       extensionArmMotor.setPower( power );
       currentAction = Action.MOVING;
+
+      autoDetectStall = true;
+      stallTimer.reset();
+      telemetry.log().add( "Starting auto stall timer" );
     }
 
-    if( position == Position.FULLY_RETRACTED.value )
-    {
-      autoResetMotorPosition = true;
-      autoResetTimer.reset();
-      telemetry.log().add( "Starting auto reset timer" );
-    }
-    else if( autoResetMotorPosition )
-    {
-      telemetry.log().add( "Canceling auto reset timer" );
-      autoResetMotorPosition = false;
-    }
+//    if( position == Position.FULLY_RETRACTED.value )
+//    {
+//      autoDetectStall = true;
+//      stallTimer.reset();
+//      telemetry.log().add( "Starting auto reset timer" );
+//    }
+//    else if( autoDetectStall )
+//    {
+//      telemetry.log().add( "Canceling auto reset timer" );
+//      autoDetectStall = false;
+//    }
   }
 
   public void stop()
@@ -233,10 +250,10 @@ public class ExtensionArm extends AbstractModule
     telemetry.log().add( "Arm stopped" );
     currentAction = Action.STOPPED;
 
-    if( autoResetMotorPosition )
+    if( autoDetectStall )
     {
-      telemetry.log().add( "Since arm was stopped canceling auto reset" );
-      autoResetMotorPosition = false;
+      telemetry.log().add( "Canceling stall detection" );
+      autoDetectStall = false;
     }
   }
 
@@ -256,7 +273,7 @@ public class ExtensionArm extends AbstractModule
   private void initObjects()
   {
     extensionArmMotor = createMotor( "extensionArmMotor" );
-    autoResetTimer = new ElapsedTime();
+    stallTimer = new ElapsedTime();
   }
 
   private void initState()

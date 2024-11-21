@@ -14,46 +14,45 @@ public class Lift extends AbstractModule
 
   private static final double COAST = 0;
 
-  private static final int ADJUST_UP   = 100;
-  private static final int ADJUST_DOWN = 100;
+  private static final int ADJUST_UP   = 50;
+  private static final int ADJUST_DOWN = 50;
 
   //coast down until we are close to our target
   //IMPORTANT: this value should be less than ADJUST_DOWN or else we never will coast
   //when manually moving the lift down
-  private static final int FAR_AWAY = 100;
+  private static final int FAR_AWAY = 50;
 
   //only coast down above a minimum height since
   //gravity does not seem to cause the lift as we get close
   //to the bottom and it is necessary to use the motors to pull the lift
   //the rest of the way down.
-  private static final int MINIMUM_COAST_HEIGHT = 1500;
+  private static final int MINIMUM_COAST_HEIGHT = 700;
 
   //Preset positions we can extend the arm to
   public enum Position
   {
     FLOOR( 0 ),
-    MAX_LIFT( 10200 ),
+    MAX_LIFT( 5308 ),
 
-    SAMPLE_FLOOR( 50 ),
-
-    //needs ot be just right, if it's too
-    SPECIMEN_FLOOR( 260 ),
+    SAMPLE_FLOOR( 60 ),
+    SPECIMEN_FLOOR( 116 ),
 
     //high enough that we don't hit the submersible bar when retracting
-    TRAVEL_WITH_SPECIMEN( 800 ),
+    TRAVEL_WITH_SPECIMEN( 480 ),
 
     //putting samples in baskets
-    HIGH_BASKET( 10160 ),
-    LOW_BASKET( 6088 ),
+    HIGH_BASKET( 5150 ),
+    LOW_BASKET( 3302 ),
 
     //hanging specimens
-    ABOVE_HIGH_SPECIMEN_BAR( 6585 ),
-    ABOVE_LOW_SPECIMEN_BAR( 3720 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 6200 ),
-    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 3180 ),
+    ABOVE_HIGH_SPECIMEN_BAR( 3444 ),
+    ABOVE_LOW_SPECIMEN_BAR( 1912 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3190 ),
+    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1590 ),
 
-    //leve 1 scent
-    AT_LOW_HANG_BAR( 3800 ),
+    //level 1 ascent
+    AT_LOW_HANG_BAR( 2116 ),
+    //AT_LOW_HANG_BAR( 1609 ), //under
 
     //level 2 ascent
     ABOVE_LOW_HANG_BAR( 4663 ),
@@ -61,7 +60,7 @@ public class Lift extends AbstractModule
     HANG_FROM_LOW_HANG_BAR( 0 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
-    HIGH_UP( 6500 );
+    HIGH_UP( 3472 );
 
     Position( int value )
     {
@@ -111,7 +110,6 @@ public class Lift extends AbstractModule
 
   public boolean isMoving()
   {
-    telemetry.log().add( String.format( "Lift currentAction: %s", currentAction ) );
     return currentAction != Action.STOPPED;
   }
 
@@ -213,9 +211,7 @@ public class Lift extends AbstractModule
     int diff = Math.min( leftDiff, rightDiff );
 
     //stop once we get close to our target position
-//    telemetry.log().add( String.format( "lift diff: %s", diff ) );
-
-    if( diff <= 10 )
+    if( diff <= 1 )
     {
       telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", diff ) );
       stop();
