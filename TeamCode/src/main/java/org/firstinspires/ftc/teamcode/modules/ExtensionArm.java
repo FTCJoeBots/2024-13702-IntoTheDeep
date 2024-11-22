@@ -13,21 +13,21 @@ public class ExtensionArm extends AbstractModule
   private DcMotorEx extensionArmMotor = null;
 
   //Relative position for manually extending and contracting the arm
-  private static final int MANUAL_POSITION_ADJUST = 35;
+  private static final int MANUAL_POSITION_ADJUST = 80;
 
   //Preset positions we can extend the arm to
   public enum Position
   {
     FULLY_RETRACTED( 0 ),
-    RETRACTED_WITH_SAMPLE( 13 ),
-    FULLY_EXTENDED( 759 ),
-    EXTEND_TO_GRAB_SAMPLE( 598 ),
-    EXTEND_TO_GRAB_SPECIMEN( 398 ),
-    EXTEND_TO_DUMP_IN_BASKET( 222 ),
-    EXTEND_TO_HANG_SAMPLE( 280 ),
-    EXTEND_TO_TOUCH_BAR( 110 ),
+    RETRACTED_WITH_SAMPLE( 30 ),
+    FULLY_EXTENDED( 2000 ),
+    EXTEND_TO_GRAB_SAMPLE( 1446 ),
+    EXTEND_TO_GRAB_SPECIMEN( 1000 ),
+    EXTEND_TO_DUMP_IN_BASKET( 670 ),
+    EXTEND_TO_HANG_SAMPLE( 662 ),
+    EXTEND_TO_TOUCH_BAR( 253 ),
     EXTEND_TO_CLIMB( 834 ),
-    MAX_EXTENSION_WHILE_HIGH( 400 );
+    MAX_EXTENSION_WHILE_HIGH( 1360 );
 
     Position( int value )
     {
@@ -38,10 +38,12 @@ public class ExtensionArm extends AbstractModule
   }
 
   //Various speeds for extending and retracting the arm
-  private enum Speed
+  public enum Speed
   {
     FAST( 1.0 ),
-    MANUAL( 0.5 );
+    MANUAL( 0.5 ),
+    GRAB_SPECIMEN( 0.4 ),
+    HANG_SPECIMEN( 1 );
 
     Speed( double value )
     {
@@ -84,7 +86,7 @@ public class ExtensionArm extends AbstractModule
     final int target = extensionArmMotor.getTargetPosition();
     final int diff = Math.abs( current - target );
 
-    if( diff <= 1 )
+    if( diff <= 2 )
     {
       telemetry.log().add( String.format( "Arm stopping, current %s target %s", current, target ) );
 

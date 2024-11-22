@@ -271,6 +271,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       }
       else
       {
+        //start moving lift
+        robot.lift().travelTo( Lift.Position.SAMPLE_FLOOR );
+
         if( neutralSamples == 3 )
         {
           robot.debug( "BasketAuto:HAVE_NOTHING -> driveTo1" );
@@ -360,14 +363,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> no team samples left" );
         park();
       }
-      //we don't have enough time to strafe in another sample before hanging
-      //a 3rd specimen so race to the observation zone and try to hang one more if there is time
-      else if( specimensHung == 2 )
-      {
-        state = retrieveSpecimen() ?
-          AutonomousState.HAVE_SPECIMEN :
-          AutonomousState.HAVE_NOTHING;
-      }
       else
       {
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> strafe and retrieve" );
@@ -446,7 +441,23 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     double timeElapsed = time.seconds();
     double timeLeft = timeInMatch - timeElapsed;
 
-    if( timeLeft <= 6 )
+    int minimumTime = 6;
+    switch( gameStrategy )
+    {
+      case PLACE_SAMPLES_IN_BASKETS:
+        minimumTime = 4;
+        break;
+
+      case HANG_SPECIMENS_ON_BARS:
+        minimumTime = 4;
+        break;
+
+      default:
+        minimumTime = 6;
+        break;
+    }
+
+    if( timeLeft < minimumTime )
     {
       robot.debug( String.format( "Autonomous::timeLeft %s", timeLeft ) );
       return true;

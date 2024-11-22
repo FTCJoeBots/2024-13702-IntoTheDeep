@@ -14,8 +14,8 @@ public class Lift extends AbstractModule
 
   private static final double COAST = 0;
 
-  private static final int ADJUST_UP   = 50;
-  private static final int ADJUST_DOWN = 50;
+  private static final int ADJUST_UP   = 100;
+  private static final int ADJUST_DOWN = 100;
 
   //coast down until we are close to our target
   //IMPORTANT: this value should be less than ADJUST_DOWN or else we never will coast
@@ -32,7 +32,7 @@ public class Lift extends AbstractModule
   public enum Position
   {
     FLOOR( 0 ),
-    MAX_LIFT( 5308 ),
+    MAX_LIFT( 5200 ),
 
     SAMPLE_FLOOR( 60 ),
     SPECIMEN_FLOOR( 116 ),
@@ -47,12 +47,11 @@ public class Lift extends AbstractModule
     //hanging specimens
     ABOVE_HIGH_SPECIMEN_BAR( 3444 ),
     ABOVE_LOW_SPECIMEN_BAR( 1912 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3190 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3185 ),
     SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1590 ),
 
     //level 1 ascent
     AT_LOW_HANG_BAR( 2116 ),
-    //AT_LOW_HANG_BAR( 1609 ), //under
 
     //level 2 ascent
     ABOVE_LOW_HANG_BAR( 4663 ),
@@ -211,7 +210,7 @@ public class Lift extends AbstractModule
     int diff = Math.min( leftDiff, rightDiff );
 
     //stop once we get close to our target position
-    if( diff <= 1 )
+    if( diff <= 2 )
     {
       telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", diff ) );
       stop();

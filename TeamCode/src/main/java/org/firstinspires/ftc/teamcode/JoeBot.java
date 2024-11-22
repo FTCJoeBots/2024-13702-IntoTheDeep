@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
 import org.firstinspires.ftc.teamcode.actions.OperateIntake;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
+import org.firstinspires.ftc.teamcode.modules.ClimbArm;
 import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
@@ -35,6 +36,7 @@ public class JoeBot
   private ExtensionArm extensionArm = null;
   private Lift lift = null;
   private Intake intake = null;
+  private ClimbArm climbArm = null;
 
   public Gamepads gamepads = null;
 
@@ -58,6 +60,7 @@ public class JoeBot
     extensionArm = new ExtensionArm( hardwareMap, telemetry );
     lift = new Lift( hardwareMap, telemetry );
     intake = new Intake( hardwareMap, telemetry );
+    climbArm = new ClimbArm( hardwareMap, telemetry );
 
     if( forAutonomous )
     {
@@ -117,6 +120,9 @@ public class JoeBot
   public MecanumDrive mecanumDrive()
   { return mecanumDrive; }
 
+  public ClimbArm climbArm()
+  { return climbArm; }
+
   public void coast()
   {
     if( drive != null )
@@ -154,6 +160,7 @@ public class JoeBot
     extensionArm.stop();
     lift.stop();
     intake.stop();
+    climbArm.stop();
 
     stopDrive();
   }
@@ -228,7 +235,8 @@ public class JoeBot
         new GrabSample( this, isSpecimen ),
         new ParallelAction(
           new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
-          new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
+          new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value,
+            ExtensionArm.Speed.FAST.value, 500 )
         )
       )
     );
@@ -282,7 +290,7 @@ public class JoeBot
           8000 ),
         new MoveExtensionArm( this, extendedPosition ),
         new OperateIntake( this, Intake.Direction.PUSH, 2000 ),
-        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value ),
+        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, ExtensionArm.Speed.FAST.value, 500 ),
         new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );
@@ -315,18 +323,16 @@ public class JoeBot
         //raise lift above bar
         new MoveLift( this, abovePosition, 6000 ),
         //extend past bar
-        new MoveExtensionArm( this, extendedPosition, 1, 500  ),
+        new MoveExtensionArm( this, extendedPosition, ExtensionArm.Speed.FAST.value, 500  ),
         //drop down so when we pull back the specimen will be clipped to the bar
         new MoveLift( this, clippedPosition, 1000 ),
         //run intake slowly while we retract the arm to clip the specimen onto the bar
-        new ParallelAction(
-          new RunIntake( this, 500 ),
-          new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, 1, 2000 ) //was 0.4
-        ),
+          new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value,
+            ExtensionArm.Speed.HANG_SPECIMEN.value, 500 ),
         //check for and raise lift if the arm gets stuck while retracting
         //so we don't get hung up on the bar and tangle the lift strings
 //        new LiftStuckArm( this, extendBeforeBar, abovePosition.value ),
-//        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, 1, 2000 ),
+//        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, ExtensionArm.Speed.FAST.value, 2000 ),
         new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );

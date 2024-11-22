@@ -35,7 +35,7 @@ public class GrabSample extends AbstractAction implements Action
 
       robot.debug( isSpecimen ? "GrabSpecimen" : "GrabSample" );
       robot.intake().pullSampleBack();
-      robot.extensionArm().travelToWithPower( extendedPosition, 0.167 ); //TODO - update this when changing motors
+      robot.extensionArm().travelToWithPower( extendedPosition, ExtensionArm.Speed.GRAB_SPECIMEN.value );
       super.initialize();
     }
     else
