@@ -25,7 +25,7 @@ public class ManualJoeBot extends OpMode
 {
   private enum Module
   {
-    NONE, LIFT, EXTENSION_ARM, INTAKE, DRIVE,
+    NONE, CLIMB_ARM, LIFT, EXTENSION_ARM, INTAKE, DRIVE,
   }
 
   private ElapsedTime time = null;
@@ -188,6 +188,11 @@ public class ManualJoeBot extends OpMode
     }
 
     //==================
+    //Climb Arm
+    //==================
+    robot.climbArm().setPower( -gamepad2.left_trigger + gamepad2.right_trigger );
+
+    //==================
     //Intake
     //==================
     //Grab sample - X + pull back left stick
@@ -323,6 +328,9 @@ public class ManualJoeBot extends OpMode
 
     switch( currentModule )
     {
+      case CLIMB_ARM:
+        robot.climbArm().printTelemetry();
+        break;
       case LIFT:
         robot.lift().printTelemetry();
         break;

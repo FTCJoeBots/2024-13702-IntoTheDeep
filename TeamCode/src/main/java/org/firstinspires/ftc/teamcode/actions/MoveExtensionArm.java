@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 
 @Config
 public class MoveExtensionArm extends AbstractAction implements Action
@@ -20,7 +21,7 @@ public class MoveExtensionArm extends AbstractAction implements Action
     super( robot, defaultMaxTime );
     this.robot = robot;
     this.position = position;
-    this.power = 1;
+    this.power = ExtensionArm.Speed.FAST.value;
   }
 
   public MoveExtensionArm( JoeBot robot, int position, double power, int maxTime )
