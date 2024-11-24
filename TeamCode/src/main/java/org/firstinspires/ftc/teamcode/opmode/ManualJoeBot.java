@@ -203,7 +203,7 @@ public class ManualJoeBot extends OpMode
       robot.grabSample( false );
       robot.intake().updateState( true );
       if( robot.intake().hasSample() )
-      { robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR ); }
+      { robot.lift().travelTo( Lift.Position.SPECIMEN_CLIPPED_ONTO_HIGH_BAR ); }
     }
     //Grab specimen - X + push forward left stick
     else if( !robot.intake().hasSample() &&

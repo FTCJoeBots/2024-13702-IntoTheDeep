@@ -429,6 +429,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       else
       {
         driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+        driveTo( new Pose2d( Location.IN_THE_OBSERVATION_ZONE, Math.PI ) );
       }
     }
 

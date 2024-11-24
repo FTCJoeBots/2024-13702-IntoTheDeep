@@ -10,6 +10,6 @@ public class RedTeamBaskets extends AbstractAutonomousOpMode
 {
   public RedTeamBaskets()
   {
-    super( Team.RED, GameStrategy.PLACE_SAMPLES_IN_BASKETS, AutonomousState.HAVE_SAMPLE );
+    super( Team.RED, GameStrategy.PLACE_SAMPLES_IN_BASKETS, AutonomousState.HAVE_SPECIMEN );
   }
 }

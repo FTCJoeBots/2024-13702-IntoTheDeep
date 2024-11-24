@@ -34,7 +34,7 @@ public class Lift extends AbstractModule
     FLOOR( 0 ),
     MAX_LIFT( 5200 ),
 
-    SAMPLE_FLOOR( 60 ),
+    SAMPLE_FLOOR( 90 ),
     SPECIMEN_FLOOR( 116 ),
 
     //high enough that we don't hit the submersible bar when retracting
@@ -47,7 +47,7 @@ public class Lift extends AbstractModule
     //hanging specimens
     ABOVE_HIGH_SPECIMEN_BAR( 3444 ),
     ABOVE_LOW_SPECIMEN_BAR( 1912 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3185 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3175 ),
     SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1590 ),
 
     //level 1 ascent
