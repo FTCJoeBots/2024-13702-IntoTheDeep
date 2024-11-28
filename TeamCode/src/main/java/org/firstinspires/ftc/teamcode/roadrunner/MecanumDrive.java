@@ -222,7 +222,6 @@ public final class MecanumDrive {
 
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
-        //TODO: Turning this off for now...
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }

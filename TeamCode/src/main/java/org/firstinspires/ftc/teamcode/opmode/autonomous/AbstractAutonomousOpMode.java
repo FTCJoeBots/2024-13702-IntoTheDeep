@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -27,7 +25,6 @@ import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -209,6 +206,12 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private void park()
   {
+    //TODO park faster by extending the extension arm:
+    //compute angle between current location and observation zone
+    //rotate that way
+    //start raising the lift a little so it won't drag
+    //start extending the arm fully
+    //drive that direction as quickly as possible
     robot.debug( "Autonomous:park" );
     driveTo( new Pose2d( Location.PARK_IN_OBSERVATION_ZONE, 0 ) );
     state = AutonomousState.PARKED;
@@ -319,9 +322,10 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     if( state == AutonomousState.PARKED )
     { return; }
 
-    if( timeRunningOut() )
+    if( timeRunningOut() ||
+        specimensHung >= 3 )
     {
-      robot.debug( "SpecimenAuto:timeRunningOut!" );
+      robot.debug( "SpecimenAuto:parking!" );
       park();
     }
     else if( state == AutonomousState.HAVE_SPECIMEN )
@@ -350,7 +354,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     else if( state == AutonomousState.HAVE_SAMPLE )
     {
       robot.debug( "SpecimenAuto:HAVE_SAMPLE -> giveUp/retrieve" );
-      driveTo( new Pose2d( Location.OBSERVATION_ZONE, Math.PI ) );
+      driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
       robot.giveUpSample();
       state = retrieveSpecimen() ?
               AutonomousState.HAVE_SPECIMEN :
@@ -367,33 +371,64 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       {
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> strafe and retrieve" );
 
-        Vector2d samplePos;
+        final double faceLeft = Math.toRadians( 90 );
+        final double faceRight = Math.toRadians( -90 );
+
+        Vector2d strafePos = new Vector2d( Location.STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, Location.TEAM_SAMPLE_1.y );
+
+        //start moving the lift it is ready by the time we go to grab a specimen
+        robot.lift().travelTo( Lift.Position.SPECIMEN_FLOOR );
+
+        MecanumDrive drive = robot.mecanumDrive();
+
+        //experimental
+        final boolean useSplines = false;
+
+        //we have enough time to strafe in a second sample but not
+        //if we want to hang three specimens currently
+        final boolean strafeTwoSamples = false;
+
+        //strafe in the first team sample
         if( teamSamples == 3 )
         {
-          samplePos = Location.TEAM_SAMPLE_1;
+          if( useSplines )
+          {
+            ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+              .turnTo( faceRight )
+              .splineTo( Location.NEAR_TEAM_SAMPLES_1, faceRight )
+              .splineTo( Location.NEAR_TEAM_SAMPLES_2, faceRight )
+              .splineTo( Location.TEAM_SAMPLE_1, faceRight )
+              .strafeTo( strafePos ).build() );
+          }
+          else
+          {
+            ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+              .strafeToLinearHeading( Location.NEAR_TEAM_SAMPLES_1, faceLeft )
+              .strafeTo( Location.NEAR_TEAM_SAMPLES_2 )
+              .strafeTo( Location.TEAM_SAMPLE_1 )
+              .strafeTo( strafePos ).build() );
+          }
+
+          teamSamples--;
+        }
+        else if( teamSamples == 2 &&
+                 strafeTwoSamples )
+        {
+          ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+            .strafeTo( Location.TEAM_SAMPLE_1 )
+            .strafeTo( Location.TEAM_SAMPLE_2 )
+            .strafeTo( strafePos )
+              .build() );
+
+          teamSamples--;
         }
         else
         {
-          samplePos = teamSamples == 2 ?
-                      Location.TEAM_SAMPLE_2 :
-                      Location.TEAM_SAMPLE_3;
+          driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+          state = retrieveSpecimen() ?
+            AutonomousState.HAVE_SPECIMEN :
+            AutonomousState.HAVE_NOTHING;
         }
-
-        final double faceLeft = Math.toRadians( 90 );
-
-        Vector2d strafePos = new Vector2d( Location.OBSERVATION_ZONE.x, samplePos.y );
-
-        driveTo( Arrays.asList( new Pose2d( Location.NEAR_TEAM_SAMPLES_1, faceLeft ),
-                                new Pose2d( Location.NEAR_TEAM_SAMPLES_2, faceLeft ) ) );
-
-        driveTo( new Pose2d( samplePos, faceLeft ) );
-        driveTo( new Pose2d( strafePos, faceLeft ) );
-
-        teamSamples--;
-
-        state = retrieveSpecimen() ?
-                AutonomousState.HAVE_SPECIMEN :
-                AutonomousState.HAVE_NOTHING;
       }
     }
   }
@@ -418,7 +453,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private boolean retrieveSpecimen()
   {
-    driveTo( new Pose2d( Location.IN_THE_OBSERVATION_ZONE, Math.PI ) );
+    driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
 
     while( !timeRunningOut() )
     {
@@ -429,7 +464,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       else
       {
         driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
-        driveTo( new Pose2d( Location.IN_THE_OBSERVATION_ZONE, Math.PI ) );
+        driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
       }
     }
 
@@ -450,7 +485,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         break;
 
       case HANG_SPECIMENS_ON_BARS:
-        minimumTime = 4;
+        //never park, try to hang as many specimens as possible
+        minimumTime = 0;
         break;
 
       default:
