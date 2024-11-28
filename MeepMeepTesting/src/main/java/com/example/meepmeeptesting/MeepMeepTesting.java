@@ -212,7 +212,7 @@ public class MeepMeepTesting {
   //============================================================
   //25.07 seconds: strafe 2, hang three, park
   static void splineTackleApproach( RoadRunnerBotEntity myBot )
-  { 
+  {
     final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 25, -7 );
     final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
     final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20, -47 );
@@ -276,8 +276,8 @@ public class MeepMeepTesting {
       .splineToConstantHeading( computePosition( TEAM_SAMPLE_2 ), faceRight )
       .strafeToLinearHeading( computePosition( strafePos2 ), faceRight )
 
-      //park
-//      .strafeTo( computePosition( PARK_IN_OBSERVATION_ZONE ) )
+      //park facing up
+      .turn( faceUp )
 
       .build());
   }
