@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.ftccommon.SoundPlayer;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
@@ -26,6 +27,8 @@ import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+
+import android.content.Context;
 
 import java.util.List;
 
@@ -48,6 +51,9 @@ public class JoeBot
 
   public static boolean debugging = true;
   public static boolean competition = false;
+
+  private int quackID;
+  private Context appContext;
 
   public JoeBot( boolean forAutonomous,
                  HardwareMap hardwareMap,
@@ -75,6 +81,9 @@ public class JoeBot
     //RoadRunner they prefer to run using Auto instead of Manual mode
     hubs = hardwareMap.getAll( LynxModule.class );
     setupBulkCaching();
+
+    appContext = hardwareMap.appContext;
+    quackID = appContext.getResources().getIdentifier("quack", "raw", appContext.getPackageName() );
   }
 
   public void debug( String message )
@@ -84,6 +93,10 @@ public class JoeBot
       telemetry.log().add( message );
       telemetry.update();
     }
+  }
+
+  public void quack() {
+    SoundPlayer.getInstance().startPlaying( appContext, quackID );
   }
 
   private void setupBulkCaching()
@@ -336,6 +349,13 @@ public class JoeBot
         new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );
+
+    //Play a sound if the specimen was hung
+    updateState( true );
+    if( !intake.hasSample() )
+    {
+      quack();
+    }
   }
 
   public void levelOneAscent()
