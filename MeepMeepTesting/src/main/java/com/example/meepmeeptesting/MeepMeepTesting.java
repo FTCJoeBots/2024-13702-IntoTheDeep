@@ -35,7 +35,8 @@ public class MeepMeepTesting {
 //    colomaApproach( myBot );
 //    fastStrafeApproach( myBot );
 //    splineGrabApproach( myBot );
-    splineTackleApproach( myBot );
+//    splineTackleApproach( myBot );
+    splineTackleApproach2( myBot );
 
     meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_LIGHT)
       .setDarkMode(true)
@@ -211,6 +212,7 @@ public class MeepMeepTesting {
   }
   //============================================================
   //25.07 seconds: strafe 2, hang three, park
+  //29.19 with park forward and spline heading interpolation when hanging specimens
   static void splineTackleApproach( RoadRunnerBotEntity myBot )
   {
     final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 25, -7 );
@@ -278,6 +280,73 @@ public class MeepMeepTesting {
 
       //park facing up
       .turn( faceUp )
+
+      .build());
+  }
+  //============================================================
+  //28.18 seconds: strafe 2, hang three, park
+  static void splineTackleApproach2( RoadRunnerBotEntity myBot )
+  {
+    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 25, -7 );
+    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
+    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20, -47 );
+    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 11, -47 );
+    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 3, -47 );
+    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 25, -28 );
+    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 47.0, -35 );
+    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -44 );
+    final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -54 );
+    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 0, -61 );
+
+    final double faceUp = computeAngle( 0 );
+    final double faceDown = computeAngle( 180 );
+    final double faceRight = computeAngle( -90 );
+
+    Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x + 4, TEAM_SAMPLE_1.y );
+    Vector2d strafePos2 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_2.y );
+
+    myBot.runAction(myBot.getDrive().actionBuilder(
+        new Pose2d( computePosition( STARTING_POSITION_SPECIMENS ), faceUp ) )
+
+      //hang specimen
+      .strafeTo( computePosition( SPECIMEN_BAR_RIGHT ) )
+      .waitSeconds( hangSpecimenDelay )
+
+      //strafe in first sample
+      .strafeToConstantHeading( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_1.x - 2,
+        NEAR_TEAM_SAMPLES_1.y - 0 ) ) )
+      .splineToConstantHeading( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_2.x - 0,
+        NEAR_TEAM_SAMPLES_2.y - 1 ) ), faceUp )
+      .splineToSplineHeading( new Pose2d( computePosition( TEAM_SAMPLE_1 ), faceRight ), 1.6 )
+      .strafeToLinearHeading( computePosition( strafePos1 ), faceRight )
+
+      //strafe in second sample
+      .splineToConstantHeading( computePosition( new Vector2d( TEAM_SAMPLE_1.x, strafePos1.y - 9 ) ), 0 )
+      .splineToConstantHeading( computePosition( TEAM_SAMPLE_2 ), faceRight )
+      .strafeToLinearHeading( computePosition( strafePos2 ), faceRight )
+
+      //grab specimen
+      .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
+      .waitSeconds( 0.5 ) //wait for human operator
+      .strafeTo( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ) )
+
+      //hang specimen
+      //      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToSplineHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .waitSeconds( hangSpecimenDelay )
+
+      //grab specimen
+      .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
+      .waitSeconds( 0.5 ) //wait for human operator
+      .strafeToLinearHeading( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ), faceDown )
+
+      //hang specimen
+      //      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToSplineHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .waitSeconds( hangSpecimenDelay )
+
+      //park facing up
+      .strafeTo( computePosition( PARK_IN_OBSERVATION_ZONE ) )
 
       .build());
   }
