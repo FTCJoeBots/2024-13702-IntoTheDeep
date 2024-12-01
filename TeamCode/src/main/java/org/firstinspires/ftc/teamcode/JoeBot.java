@@ -9,7 +9,11 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
 import org.firstinspires.ftc.teamcode.actions.RunIntake;
@@ -19,6 +23,7 @@ import org.firstinspires.ftc.teamcode.actions.MoveLift;
 import org.firstinspires.ftc.teamcode.actions.OperateIntake;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.modules.ClimbArm;
+import org.firstinspires.ftc.teamcode.modules.drive.AngleTools;
 import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
@@ -43,11 +48,11 @@ public class JoeBot
   private List<LynxModule> hubs;
   private MecanumDrive mecanumDrive = null;
   private Drive drive = null;
+  private IMU imu = null;
 
   private static Pose2d pose = new Pose2d( 0, 0, 0 );
 
   public static boolean debugging = true;
-  public static boolean competition = false;
 
   public JoeBot( boolean forAutonomous,
                  HardwareMap hardwareMap,
@@ -70,6 +75,12 @@ public class JoeBot
     {
       drive = new Drive( hardwareMap, telemetry, pose );
     }
+
+    imu = hardwareMap.get( IMU.class, "imu" );
+
+    RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
+    imu.initialize( new IMU.Parameters( orientationOnRobot ) );
+    imu.resetYaw();
 
     //setup bulk caching AFTER we create the MecanumDrive since when tuning
     //RoadRunner they prefer to run using Auto instead of Manual mode
@@ -123,6 +134,9 @@ public class JoeBot
   public ClimbArm climbArm()
   { return climbArm; }
 
+  public IMU imu()
+  { return imu; }
+
   public void coast()
   {
     if( drive != null )
@@ -174,6 +188,26 @@ public class JoeBot
 
     if( mecanumDrive != null )
     { mecanumDrive.pose = pose; }
+
+    if( imu != null )
+    { imu.resetYaw(); }
+  }
+
+  public void resetHeadingUsingIMU()
+  {
+    final double deadWheelHeading = Math.toDegrees( mecanumDrive.pose.heading.toDouble() );
+    final double imuHeading = imu.getRobotYawPitchRollAngles().getYaw( AngleUnit.DEGREES );
+    final double angleDifference = AngleTools.angleDifference( deadWheelHeading, imuHeading );
+
+    if( angleDifference > 1 )
+    {
+      telemetry.log().add( "angleDifference: %f", angleDifference );
+      telemetry.log().add( "Resetting heading from %f to %f", deadWheelHeading, imuHeading );
+
+      Pose2d updatedPose = new Pose2d( mecanumDrive.pose.position, Math.toRadians( imuHeading ) );
+      mecanumDrive.pose = updatedPose;
+    }
+
   }
 
   public void cachePos()

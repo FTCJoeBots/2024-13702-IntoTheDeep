@@ -91,10 +91,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     //prevent resetting encoders again
     AbstractModule.encodersReset = true;
 
-    //always reset the position and heading at the beginning of Autonomous
-    telemetry.log().add( "Resetting Position" );
-    robot.resetPos( defaultPos() );
-
     telemetry.log().add( "Initialized Auto" );
     telemetry.update();
 
@@ -129,15 +125,18 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     //reset the timer when the game starts
     time.reset();
 
-    JoeBot.competition = true;
-
     //clear screen
     telemetry.update();
 
     //Prevent robot from being pushed around
     robot.brake();
 
-    robot.updateState();
+    //always reset the position and heading at the beginning of Autonomous
+    telemetry.log().add( "Resetting Position and Heading" );
+    robot.resetPos( defaultPos() );
+
+    //update robot state including the color sensor
+    robot.updateState( true );
 
     //raise list before driving to avoid dragging sample on the ground
     //if lift motions are enabled we'll immediately raise the lift before driving so
