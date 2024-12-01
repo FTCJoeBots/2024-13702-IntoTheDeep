@@ -11,6 +11,28 @@ public class ClimbArm extends AbstractModule
 {
   private DcMotorEx climbMotor = null;
 
+  //Preset positions we can extend the arm to
+  public enum Position
+  {
+    HOOKS_RETRACTED( 0 ),
+    HOOKS_RAISED( 6000 );
+
+    Position( int value )
+    {
+      this.value = value;
+    }
+
+    public final int value;
+  }
+
+  private enum Action
+  {
+    MOVING,
+    STOPPED
+  }
+
+  private Action currentAction = Action.STOPPED;
+
   public ClimbArm( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( hardwareMap, telemetry );
@@ -18,14 +40,67 @@ public class ClimbArm extends AbstractModule
     initState();
   }
 
-  public void setPower( double power )
+  public void updateState()
   {
-    climbMotor.setPower( power );
+    if( currentAction == Action.STOPPED )
+    { return; }
+
+    final int current = climbMotor.getCurrentPosition();
+    final int target = climbMotor.getTargetPosition();
+    final int diff = Math.abs( current - target );
+
+    if( diff <= 1 )
+    {
+      telemetry.log().add( String.format( "Climb Arm stopping, current %s target %s", current, target ) );
+      stop();
+    }
+  }
+
+  public void raiseHooks()
+  {
+    climbMotor.setTargetPosition( Position.HOOKS_RAISED.value );
+    climbMotor.setPower( 1 );
+    currentAction = Action.MOVING;
+  }
+
+  public void retractHooks()
+  {
+    climbMotor.setTargetPosition( Position.HOOKS_RETRACTED.value );
+    climbMotor.setPower( 1 );
+    currentAction = Action.MOVING;
+  }
+
+  public void moveHooks( boolean raise )
+  {
+    int delta = 100;
+    int oldPosition = climbMotor.getCurrentPosition();
+    int newPosition = oldPosition + ( raise ? 1 : -1 ) * delta;
+
+    if( newPosition < 0 )
+    { newPosition = 0; }
+
+    if( newPosition > Position.HOOKS_RAISED.value )
+    { newPosition = Position.HOOKS_RAISED.value; }
+
+    climbMotor.setTargetPosition( newPosition );
+    climbMotor.setPower( 1 );
+    currentAction = Action.MOVING;
   }
 
   public void stop()
   {
-    climbMotor.setPower( 0 );
+    if( currentAction == Action.MOVING )
+    {
+      super.stop();
+    }
+
+    telemetry.log().add( "Climb Arm stopped" );
+    currentAction = Action.STOPPED;
+  }
+
+  public boolean isMoving()
+  {
+    return currentAction != Action.STOPPED;
   }
 
   //Prints out the extension arm motor position
@@ -43,7 +118,7 @@ public class ClimbArm extends AbstractModule
 
   private void initState()
   {
-    initMotor( climbMotor, DcMotor.RunMode.RUN_WITHOUT_ENCODER, DcMotorSimple.Direction.FORWARD );
+    initMotor( climbMotor, DcMotor.RunMode.RUN_TO_POSITION, DcMotorSimple.Direction.FORWARD );
     climbMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
   }
 }

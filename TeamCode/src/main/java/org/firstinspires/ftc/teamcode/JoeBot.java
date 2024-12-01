@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
 import org.firstinspires.ftc.teamcode.actions.GrabSample;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
+import org.firstinspires.ftc.teamcode.actions.MoveLiftToClimb;
+import org.firstinspires.ftc.teamcode.actions.OperateClimbArm;
 import org.firstinspires.ftc.teamcode.actions.OperateIntake;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.modules.ClimbArm;
@@ -243,6 +245,7 @@ public class JoeBot
 
     lift.updateState();
     extensionArm.updateState();
+    climbArm.updateState();
     intake.updateState( force );
   }
 
@@ -416,26 +419,26 @@ public class JoeBot
   {
     debug( "JotBot::levelTwoAscent()" );
 
-    //Turning off for now as the robot gets stuck and the red line on the left lift motor can break
-    /*
-    debug( "Level Two Ascent:" );
-
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
     stopDrive();
+
+    //save power by making drive wheels coast
+    coast();
 
     clearBulkCache();
 
     ActionTools.runBlocking( this,
       new SequentialAction(
-        new MoveLift( this, Lift.Position.ABOVE_LOW_HANG_BAR ),
-        new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_CLIMB.value ),
-        new MoveLift( this, Lift.Position.TOUCHING_LOW_HANG_BAR, 1000 ),
-        new MoveExtensionArmToClimb( this ),
-        new MoveLiftToClimb( this )
+        new MoveLift( this, Lift.Position.ABOVE_ABOVE_HANG_BAR ),
+        new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
+        new MoveLiftToClimb( this ),
+        new ParallelAction(
+          new MoveExtensionArm( this, ExtensionArm.Position.RETRACT_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
+          new OperateClimbArm( this, true )
+        )
       )
     );
-    */
   }
 
   private void stopDrive()

@@ -11,7 +11,7 @@ public class MoveLiftToClimb extends AbstractAction implements Action
 {
   public MoveLiftToClimb( JoeBot robot )
   {
-    super( robot, 5000 );
+    super( robot, 1000 );
     this.robot = robot;
   }
 
@@ -29,13 +29,14 @@ public class MoveLiftToClimb extends AbstractAction implements Action
     {
       robot.lift().updateState();
     }
-
     //stop if it is taking too long
-    if( timeExceeded() )
+    if( timeExceeded() ||
+        !robot.lift().isMoving() )
     {
-      robot.lift().stop();
+      robot.lift().floatMotors();
+      return false;
     }
 
-    return robot.lift().isMoving();
+    return true;
   }
 }

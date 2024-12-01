@@ -26,7 +26,8 @@ public class ExtensionArm extends AbstractModule
     EXTEND_TO_DUMP_IN_BASKET( 670 ),
     EXTEND_TO_HANG_SAMPLE( 662 ),
     EXTEND_TO_TOUCH_BAR( 253 ),
-    EXTEND_TO_CLIMB( 834 ),
+    EXTEND_TO_CLIMB( 518 ),
+    RETRACT_TO_CLIMB( 451 ),
     MAX_EXTENSION_WHILE_HIGH( 1360 );
 
     Position( int value )
@@ -217,9 +218,16 @@ public class ExtensionArm extends AbstractModule
       extensionArmMotor.setPower( power );
       currentAction = Action.MOVING;
 
-      autoDetectStall = true;
-      stallTimer.reset();
-      telemetry.log().add( "Starting auto stall timer" );
+      if( position != Position.RETRACT_TO_CLIMB.value )
+      {
+        autoDetectStall = true;
+        stallTimer.reset();
+        telemetry.log().add( "Starting auto stall timer" );
+      }
+      else
+      {
+        autoDetectStall = false;
+      }
     }
 
 //    if( position == Position.FULLY_RETRACTED.value )
@@ -282,6 +290,5 @@ public class ExtensionArm extends AbstractModule
   {
     initMotor( extensionArmMotor, DcMotor.RunMode.RUN_TO_POSITION, DcMotorSimple.Direction.REVERSE );
     extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-//    extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
   }
 }

@@ -184,7 +184,14 @@ public class ManualJoeBot extends OpMode
     //==================
     //Climb Arm
     //==================
-    robot.climbArm().setPower( -gamepad2.left_trigger + gamepad2.right_trigger );
+    if( gamepad2.right_trigger != 0 )
+    {
+      robot.climbArm().retractHooks();
+    }
+    else if( gamepad2.left_trigger != 0 )
+    {
+      robot.climbArm().raiseHooks();
+    }
 
     //==================
     //Intake

@@ -54,9 +54,8 @@ public class Lift extends AbstractModule
     AT_LOW_HANG_BAR( 2116 ),
 
     //level 2 ascent
-    ABOVE_LOW_HANG_BAR( 4663 ),
-    TOUCHING_LOW_HANG_BAR( 3400  ),
-    HANG_FROM_LOW_HANG_BAR( 0 ),
+    ABOVE_ABOVE_HANG_BAR( 4470 ),
+    TOUCHING_HIGH_HANG_BAR( 3685 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
     HIGH_UP( 3472 );
@@ -135,7 +134,7 @@ public class Lift extends AbstractModule
   public boolean climb()
   {
     double power = 1.0;
-    int position = Position.HANG_FROM_LOW_HANG_BAR.value;
+    int position = Position.TOUCHING_HIGH_HANG_BAR.value;
 
     setMotorPosition( leftMotor, position, power );
     setMotorPosition( rightMotor, position, power );
@@ -187,6 +186,15 @@ public class Lift extends AbstractModule
     setMotorPosition( leftMotor, value, power );
     setMotorPosition( rightMotor, value, power );
     currentAction = Action.MOVING;
+  }
+
+  public void floatMotors()
+  {
+    leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+    rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
+    leftMotor.setPower( 0 );
+    rightMotor.setPower( 0 );
+    currentAction = Action.STOPPED;
   }
 
   public void stop()
