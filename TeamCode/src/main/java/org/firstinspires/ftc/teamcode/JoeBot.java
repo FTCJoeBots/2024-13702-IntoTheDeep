@@ -35,7 +35,9 @@ import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 import android.content.Context;
+import android.content.res.Resources;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Config
@@ -57,8 +59,20 @@ public class JoeBot
   private static Pose2d pose = new Pose2d( 0, 0, 0 );
 
   public static boolean debugging = true;
+  public static boolean enableSoundEffects = false;
 
-  private int quackID;
+  public enum Sound
+  {
+    CALIBRATE_INIT,
+    CALIBRATE_RUN,
+    TELEOP_STOP,
+    AUTONOMOUS_START,
+    BASKET,
+    SPECIMEN,
+    CLIMB
+  };
+
+  private HashMap<Sound, Integer> soundIDs;
   private Context appContext;
 
   public JoeBot( boolean forAutonomous,
@@ -94,7 +108,15 @@ public class JoeBot
     setupBulkCaching();
 
     appContext = hardwareMap.appContext;
-    quackID = appContext.getResources().getIdentifier("quack", "raw", appContext.getPackageName() );
+    soundIDs = new HashMap();
+    Resources resources = appContext.getResources();
+    soundIDs.put( Sound.CALIBRATE_INIT, resources.getIdentifier( "calibrateinit", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.CALIBRATE_RUN, resources.getIdentifier( "calibraterun", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.TELEOP_STOP, resources.getIdentifier( "teleopstop", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.AUTONOMOUS_START, resources.getIdentifier( "autonomousstart", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.BASKET, resources.getIdentifier( "basket", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.SPECIMEN, resources.getIdentifier( "specimen", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.CLIMB, resources.getIdentifier( "climb", "raw", appContext.getPackageName() ) );
   }
 
   public void debug( String message )
@@ -106,8 +128,14 @@ public class JoeBot
     }
   }
 
-  public void quack() {
-    SoundPlayer.getInstance().startPlaying( appContext, quackID );
+  public void playSound( Sound sound )
+  {
+    if( enableSoundEffects &&
+        soundIDs.containsKey( sound ) )
+    {
+      int soundID = soundIDs.get( sound ).intValue();
+      SoundPlayer.getInstance().startPlaying( appContext, soundID );
+    }
   }
 
   private void setupBulkCaching()
@@ -357,6 +385,12 @@ public class JoeBot
     );
 
     automaticallyResetHeadingUsingIMU();
+    updateState( true );
+
+    if( !intake.hasSample() )
+    {
+      playSound( Sound.BASKET );
+    }
   }
 
   public void hangSpecimen( Bar bar )
@@ -401,11 +435,11 @@ public class JoeBot
     );
 
     automaticallyResetHeadingUsingIMU();
-    //Play a sound if the specimen was hung
     updateState( true );
+
     if( !intake.hasSample() )
     {
-      quack();
+      playSound( Sound.SPECIMEN );
     }
   }
 
@@ -447,6 +481,8 @@ public class JoeBot
 
     clearBulkCache();
 
+    playSound( Sound.CLIMB );
+
     ActionTools.runBlocking( this,
       new SequentialAction(
         new MoveLift( this, Lift.Position.ABOVE_ABOVE_HANG_BAR ),
@@ -458,6 +494,7 @@ public class JoeBot
         )
       )
     );
+
   }
 
   private void stopDrive()

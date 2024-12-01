@@ -41,6 +41,7 @@ public class ManualJoeBot extends OpMode
 
     robot = new JoeBot( false, hardwareMap, telemetry );
     robot.gamepads = gamepads;
+    robot.enableSoundEffects = true;
 
     telemetry.addLine( "Initialized Manual" );
     telemetry.update();
@@ -361,6 +362,8 @@ public class ManualJoeBot extends OpMode
 
     //allow robot to be pushed around
     robot.coast();
+
+    robot.playSound( JoeBot.Sound.TELEOP_STOP );
   }
 
 }

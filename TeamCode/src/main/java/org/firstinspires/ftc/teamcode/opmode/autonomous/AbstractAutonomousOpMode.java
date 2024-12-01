@@ -85,6 +85,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     AbstractModule.encodersReset = false;
 
     robot = new JoeBot( true, hardwareMap, telemetry );
+    robot.enableSoundEffects = false;
 
     gamepads = new Gamepads( gamepad1, gamepad2 );
 
@@ -109,11 +110,17 @@ public abstract class AbstractAutonomousOpMode extends OpMode
                       0 ];
     }
 
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.A ) )
+    {
+      robot.enableSoundEffects = !robot.enableSoundEffects;
+    }
+
     final Pose2d pose = robot.mecanumDrive().pose;
     telemetry.addLine( String.format( "%s", state ) );
     telemetry.addLine( String.format( "X: %.1f", pose.position.x ) );
     telemetry.addLine( String.format( "Y: %.1f", pose.position.y ) );
     telemetry.addLine( String.format( "Heading: %.1f", Math.toDegrees( pose.heading.toDouble() ) ) );
+    telemetry.addLine( String.format( "Sound Effects: %b", robot.enableSoundEffects ) );
     telemetry.update();
 
     gamepads.storeLastButtons();
@@ -146,6 +153,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       ActionTools.runBlocking( robot,
         new MoveLift( robot, Lift.Position.TRAVEL_WITH_SPECIMEN, 500 ) );
     }
+
+    robot.playSound( JoeBot.Sound.AUTONOMOUS_START );
   }
 
   @Override
