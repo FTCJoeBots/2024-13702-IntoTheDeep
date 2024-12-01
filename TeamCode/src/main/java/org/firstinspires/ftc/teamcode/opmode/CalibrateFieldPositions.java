@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
@@ -15,7 +13,6 @@ import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.enums.Button;
 import org.firstinspires.ftc.teamcode.enums.Location;
 import org.firstinspires.ftc.teamcode.enums.Participant;
-import org.firstinspires.ftc.teamcode.modules.drive.AngleTools;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 //Tell framework that this is a TeleOp mode
@@ -139,7 +136,7 @@ public class CalibrateFieldPositions extends OpMode
       trajectory = trajectory.strafeToLinearHeading( Location.position( target ), heading );
 
       ActionTools.runBlocking( robot, trajectory.build() );
-      robot.resetHeadingUsingIMU();
+      robot.automaticallyResetHeadingUsingIMU();
     }
     else
     {

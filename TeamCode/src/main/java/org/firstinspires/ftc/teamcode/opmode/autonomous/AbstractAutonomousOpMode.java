@@ -212,12 +212,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private void park()
   {
-    //TODO park faster by extending the extension arm:
-    //compute angle between current location and observation zone
-    //rotate that way
-    //start raising the lift a little so it won't drag
-    //start extending the arm fully
-    //drive that direction as quickly as possible
     robot.debug( "Autonomous:park" );
     driveTo( new Pose2d( Location.PARK_IN_OBSERVATION_ZONE, 0 ) );
     state = AutonomousState.PARKED;
@@ -464,7 +458,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       {
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> strafe 2" );
         final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 23, -28 );
-        final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 47.0, -36 );
+        final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 47, -36 );
         final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -44 );
         final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -54 );
 
@@ -476,27 +470,29 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
         MecanumDrive drive = robot.mecanumDrive();
         ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
-
           //strafe in first sample
-          .strafeToConstantHeading( NEAR_TEAM_SAMPLES_1 )
+          .strafeToLinearHeading( NEAR_TEAM_SAMPLES_1, faceUp )
           .splineToConstantHeading( NEAR_TEAM_SAMPLES_2, faceUp )
-          .splineToSplineHeading( new Pose2d( TEAM_SAMPLE_1, faceRight ), 1.6 )
+          .splineToSplineHeading( new Pose2d( TEAM_SAMPLE_1, faceRight ), 0 )
           .strafeToLinearHeading( strafePos1, faceRight )
 
           //strafe in second sample
-          .splineToConstantHeading( new Vector2d( TEAM_SAMPLE_1.x, strafePos1.y - 9 ), 0 )
+          .strafeToLinearHeading( new Vector2d( strafePos1.x + 20, strafePos1.y + 2 ), faceRight )
           .splineToConstantHeading( TEAM_SAMPLE_2, faceRight )
           .strafeToLinearHeading( strafePos2, faceRight )
 
-           .build() );
+          .build() );
 
         teamSamples -= 2;
       }
       //grab specimen
       else
       {
-        // strafe quicker by using linear heading interperlations
-        driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ), false );
+        final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 17.6 , -48 );
+        final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 2.4, -48 );
+
+        // strafe quickly by using linear heading interpolation
+        driveTo( new Pose2d( NEAR_THE_OBSERVATION_ZONE, Math.PI ), false );
 
         ActionTools.runBlocking( robot,
           new SequentialAction(
@@ -506,29 +502,25 @@ public abstract class AbstractAutonomousOpMode extends OpMode
               new MoveExtensionArm( robot, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value ),
               new OperateIntake( robot, Intake.Direction.PULL, 0 )
             ),
-            // give the human player a chance to get the specimen ready.
-            new SleepAction( 0.5 )
+            // give the human player a second to position the specimen
+            new SleepAction( 1 )
           )
         );
 
-        //drive to receive a specimen
-        driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ), false );
+        //drive into specimen
+        driveTo( new Pose2d( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ), false );
+       robot.updateState( true );
 
-        robot.updateState( true );
         if( robot.intake().hasSample() )
         {
           state = AutonomousState.HAVE_SPECIMEN;
         }
-        else
+        else if( !timeRunningOut() )
         {
-          while( true )
+          driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+          if( retrieveSpecimen() )
           {
-            driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
-            if( retrieveSpecimen() )
-            {
-              state = AutonomousState.HAVE_SPECIMEN;
-              break;
-            }
+            state = AutonomousState.HAVE_SPECIMEN;
           }
         }
       }

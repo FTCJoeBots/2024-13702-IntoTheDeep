@@ -14,10 +14,8 @@ import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
-import org.firstinspires.ftc.teamcode.modules.drive.AngleTools;
 
 import java.util.EnumSet;
-import java.util.List;
 
 //Tell framework that this is a TeleOp mode
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )

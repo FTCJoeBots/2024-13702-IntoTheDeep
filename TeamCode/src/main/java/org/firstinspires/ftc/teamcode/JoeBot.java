@@ -16,7 +16,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
-import org.firstinspires.ftc.teamcode.actions.RunIntake;
 import org.firstinspires.ftc.teamcode.actions.GrabSample;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
@@ -193,7 +192,7 @@ public class JoeBot
     { imu.resetYaw(); }
   }
 
-  public void resetHeadingUsingIMU()
+  public void automaticallyResetHeadingUsingIMU()
   {
     final double deadWheelHeading = Math.toDegrees( mecanumDrive.pose.heading.toDouble() );
     final double imuHeading = imu.getRobotYawPitchRollAngles().getYaw( AngleUnit.DEGREES );
@@ -207,7 +206,6 @@ public class JoeBot
       Pose2d updatedPose = new Pose2d( mecanumDrive.pose.position, Math.toRadians( imuHeading ) );
       mecanumDrive.pose = updatedPose;
     }
-
   }
 
   public void cachePos()

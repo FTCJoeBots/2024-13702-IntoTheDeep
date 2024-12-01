@@ -28,7 +28,6 @@ public class MeepMeepTesting {
 
     RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
       // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-//      .setConstraints(50, 50, Math.PI, Math.PI, 15)
       .setConstraints(50, 50, Math.PI, Math.PI, 15)
       .build();
 
@@ -253,7 +252,6 @@ public class MeepMeepTesting {
       .strafeTo( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ) )
 
       //hang specimen
-//      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
       .strafeToSplineHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
       .waitSeconds( hangSpecimenDelay )
 
@@ -291,12 +289,12 @@ public class MeepMeepTesting {
     final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
     final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20, -47 );
     final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 11, -47 );
-    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 3, -47 );
-    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 25, -28 );
-    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 47.0, -35 );
+    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 2.4, -48 );
+    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 23, -28 );
+    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 47, -36 );
     final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -44 );
     final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -54 );
-    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 0, -61 );
+    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 5, -50 );
 
     final double faceUp = computeAngle( 0 );
     final double faceDown = computeAngle( 180 );
@@ -313,35 +311,32 @@ public class MeepMeepTesting {
       .waitSeconds( hangSpecimenDelay )
 
       //strafe in first sample
-      .strafeToConstantHeading( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_1.x - 2,
-        NEAR_TEAM_SAMPLES_1.y - 0 ) ) )
-      .splineToConstantHeading( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_2.x - 0,
-        NEAR_TEAM_SAMPLES_2.y - 1 ) ), faceUp )
-      .splineToSplineHeading( new Pose2d( computePosition( TEAM_SAMPLE_1 ), faceRight ), 1.6 )
+      .strafeToLinearHeading( computePosition( NEAR_TEAM_SAMPLES_1 ), faceUp )
+      .splineToConstantHeading( computePosition( NEAR_TEAM_SAMPLES_2 ), faceUp )
+      .splineToSplineHeading( new Pose2d( computePosition( TEAM_SAMPLE_1 ), faceRight ), 0 )
       .strafeToLinearHeading( computePosition( strafePos1 ), faceRight )
 
       //strafe in second sample
-      .splineToConstantHeading( computePosition( new Vector2d( TEAM_SAMPLE_1.x, strafePos1.y - 9 ) ), 0 )
+      .strafeToLinearHeading( computePosition( new Vector2d( strafePos1.x + 20,
+                                                             strafePos1.y + 2 ) ), faceRight )
       .splineToConstantHeading( computePosition( TEAM_SAMPLE_2 ), faceRight )
       .strafeToLinearHeading( computePosition( strafePos2 ), faceRight )
 
       //grab specimen
       .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .waitSeconds( 0.5 ) //wait for human operator
+      .waitSeconds( 1 ) //wait for human operator
       .strafeTo( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ) )
 
       //hang specimen
-      //      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
       .strafeToSplineHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //grab specimen
       .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .waitSeconds( 0.5 ) //wait for human operator
+      .waitSeconds( 1 ) //wait for human operator
       .strafeToLinearHeading( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ), faceDown )
 
       //hang specimen
-      //      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
       .strafeToSplineHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
       .waitSeconds( hangSpecimenDelay )
 
