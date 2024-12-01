@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.modules.drive;
 
-import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.enums.PresetDirection;
 import org.firstinspires.ftc.teamcode.enums.RotateDirection;
 
@@ -14,7 +13,7 @@ public class AngleTools
       left += 360;
     }
 
-    double right = 360 - left;
+    final double right = 360 - left;
 
     if( left <= right )
     { return RotateDirection.LEFT; }
@@ -54,9 +53,13 @@ public class AngleTools
     }
   }
 
-  public static double angleDifference( JoeBot robot, double angle )
+  //returns the difference between two angles in degrees
+  public static double angleDifference( double angle1, double angle2 )
   {
-    double robotHeading = Math.toDegrees( robot.drive().getPos().heading.toDouble() );
-    return Math.abs( robotHeading - angle );
+    //find the bigger and smaller angle and convert from [-180, 180] to [0, 360]
+    final double biggerAngle = Math.max( angle1, angle2 ) + 180;
+    final double smallerAngle = Math.min( angle1, angle2 ) + 180;
+    return Math.min( biggerAngle - smallerAngle,
+                     smallerAngle + (360 - biggerAngle ) );
   }
 }

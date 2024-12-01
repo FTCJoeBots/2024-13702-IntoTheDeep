@@ -187,28 +187,17 @@ public class Drive extends AbstractModule
     }
     else if( currentAction == CurrentAction.ROTATE )
     {
-      double currAngle = AngleTools.angleForHeading( Math.toDegrees( pose.heading.toDouble() ) );
+      final double currAngle = AngleTools.angleForHeading( Math.toDegrees( pose.heading.toDouble() ) );
+      final double angleDifference = AngleTools.angleDifference( currAngle, targetAngle );
 
-      double maxAngle = Math.max( currAngle, targetAngle );
-      double minAngle = Math.min( currAngle, targetAngle );
-
-      double angleDifference1 = maxAngle - minAngle;
-      double angleDifference2 = 360 - angleDifference1;
-
-      double smallerAngleDifference = Math.min( angleDifference1, angleDifference2 );
-
-      if( smallerAngleDifference < ANGLE_THRESHOLD )
+      if( angleDifference < ANGLE_THRESHOLD )
       {
         currentAction = CurrentAction.DOING_NOTHING;
       }
-      //comment this out so we can debug what the code is trying to do
       else
       {
-        rotate = computeRotateSpeed( smallerAngleDifference );
-
-        //###
+        rotate = computeRotateSpeed( angleDifference );
         targetDirection = AngleTools.quickestDirection( currAngle, targetAngle );
-        //###
 
         if( targetDirection == RotateDirection.RIGHT )
         {
