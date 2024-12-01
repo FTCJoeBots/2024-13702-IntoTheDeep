@@ -80,14 +80,15 @@ public final class MecanumDrive {
         // feedforward parameters (in tick units)
         //DONE - calibrate using ForwardRampLogger (because we use dead wheels)
         //TODO - fine tune using ManualFeedforwardTuner
-        public double kS = 0.9860318031786472; //1.1817249640551513;
-        public double kV = 0.00011254266830760284; //0.00010173382026772806;
+        public double kS = 0.9860318031786472;
+        public double kV = 0.00011254266830760284;
 
         //DONE - calibrate using ManualFeedforwardTuner
-        public double kA = 0.00003; //0.00002;
+        public double kA = 0.00003;
 
+        //DONE - increased max wheel velocity from 50 to 60
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
+        public double maxWheelVel = 60;
         public double minProfileAccel = -30;
         public double maxProfileAccel = 50;
 

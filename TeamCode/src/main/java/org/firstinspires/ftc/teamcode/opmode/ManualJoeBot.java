@@ -14,10 +14,8 @@ import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
-import org.firstinspires.ftc.teamcode.modules.drive.AngleTools;
 
 import java.util.EnumSet;
-import java.util.List;
 
 //Tell framework that this is a TeleOp mode
 @TeleOp( name = "Manual Joe Bot", group = "Iterative Opmode" )
@@ -32,8 +30,6 @@ public class ManualJoeBot extends OpMode
   private Module currentModule = Module.values()[ 0 ];
   private JoeBot robot = null;
   private Gamepads gamepads = null;
-
-  private final double angleTolerance = 20;
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -78,6 +74,8 @@ public class ManualJoeBot extends OpMode
   {
     //Prevent robot from being pushed around
     robot.brake();
+
+    //update state including the color sensor
     robot.updateState( true );
   }
 
@@ -124,15 +122,13 @@ public class ManualJoeBot extends OpMode
     //==================
     //High basket - x + dpad_up
     if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_UP, Button.X ) ) &&
-         robot.intake().hasSample() )
-//        ( AngleTools.angleDifference( robot, 135 ) < angleTolerance || !JoeBot.competition ) )
+        robot.intake().hasSample() )
     {
       robot.placeSampleInBasket( Basket.HIGH_BASKET );
     }
     //Low basket - x + dpad_down
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.DPAD_DOWN, Button.X ) ) &&
-      robot.intake().hasSample() )
-//             ( AngleTools.angleDifference( robot, 135 ) < angleTolerance || !JoeBot.competition ) )
+             robot.intake().hasSample() )
     {
       robot.placeSampleInBasket( Basket.LOW_BASKET );
     }
@@ -145,15 +141,13 @@ public class ManualJoeBot extends OpMode
 
     //Hang specimen from high bar - x + dpad_left
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) &&
-      robot.intake().hasSample() )
-    //             ( AngleTools.angleDifference( robot, 0 ) < angleTolerance || !JoeBot.competition ) )
+             robot.intake().hasSample() )
     {
       robot.hangSpecimen( Bar.HIGH_BAR );
     }
     //Hang specimen from low bar - x + dpad_right
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_RIGHT ) ) &&
-      robot.intake().hasSample() )
-    //             ( AngleTools.angleDifference( robot, 0 ) < angleTolerance || !JoeBot.competition ) )
+             robot.intake().hasSample() )
     {
       robot.hangSpecimen( Bar.LOW_BAR );
     }
@@ -190,7 +184,14 @@ public class ManualJoeBot extends OpMode
     //==================
     //Climb Arm
     //==================
-    robot.climbArm().setPower( -gamepad2.left_trigger + gamepad2.right_trigger );
+    if( gamepad2.right_trigger != 0 )
+    {
+      robot.climbArm().retractHooks();
+    }
+    else if( gamepad2.left_trigger != 0 )
+    {
+      robot.climbArm().raiseHooks();
+    }
 
     //==================
     //Intake
@@ -360,8 +361,6 @@ public class ManualJoeBot extends OpMode
 
     //allow robot to be pushed around
     robot.coast();
-
-    JoeBot.competition = false;
   }
 
 }

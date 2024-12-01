@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -13,7 +16,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
+import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
+import org.firstinspires.ftc.teamcode.actions.OperateIntake;
 import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.enums.Button;
@@ -21,6 +26,7 @@ import org.firstinspires.ftc.teamcode.enums.Location;
 import org.firstinspires.ftc.teamcode.enums.Participant;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.enums.Team;
+import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -85,10 +91,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     //prevent resetting encoders again
     AbstractModule.encodersReset = true;
 
-    //always reset the position and heading at the beginning of Autonomous
-    telemetry.log().add( "Resetting Position" );
-    robot.resetPos( defaultPos() );
-
     telemetry.log().add( "Initialized Auto" );
     telemetry.update();
 
@@ -123,15 +125,18 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     //reset the timer when the game starts
     time.reset();
 
-    JoeBot.competition = true;
-
     //clear screen
     telemetry.update();
 
     //Prevent robot from being pushed around
     robot.brake();
 
-    robot.updateState();
+    //always reset the position and heading at the beginning of Autonomous
+    telemetry.log().add( "Resetting Position and Heading" );
+    robot.resetPos( defaultPos() );
+
+    //update robot state including the color sensor
+    robot.updateState( true );
 
     //raise list before driving to avoid dragging sample on the ground
     //if lift motions are enabled we'll immediately raise the lift before driving so
@@ -183,7 +188,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
          break;
 
       case HANG_SPECIMENS_ON_BARS:
-        specimenStrategy();
+        hangThreeSpecimenStrafeOneStrategy();
+//        hangThreeSpecimenStrafeTwoSampleStrategy();
         break;
     }
   }
@@ -206,12 +212,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private void park()
   {
-    //TODO park faster by extending the extension arm:
-    //compute angle between current location and observation zone
-    //rotate that way
-    //start raising the lift a little so it won't drag
-    //start extending the arm fully
-    //drive that direction as quickly as possible
     robot.debug( "Autonomous:park" );
     driveTo( new Pose2d( Location.PARK_IN_OBSERVATION_ZONE, 0 ) );
     state = AutonomousState.PARKED;
@@ -317,7 +317,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     }
   }
 
-  private void specimenStrategy()
+  private void hangThreeSpecimenStrafeOneStrategy()
   {
     if( state == AutonomousState.PARKED )
     { return; }
@@ -331,8 +331,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     else if( state == AutonomousState.HAVE_SPECIMEN )
     {
       robot.debug( "SpecimenAuto:HAVE_SPECIMEN -> hangSpecimen" );
-      Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.x + 2 * specimensHung,
-                                        Location.SPECIMEN_BAR_RIGHT.y + 3 * specimensHung );
+      Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.x + 1 * specimensHung,
+                                        Location.SPECIMEN_BAR_RIGHT.y + 6 * specimensHung );
       if( enableLiftMotions )
       {
         robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
@@ -372,7 +372,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         robot.debug( "SpecimenAuto:HAVE_NOTHING -> strafe and retrieve" );
 
         final double faceLeft = Math.toRadians( 90 );
-        final double faceRight = Math.toRadians( -90 );
 
         Vector2d strafePos = new Vector2d( Location.STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, Location.TEAM_SAMPLE_1.y );
 
@@ -381,50 +380,21 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
         MecanumDrive drive = robot.mecanumDrive();
 
-        //experimental
-        final boolean useSplines = false;
-
-        //we have enough time to strafe in a second sample but not
-        //if we want to hang three specimens currently
-        final boolean strafeTwoSamples = false;
-
         //strafe in the first team sample
         if( teamSamples == 3 )
         {
-          if( useSplines )
-          {
-            ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
-              .turnTo( faceRight )
-              .splineTo( Location.NEAR_TEAM_SAMPLES_1, faceRight )
-              .splineTo( Location.NEAR_TEAM_SAMPLES_2, faceRight )
-              .splineTo( Location.TEAM_SAMPLE_1, faceRight )
-              .strafeTo( strafePos ).build() );
-          }
-          else
-          {
-            ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
-              .strafeToLinearHeading( Location.NEAR_TEAM_SAMPLES_1, faceLeft )
-              .strafeTo( Location.NEAR_TEAM_SAMPLES_2 )
-              .strafeTo( Location.TEAM_SAMPLE_1 )
-              .strafeTo( strafePos ).build() );
-          }
-
-          teamSamples--;
-        }
-        else if( teamSamples == 2 &&
-                 strafeTwoSamples )
-        {
           ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+            .strafeToLinearHeading( Location.NEAR_TEAM_SAMPLES_1, faceLeft )
+            .strafeTo( Location.NEAR_TEAM_SAMPLES_2 )
             .strafeTo( Location.TEAM_SAMPLE_1 )
-            .strafeTo( Location.TEAM_SAMPLE_2 )
-            .strafeTo( strafePos )
-              .build() );
+            .strafeTo( strafePos ).build() );
 
           teamSamples--;
         }
         else
         {
           driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+
           state = retrieveSpecimen() ?
             AutonomousState.HAVE_SPECIMEN :
             AutonomousState.HAVE_NOTHING;
@@ -433,19 +403,115 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     }
   }
 
-  private void driveTo( Pose2d pose )
+  private void hangThreeSpecimenStrafeTwoSampleStrategy()
   {
-    driveTo( Collections.singletonList( pose ) );
+    if( state == AutonomousState.PARKED )
+    { return; }
+
+    if( timeRunningOut() ||
+      specimensHung >= 3 )
+    {
+      robot.debug( "SpecimenAuto:parking!" );
+      park();
+    }
+    else if( state == AutonomousState.HAVE_SPECIMEN )
+    {
+      robot.debug( "SpecimenAuto:HAVE_SPECIMEN -> hangSpecimen" );
+      Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.x + 1 * specimensHung,
+                                        Location.SPECIMEN_BAR_RIGHT.y + 6 * specimensHung );
+      if( enableLiftMotions )
+      {
+        robot.lift().travelTo( Lift.Position.ABOVE_HIGH_SPECIMEN_BAR );
+      }
+
+      // use a spline heading so that we don't hit the wall when we are turning
+      driveTo( new Pose2d( location, 0 ), true );
+
+      if( enableLiftMotions )
+      {
+        robot.hangSpecimen( Bar.HIGH_BAR );
+      }
+      else
+      {
+        robot.giveUpSample();
+      }
+      specimensHung++;
+      state = AutonomousState.HAVE_NOTHING;
+    }
+    else if( state == AutonomousState.HAVE_SAMPLE )
+    {
+      robot.debug( "SpecimenAuto:HAVE_SAMPLE -> giveUp/retrieve" );
+      driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
+      robot.giveUpSample();
+
+      state = retrieveSpecimen() ?
+        AutonomousState.HAVE_SPECIMEN :
+        AutonomousState.HAVE_NOTHING;
+    }
+    else if( state == AutonomousState.HAVE_NOTHING )
+    {
+      if( specimensHung == 3 )
+      {
+        robot.debug( "SpecimenAuto:HAVE_NOTHING -> we have hung 3" );
+        park();
+      }
+      // strafing in samples
+      else if( teamSamples == 3 )
+      {
+        robot.debug( "SpecimenAuto:HAVE_NOTHING -> strafe 2" );
+        final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 21, -28 );
+        final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 47, -36 );
+        final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -44 );
+        final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -54 );
+
+        final double faceUp = Math.toRadians( 0 );
+        final double faceRight = Math.toRadians( -90 );
+
+        Vector2d strafePos1 = new Vector2d( 10, TEAM_SAMPLE_1.y );
+
+        //strafe in a sample
+        MecanumDrive drive = robot.mecanumDrive();
+        ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+          .strafeToLinearHeading( NEAR_TEAM_SAMPLES_1, faceUp )
+          .splineToConstantHeading( NEAR_TEAM_SAMPLES_2, faceUp )
+          .splineToSplineHeading( new Pose2d( TEAM_SAMPLE_1, faceRight ), 0 )
+          .strafeToLinearHeading( strafePos1, faceRight )
+          .build() );
+
+        teamSamples--;
+      }
+      //grab specimen
+      else
+      {
+        driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+        if( retrieveSpecimen() )
+        {
+          state = AutonomousState.HAVE_SPECIMEN;
+        }
+      }
+    }
   }
 
-  private void driveTo( List<Pose2d> poses )
+  private void driveTo( Pose2d pose )
+  {
+    driveTo( Collections.singletonList( pose ), false );
+  }
+
+  private void driveTo( Pose2d pose, boolean useSplineHeading )
+  {
+    driveTo( Collections.singletonList( pose ), useSplineHeading );
+  }
+
+  private void driveTo( List<Pose2d> poses, boolean useSplineHeading )
   {
     MecanumDrive drive = robot.mecanumDrive();
 
     TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
     for( Pose2d pose : poses )
     {
-      trajectory = trajectory.strafeToLinearHeading( pose.position, pose.heading.toDouble() );
+      trajectory = useSplineHeading ?
+        trajectory.strafeToSplineHeading( pose.position, pose.heading.toDouble() ) :
+        trajectory.strafeToLinearHeading( pose.position, pose.heading.toDouble() );
     }
 
     ActionTools.runBlocking( robot, trajectory.build() );
@@ -453,6 +519,9 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   private boolean retrieveSpecimen()
   {
+    //give human player a change to position the specimen
+    ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
+
     driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
 
     while( !timeRunningOut() )
@@ -464,6 +533,10 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       else
       {
         driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+
+        //give human player a change to position the specimen
+        ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
+
         driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
       }
     }

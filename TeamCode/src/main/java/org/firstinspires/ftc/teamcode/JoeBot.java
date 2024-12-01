@@ -9,17 +9,23 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+
 import com.qualcomm.ftccommon.SoundPlayer;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
-import org.firstinspires.ftc.teamcode.actions.RunIntake;
 import org.firstinspires.ftc.teamcode.actions.GrabSample;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
+import org.firstinspires.ftc.teamcode.actions.MoveLiftToClimb;
+import org.firstinspires.ftc.teamcode.actions.OperateClimbArm;
 import org.firstinspires.ftc.teamcode.actions.OperateIntake;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.modules.ClimbArm;
+import org.firstinspires.ftc.teamcode.modules.drive.AngleTools;
 import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
@@ -46,11 +52,11 @@ public class JoeBot
   private List<LynxModule> hubs;
   private MecanumDrive mecanumDrive = null;
   private Drive drive = null;
+  private IMU imu = null;
 
   private static Pose2d pose = new Pose2d( 0, 0, 0 );
 
   public static boolean debugging = true;
-  public static boolean competition = false;
 
   private int quackID;
   private Context appContext;
@@ -76,6 +82,11 @@ public class JoeBot
     {
       drive = new Drive( hardwareMap, telemetry, pose );
     }
+
+    imu = hardwareMap.get( IMU.class, "imu" );
+
+    RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
+    imu.initialize( new IMU.Parameters( orientationOnRobot ) );
 
     //setup bulk caching AFTER we create the MecanumDrive since when tuning
     //RoadRunner they prefer to run using Auto instead of Manual mode
@@ -136,6 +147,9 @@ public class JoeBot
   public ClimbArm climbArm()
   { return climbArm; }
 
+  public IMU imu()
+  { return imu; }
+
   public void coast()
   {
     if( drive != null )
@@ -187,6 +201,33 @@ public class JoeBot
 
     if( mecanumDrive != null )
     { mecanumDrive.pose = pose; }
+
+    if( imu != null )
+    { imu.resetYaw(); }
+  }
+
+  public void automaticallyResetHeadingUsingIMU()
+  {
+    Pose2d pose = mecanumDrive != null ?
+                  mecanumDrive.pose :
+                  drive.getPos();
+
+    final double deadWheelHeading = Math.toDegrees( pose.heading.toDouble() );
+    final double imuHeading = imu.getRobotYawPitchRollAngles().getYaw( AngleUnit.DEGREES );
+    final double angleDifference = AngleTools.angleDifference( deadWheelHeading, imuHeading );
+
+    if( angleDifference > 0.5 )
+    {
+      telemetry.log().add( "angleDifference: %f", angleDifference );
+      telemetry.log().add( "Resetting heading from %f to %f", deadWheelHeading, imuHeading );
+
+      Pose2d updatedPose = new Pose2d( pose.position, Math.toRadians( imuHeading ) );
+
+      if( mecanumDrive != null )
+      { mecanumDrive.pose = updatedPose; }
+      else
+      { drive.resetPose( updatedPose ); }
+    }
   }
 
   public void cachePos()
@@ -217,6 +258,7 @@ public class JoeBot
 
     lift.updateState();
     extensionArm.updateState();
+    climbArm.updateState();
     intake.updateState( force );
   }
 
@@ -229,6 +271,8 @@ public class JoeBot
         new SleepAction( milliseconds )
       )
     );
+
+    automaticallyResetHeadingUsingIMU();
   }
 
   public void grabSample( boolean isSpecimen )
@@ -253,6 +297,8 @@ public class JoeBot
         )
       )
     );
+
+    automaticallyResetHeadingUsingIMU();
   }
 
   public void retrieveSample()
@@ -269,6 +315,8 @@ public class JoeBot
         new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
       )
     );
+
+    automaticallyResetHeadingUsingIMU();
   }
 
   public void giveUpSample()
@@ -307,6 +355,8 @@ public class JoeBot
         new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );
+
+    automaticallyResetHeadingUsingIMU();
   }
 
   public void hangSpecimen( Bar bar )
@@ -350,6 +400,7 @@ public class JoeBot
       )
     );
 
+    automaticallyResetHeadingUsingIMU();
     //Play a sound if the specimen was hung
     updateState( true );
     if( !intake.hasSample() )
@@ -387,26 +438,26 @@ public class JoeBot
   {
     debug( "JotBot::levelTwoAscent()" );
 
-    //Turning off for now as the robot gets stuck and the red line on the left lift motor can break
-    /*
-    debug( "Level Two Ascent:" );
-
     //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
     //while the motion if being performed
     stopDrive();
+
+    //save power by making drive wheels coast
+    coast();
 
     clearBulkCache();
 
     ActionTools.runBlocking( this,
       new SequentialAction(
-        new MoveLift( this, Lift.Position.ABOVE_LOW_HANG_BAR ),
-        new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_CLIMB.value ),
-        new MoveLift( this, Lift.Position.TOUCHING_LOW_HANG_BAR, 1000 ),
-        new MoveExtensionArmToClimb( this ),
-        new MoveLiftToClimb( this )
+        new MoveLift( this, Lift.Position.ABOVE_ABOVE_HANG_BAR ),
+        new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
+        new MoveLiftToClimb( this ),
+        new ParallelAction(
+          new MoveExtensionArm( this, ExtensionArm.Position.RETRACT_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
+          new OperateClimbArm( this, true )
+        )
       )
     );
-    */
   }
 
   private void stopDrive()
