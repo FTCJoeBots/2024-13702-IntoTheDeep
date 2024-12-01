@@ -86,9 +86,9 @@ public final class MecanumDrive {
         //DONE - calibrate using ManualFeedforwardTuner
         public double kA = 0.00003;
 
-        //TODO - //change these from 50 to 60?
+        //DONE - increased max wheel velocity from 50 to 60
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
+        public double maxWheelVel = 60;
         public double minProfileAccel = -30;
         public double maxProfileAccel = 50;
 

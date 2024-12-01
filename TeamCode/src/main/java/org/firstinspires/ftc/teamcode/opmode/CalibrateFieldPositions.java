@@ -132,11 +132,11 @@ public class CalibrateFieldPositions extends OpMode
       }
       double heading = Math.toRadians( angle );
 
+      robot.automaticallyResetHeadingUsingIMU();
+
       TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
       trajectory = trajectory.strafeToLinearHeading( Location.position( target ), heading );
-
       ActionTools.runBlocking( robot, trajectory.build() );
-      robot.automaticallyResetHeadingUsingIMU();
     }
     else
     {

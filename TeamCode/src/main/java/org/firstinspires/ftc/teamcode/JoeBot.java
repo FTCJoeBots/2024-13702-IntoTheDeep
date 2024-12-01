@@ -79,7 +79,6 @@ public class JoeBot
 
     RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
     imu.initialize( new IMU.Parameters( orientationOnRobot ) );
-    imu.resetYaw();
 
     //setup bulk caching AFTER we create the MecanumDrive since when tuning
     //RoadRunner they prefer to run using Auto instead of Manual mode
@@ -194,17 +193,25 @@ public class JoeBot
 
   public void automaticallyResetHeadingUsingIMU()
   {
-    final double deadWheelHeading = Math.toDegrees( mecanumDrive.pose.heading.toDouble() );
+    Pose2d pose = mecanumDrive != null ?
+                  mecanumDrive.pose :
+                  drive.getPos();
+
+    final double deadWheelHeading = Math.toDegrees( pose.heading.toDouble() );
     final double imuHeading = imu.getRobotYawPitchRollAngles().getYaw( AngleUnit.DEGREES );
     final double angleDifference = AngleTools.angleDifference( deadWheelHeading, imuHeading );
 
-    if( angleDifference > 1 )
+    if( angleDifference > 0.5 )
     {
       telemetry.log().add( "angleDifference: %f", angleDifference );
       telemetry.log().add( "Resetting heading from %f to %f", deadWheelHeading, imuHeading );
 
-      Pose2d updatedPose = new Pose2d( mecanumDrive.pose.position, Math.toRadians( imuHeading ) );
-      mecanumDrive.pose = updatedPose;
+      Pose2d updatedPose = new Pose2d( pose.position, Math.toRadians( imuHeading ) );
+
+      if( mecanumDrive != null )
+      { mecanumDrive.pose = updatedPose; }
+      else
+      { drive.resetPose( updatedPose ); }
     }
   }
 
@@ -248,6 +255,8 @@ public class JoeBot
         new SleepAction( milliseconds )
       )
     );
+
+    automaticallyResetHeadingUsingIMU();
   }
 
   public void grabSample( boolean isSpecimen )
@@ -272,6 +281,8 @@ public class JoeBot
         )
       )
     );
+
+    automaticallyResetHeadingUsingIMU();
   }
 
   public void retrieveSample()
@@ -288,6 +299,8 @@ public class JoeBot
         new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value )
       )
     );
+
+    automaticallyResetHeadingUsingIMU();
   }
 
   public void giveUpSample()
@@ -326,6 +339,8 @@ public class JoeBot
         new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );
+
+    automaticallyResetHeadingUsingIMU();
   }
 
   public void hangSpecimen( Bar bar )
@@ -368,6 +383,8 @@ public class JoeBot
         new MoveLift( this, Lift.Position.FLOOR, 0 )
       )
     );
+
+    automaticallyResetHeadingUsingIMU();
   }
 
   public void levelOneAscent()

@@ -45,9 +45,9 @@ public class Lift extends AbstractModule
     LOW_BASKET( 3302 ),
 
     //hanging specimens
-    ABOVE_HIGH_SPECIMEN_BAR( 3444 ),
+    ABOVE_HIGH_SPECIMEN_BAR( 3384 ),
     ABOVE_LOW_SPECIMEN_BAR( 1912 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3175 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3135 ),
     SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1590 ),
 
     //level 1 ascent
