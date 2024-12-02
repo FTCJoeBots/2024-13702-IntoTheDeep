@@ -363,7 +363,7 @@ public class ManualJoeBot extends OpMode
     //allow robot to be pushed around
     robot.coast();
 
-    robot.playSound( JoeBot.Sound.TELEOP_STOP );
+    robot.playSound( JoeBot.Sound.TELEOP_STOP, false );
   }
 
 }

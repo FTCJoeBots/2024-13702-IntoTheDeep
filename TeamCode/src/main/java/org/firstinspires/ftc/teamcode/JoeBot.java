@@ -15,6 +15,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.ftccommon.SoundPlayer;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
 import org.firstinspires.ftc.teamcode.actions.GrabSample;
@@ -128,14 +129,29 @@ public class JoeBot
     }
   }
 
-  public void playSound( Sound sound )
+  public void playSound( Sound sound, boolean loop )
   {
     if( enableSoundEffects &&
         soundIDs.containsKey( sound ) )
     {
       int soundID = soundIDs.get( sound ).intValue();
-      SoundPlayer.getInstance().startPlaying( appContext, soundID );
+
+      // create a sound parameter that holds the desired player parameters.
+      SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
+      params.loopControl = loop ? -1 : 0;
+      params.loopControl = 0;
+      params.waitForNonLoopingSoundsToFinish = false;
+
+      SoundPlayer player = SoundPlayer.getInstance();
+      player.stopPlayingAll();
+      player.startPlaying( appContext, soundID, params, null, null );
     }
+  }
+
+  public void stopPlayingLoopingSounds()
+  {
+    SoundPlayer player = SoundPlayer.getInstance();
+    player.stopPlayingLoops();
   }
 
   private void setupBulkCaching()
@@ -241,8 +257,16 @@ public class JoeBot
                   drive.getPos();
 
     final double deadWheelHeading = Math.toDegrees( pose.heading.toDouble() );
-    final double imuHeading = imu.getRobotYawPitchRollAngles().getYaw( AngleUnit.DEGREES );
+
+    final YawPitchRollAngles imuAngles = imu.getRobotYawPitchRollAngles();
+
+    //acquistion time will be 0 if IMU is unresponsive
+    if( imuAngles.getAcquisitionTime() == 0 )
+    { return; }
+
+    final double imuHeading = imuAngles.getYaw( AngleUnit.DEGREES );
     final double angleDifference = AngleTools.angleDifference( deadWheelHeading, imuHeading );
+
 
     if( angleDifference > 0.5 )
     {
@@ -389,7 +413,7 @@ public class JoeBot
 
     if( !intake.hasSample() )
     {
-      playSound( Sound.BASKET );
+      playSound( Sound.BASKET, false );
     }
   }
 
@@ -439,7 +463,7 @@ public class JoeBot
 
     if( !intake.hasSample() )
     {
-      playSound( Sound.SPECIMEN );
+      playSound( Sound.SPECIMEN, false );
     }
   }
 
@@ -481,7 +505,7 @@ public class JoeBot
 
     clearBulkCache();
 
-    playSound( Sound.CLIMB );
+    playSound( Sound.CLIMB, false );
 
     ActionTools.runBlocking( this,
       new SequentialAction(

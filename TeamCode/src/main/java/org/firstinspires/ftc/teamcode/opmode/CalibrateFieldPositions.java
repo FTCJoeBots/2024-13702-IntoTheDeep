@@ -37,7 +37,7 @@ public class CalibrateFieldPositions extends OpMode
     gamepads = new Gamepads( gamepad1, gamepad2 );
 
     robot.enableSoundEffects = true;
-    robot.playSound( JoeBot.Sound.CALIBRATE_INIT );
+    robot.playSound( JoeBot.Sound.CALIBRATE_INIT, true );
   }
 
   @Override
@@ -64,7 +64,7 @@ public class CalibrateFieldPositions extends OpMode
     robot.brake();
     robot.resetPos( new Vector2d( 0, 0 ) );
     robot.imu().resetYaw();
-    robot.playSound( JoeBot.Sound.CALIBRATE_RUN );
+    robot.playSound( JoeBot.Sound.CALIBRATE_RUN, true );
   }
 
   @Override
@@ -153,4 +153,10 @@ public class CalibrateFieldPositions extends OpMode
 
     gamepads.storeLastButtons();
   }
+
+  public void stop()
+  {
+    robot.stopPlayingLoopingSounds();
+  }
+
 }

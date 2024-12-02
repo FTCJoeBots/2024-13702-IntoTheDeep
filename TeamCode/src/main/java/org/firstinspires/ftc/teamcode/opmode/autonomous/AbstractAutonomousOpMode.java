@@ -154,7 +154,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         new MoveLift( robot, Lift.Position.TRAVEL_WITH_SPECIMEN, 500 ) );
     }
 
-    robot.playSound( JoeBot.Sound.AUTONOMOUS_START );
+    robot.playSound( JoeBot.Sound.AUTONOMOUS_START, false );
   }
 
   @Override
