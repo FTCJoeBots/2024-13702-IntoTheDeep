@@ -41,7 +41,6 @@ public class ManualJoeBot extends OpMode
 
     robot = new JoeBot( false, hardwareMap, telemetry );
     robot.gamepads = gamepads;
-    robot.enableSoundEffects = true;
 
     telemetry.addLine( "Initialized Manual" );
     telemetry.update();
@@ -68,6 +67,11 @@ public class ManualJoeBot extends OpMode
   {
     //Print out location so we can calibrate X,Y positions and verify heading
     robot.drive().printTelemetry();
+
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.A ) )
+    {
+      robot.enableSoundEffects = !robot.enableSoundEffects;
+    }
   }
 
   @Override
