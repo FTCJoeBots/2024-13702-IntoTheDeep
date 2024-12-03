@@ -221,7 +221,7 @@ public class Lift extends AbstractModule
     if( diff <= 2 )
     {
       telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", diff ) );
-      stop();
+      currentAction = Action.STOPPED;
     }
 
     //switch from floating to using power once we get close to our target position
