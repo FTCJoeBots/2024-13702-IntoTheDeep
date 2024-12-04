@@ -12,8 +12,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
+import com.qualcomm.ftccommon.SoundPlayer;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.GiveUpSample;
 import org.firstinspires.ftc.teamcode.actions.GrabSample;
@@ -33,6 +35,10 @@ import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
+import android.content.Context;
+import android.content.res.Resources;
+
+import java.util.HashMap;
 import java.util.List;
 
 @Config
@@ -54,6 +60,21 @@ public class JoeBot
   private static Pose2d pose = new Pose2d( 0, 0, 0 );
 
   public static boolean debugging = true;
+  public static boolean enableSoundEffects = false;
+
+  public enum Sound
+  {
+    CALIBRATE_INIT,
+    CALIBRATE_RUN,
+    TELEOP_STOP,
+    AUTONOMOUS_START,
+    BASKET,
+    SPECIMEN,
+    CLIMB
+  };
+
+  private HashMap<Sound, Integer> soundIDs;
+  private Context appContext;
 
   public JoeBot( boolean forAutonomous,
                  HardwareMap hardwareMap,
@@ -86,6 +107,17 @@ public class JoeBot
     //RoadRunner they prefer to run using Auto instead of Manual mode
     hubs = hardwareMap.getAll( LynxModule.class );
     setupBulkCaching();
+
+    appContext = hardwareMap.appContext;
+    soundIDs = new HashMap();
+    Resources resources = appContext.getResources();
+    soundIDs.put( Sound.CALIBRATE_INIT, resources.getIdentifier( "calibrateinit", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.CALIBRATE_RUN, resources.getIdentifier( "calibraterun", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.TELEOP_STOP, resources.getIdentifier( "teleopstop", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.AUTONOMOUS_START, resources.getIdentifier( "autonomousstart", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.BASKET, resources.getIdentifier( "basket", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.SPECIMEN, resources.getIdentifier( "specimen", "raw", appContext.getPackageName() ) );
+    soundIDs.put( Sound.CLIMB, resources.getIdentifier( "climb", "raw", appContext.getPackageName() ) );
   }
 
   public void debug( String message )
@@ -95,6 +127,31 @@ public class JoeBot
       telemetry.log().add( message );
       telemetry.update();
     }
+  }
+
+  public void playSound( Sound sound, boolean loop )
+  {
+    if( enableSoundEffects &&
+        soundIDs.containsKey( sound ) )
+    {
+      int soundID = soundIDs.get( sound ).intValue();
+
+      // create a sound parameter that holds the desired player parameters.
+      SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
+      params.loopControl = loop ? -1 : 0;
+      params.loopControl = 0;
+      params.waitForNonLoopingSoundsToFinish = false;
+
+      SoundPlayer player = SoundPlayer.getInstance();
+      player.stopPlayingAll();
+      player.startPlaying( appContext, soundID, params, null, null );
+    }
+  }
+
+  public void stopPlayingLoopingSounds()
+  {
+    SoundPlayer player = SoundPlayer.getInstance();
+    player.stopPlayingLoops();
   }
 
   private void setupBulkCaching()
@@ -200,8 +257,16 @@ public class JoeBot
                   drive.getPos();
 
     final double deadWheelHeading = Math.toDegrees( pose.heading.toDouble() );
-    final double imuHeading = imu.getRobotYawPitchRollAngles().getYaw( AngleUnit.DEGREES );
+
+    final YawPitchRollAngles imuAngles = imu.getRobotYawPitchRollAngles();
+
+    //acquistion time will be 0 if IMU is unresponsive
+    if( imuAngles.getAcquisitionTime() == 0 )
+    { return; }
+
+    final double imuHeading = imuAngles.getYaw( AngleUnit.DEGREES );
     final double angleDifference = AngleTools.angleDifference( deadWheelHeading, imuHeading );
+
 
     if( angleDifference > 0.5 )
     {
@@ -344,6 +409,12 @@ public class JoeBot
     );
 
     automaticallyResetHeadingUsingIMU();
+    updateState( true );
+
+    if( !intake.hasSample() )
+    {
+      playSound( Sound.BASKET, false );
+    }
   }
 
   public void hangSpecimen( Bar bar )
@@ -388,6 +459,12 @@ public class JoeBot
     );
 
     automaticallyResetHeadingUsingIMU();
+    updateState( true );
+
+    if( !intake.hasSample() )
+    {
+      playSound( Sound.SPECIMEN, false );
+    }
   }
 
   public void levelOneAscent()
@@ -428,17 +505,18 @@ public class JoeBot
 
     clearBulkCache();
 
+    playSound( Sound.CLIMB, false );
+
     ActionTools.runBlocking( this,
       new SequentialAction(
         new MoveLift( this, Lift.Position.ABOVE_ABOVE_HANG_BAR ),
         new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
         new MoveLiftToClimb( this ),
-        new ParallelAction(
-          new MoveExtensionArm( this, ExtensionArm.Position.RETRACT_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
-          new OperateClimbArm( this, true )
-        )
+        new MoveExtensionArm( this, ExtensionArm.Position.RETRACT_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
+        new OperateClimbArm( this )
       )
     );
+
   }
 
   private void stopDrive()

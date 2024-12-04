@@ -15,7 +15,8 @@ public class ClimbArm extends AbstractModule
   public enum Position
   {
     HOOKS_RETRACTED( 0 ),
-    HOOKS_RAISED( 6000 );
+    HALF_CLIMB( 6973 ),
+    HOOKS_RAISED( 11014 );
 
     Position( int value )
     {
@@ -70,17 +71,18 @@ public class ClimbArm extends AbstractModule
     currentAction = Action.MOVING;
   }
 
+  public void climb()
+  {
+    climbMotor.setTargetPosition( Position.HALF_CLIMB.value );
+    climbMotor.setPower( 1 );
+    currentAction = Action.MOVING;
+  }
+
   public void moveHooks( boolean raise )
   {
     int delta = 100;
     int oldPosition = climbMotor.getCurrentPosition();
     int newPosition = oldPosition + ( raise ? 1 : -1 ) * delta;
-
-    if( newPosition < 0 )
-    { newPosition = 0; }
-
-    if( newPosition > Position.HOOKS_RAISED.value )
-    { newPosition = Position.HOOKS_RAISED.value; }
 
     climbMotor.setTargetPosition( newPosition );
     climbMotor.setPower( 1 );
@@ -118,7 +120,7 @@ public class ClimbArm extends AbstractModule
 
   private void initState()
   {
-    initMotor( climbMotor, DcMotor.RunMode.RUN_TO_POSITION, DcMotorSimple.Direction.FORWARD );
+    initMotor( climbMotor, DcMotor.RunMode.RUN_TO_POSITION, DcMotorSimple.Direction.REVERSE );
     climbMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
   }
 }

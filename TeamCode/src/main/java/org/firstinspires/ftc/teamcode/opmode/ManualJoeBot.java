@@ -65,8 +65,27 @@ public class ManualJoeBot extends OpMode
   @Override
   public void init_loop()
   {
+    robot.updateState( true );
+
     //Print out location so we can calibrate X,Y positions and verify heading
     robot.drive().printTelemetry();
+    robot.climbArm().printTelemetry();
+    telemetry.addLine( String.format( "Sound Effects: %b", robot.enableSoundEffects ) );
+    telemetry.update();
+
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.A ) )
+    {
+      robot.enableSoundEffects = !robot.enableSoundEffects;
+    }
+
+    if( gamepads.gamepad2.left_trigger > 0 )
+    {
+      robot.climbArm().moveHooks( true );
+    }
+    else if( gamepads.gamepad2.right_trigger > 0 )
+    {
+      robot.climbArm().moveHooks( false );
+    }
   }
 
   @Override
@@ -361,6 +380,8 @@ public class ManualJoeBot extends OpMode
 
     //allow robot to be pushed around
     robot.coast();
+
+    robot.playSound( JoeBot.Sound.TELEOP_STOP, false );
   }
 
 }
