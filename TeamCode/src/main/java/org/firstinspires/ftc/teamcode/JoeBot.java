@@ -512,10 +512,8 @@ public class JoeBot
         new MoveLift( this, Lift.Position.ABOVE_ABOVE_HANG_BAR ),
         new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
         new MoveLiftToClimb( this ),
-        new ParallelAction(
-          new MoveExtensionArm( this, ExtensionArm.Position.RETRACT_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
-          new OperateClimbArm( this, true )
-        )
+        new MoveExtensionArm( this, ExtensionArm.Position.RETRACT_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
+        new OperateClimbArm( this )
       )
     );
 

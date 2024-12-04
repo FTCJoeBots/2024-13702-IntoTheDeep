@@ -11,13 +11,10 @@ import org.firstinspires.ftc.teamcode.modules.Intake;
 
 public class OperateClimbArm extends AbstractAction implements Action
 {
-  private boolean retract;
-
-  public OperateClimbArm( JoeBot robot, boolean retract )
+  public OperateClimbArm( JoeBot robot )
   {
     super( robot, 5000 );
     this.robot = robot;
-    this.retract = retract;
   }
 
   @Override
@@ -25,16 +22,8 @@ public class OperateClimbArm extends AbstractAction implements Action
   {
     if( !isInitialized() )
     {
-      if( retract )
-      {
-        robot.debug( "OperateClimbArm: retractHooks" );
-        robot.climbArm().retractHooks();
-      }
-      else
-      {
-        robot.debug( "OperateClimbArm: raiseHooks" );
-        robot.climbArm().raiseHooks();
-      }
+      robot.debug( "OperateClimbArm: climbing" );
+      robot.climbArm().climb();
 
       super.initialize();
     }
