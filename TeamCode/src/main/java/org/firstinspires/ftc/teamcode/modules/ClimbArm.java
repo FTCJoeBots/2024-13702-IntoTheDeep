@@ -15,8 +15,8 @@ public class ClimbArm extends AbstractModule
   public enum Position
   {
     HOOKS_RETRACTED( 0 ),
-    HALF_CLIMB( 6973 ),
-    HOOKS_RAISED( 11014 );
+    HALF_CLIMB( 6900 ),
+    HOOKS_RAISED( 10000 );
 
     Position( int value )
     {
@@ -55,6 +55,11 @@ public class ClimbArm extends AbstractModule
       telemetry.log().add( String.format( "Climb Arm stopping, current %s target %s", current, target ) );
       stop();
     }
+  }
+
+  public boolean armsRaised()
+  {
+    return Math.abs( climbMotor.getCurrentPosition() - Position.HOOKS_RAISED.value ) <= 50;
   }
 
   public void raiseHooks()

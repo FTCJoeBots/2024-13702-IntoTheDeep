@@ -177,7 +177,8 @@ public class ManualJoeBot extends OpMode
       robot.levelOneAscent();
     }
     //Level 2 ascent - Right Bumper
-    else if( gamepads.buttonPressed( Participant.OPERATOR, Button.RIGHT_BUMPER ) )
+    else if( robot.climbArm().armsRaised() &&
+             gamepads.buttonPressed( Participant.OPERATOR, Button.RIGHT_BUMPER ) )
     {
       robot.levelTwoAscent();
     }
@@ -255,16 +256,6 @@ public class ManualJoeBot extends OpMode
       robot.intake().stop();
     }
 
-    //==================
-    //Drive
-    //==================
-    /*
-    if( gamepads.buttonPressed( Participant.DRIVER, Button.BACK ) )
-    {
-      robot.resetPos();
-    }
-    */
-
     //Turn around
     if( gamepads.buttonPressed( Participant.DRIVER, Button.RIGHT_BUMPER ) )
     {
@@ -319,6 +310,7 @@ public class ManualJoeBot extends OpMode
     double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
     double rotate = gamepad1.left_trigger - gamepad1.right_trigger;
 
+    //drive/rotate slower while pressing B
     if( gamepad1.b )
     {
       final double scaleFactor = 0.5;

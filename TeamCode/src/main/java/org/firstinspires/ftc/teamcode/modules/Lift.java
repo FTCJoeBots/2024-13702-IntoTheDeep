@@ -278,10 +278,12 @@ public class Lift extends AbstractModule
     // Ensure we continue to lift to preset position as we release buttons
     if( currentAction != Action.STOPPED )
     {
-      if( direction == DcMotorSimple.Direction.FORWARD && liftNewPosition <= leftMotor.getTargetPosition() )
+      if( direction == DcMotorSimple.Direction.FORWARD &&
+          liftNewPosition <= leftMotor.getTargetPosition() )
       { return false; }
 
-      if( direction == DcMotorSimple.Direction.REVERSE && liftNewPosition >= leftMotor.getTargetPosition() )
+      if( direction == DcMotorSimple.Direction.REVERSE &&
+          liftNewPosition >= leftMotor.getTargetPosition() )
       { return false; }
     }
 

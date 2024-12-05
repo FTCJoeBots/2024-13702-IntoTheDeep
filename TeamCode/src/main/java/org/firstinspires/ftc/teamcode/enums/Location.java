@@ -14,11 +14,11 @@ public class Location
 
   //right edge of robot is 2 tiles over from right corner
   public static Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
-  public static Vector2d SAMPLE_BASKETS = new Vector2d( 8.8, 53 );
+  public static Vector2d SAMPLE_BASKETS = new Vector2d( 9.8, 52);
 
-  public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20,-39);// -47 );
-  public static Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 10, -39 );//-47 );
-  public static Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 16, -39 );//  -47 );
+  public static Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20,-39);
+  public static Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 10, -39 );
+  public static Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 14, -39 );
   public static Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 5, -50 );
 
   public static Vector2d NEAR_ASCENT_ZONE = new Vector2d( 63.9, 52 );
