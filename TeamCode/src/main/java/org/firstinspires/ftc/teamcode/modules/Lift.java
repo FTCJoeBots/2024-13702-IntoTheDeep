@@ -97,8 +97,8 @@ public class Lift extends AbstractModule
   private void initState()
   {
     final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_TO_POSITION;
-    initMotor( leftMotor, runMode, DcMotorSimple.Direction.FORWARD );
-    initMotor( rightMotor, runMode, DcMotorSimple.Direction.REVERSE );
+    initMotor( leftMotor, runMode, DcMotorSimple.Direction.REVERSE );
+    initMotor( rightMotor, runMode, DcMotorSimple.Direction.FORWARD );
   }
 
   public boolean isHigh()
@@ -116,12 +116,12 @@ public class Lift extends AbstractModule
     return leftMotor.getCurrentPosition();
   }
 
-  public boolean fastLift()
+  public boolean raiseLift()
   {
     return turnMotors( DcMotorSimple.Direction.FORWARD, FAST_SPEED_UP );
   }
 
-  public boolean fastDrop()
+  public boolean lowerLift()
   {
     return turnMotors( DcMotorSimple.Direction.REVERSE, FAST_SPEED_DOWN );
   }
