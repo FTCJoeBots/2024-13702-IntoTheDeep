@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -41,7 +40,6 @@ import android.content.res.Resources;
 import java.util.HashMap;
 import java.util.List;
 
-@Config
 public class JoeBot
 {
   private Telemetry telemetry = null;
@@ -50,7 +48,7 @@ public class JoeBot
   private Intake intake = null;
   private ClimbArm climbArm = null;
 
-  public Gamepads gamepads = null;
+  public volatile Gamepads gamepads = null;
 
   private List<LynxModule> hubs;
   private MecanumDrive mecanumDrive = null;
@@ -71,7 +69,7 @@ public class JoeBot
     BASKET,
     SPECIMEN,
     CLIMB
-  };
+  }
 
   private HashMap<Sound, Integer> soundIDs;
   private Context appContext;
@@ -139,7 +137,6 @@ public class JoeBot
       // create a sound parameter that holds the desired player parameters.
       SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
       params.loopControl = loop ? -1 : 0;
-      params.loopControl = 0;
       params.waitForNonLoopingSoundsToFinish = false;
 
       SoundPlayer player = SoundPlayer.getInstance();
@@ -238,7 +235,7 @@ public class JoeBot
 
   public void resetPos( Vector2d position )
   {
-    this.pose = new Pose2d( position, 0 );
+    JoeBot.pose = new Pose2d( position, 0 );
 
     if( drive != null )
     { drive.resetPose( pose ); }
@@ -331,8 +328,7 @@ public class JoeBot
   {
     debug( String.format( "JoeBot::grabSample isSpecimen=%s", isSpecimen ) );
 
-    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
-    //while the motion if being performed
+    //Prevent robot from moving while the motion if being performed
     stopDrive();
 
     ActionTools.runBlocking( this,
@@ -357,8 +353,7 @@ public class JoeBot
   {
     debug( "JoeBot::retrieveSample" );
 
-    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
-    //while the motion if being performed
+    //Prevent robot from moving while the motion if being performed
     stopDrive();
 
     ActionTools.runBlocking( this,
@@ -375,8 +370,7 @@ public class JoeBot
   {
     debug( "JoeBot::giveUpSample" );
 
-    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
-    //while the motion if being performed
+    //Prevent robot from moving while the motion if being performed
     stopDrive();
 
     ActionTools.runBlocking( this, new GiveUpSample( this ) );
@@ -386,8 +380,7 @@ public class JoeBot
   {
     debug( String.format( "JoeBot::placeSampleInBasket %s", basket ) );
 
-    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
-    //while the motion if being performed
+    //Prevent robot from moving while the motion if being performed
     stopDrive();
 
     clearBulkCache();
@@ -421,8 +414,7 @@ public class JoeBot
   {
     debug( String.format( "JoeBot::hangSpecimen %s", bar ) );
 
-    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
-    //while the motion if being performed
+    //Prevent robot from moving while the motion if being performed
     stopDrive();
 
     clearBulkCache();
@@ -471,8 +463,7 @@ public class JoeBot
   {
     debug( "JotBot::levelOneAscent()" );
 
-    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
-    //while the motion if being performed
+    //Prevent robot from moving while the motion if being performed
     stopDrive();
 
     clearBulkCache();
@@ -496,8 +487,7 @@ public class JoeBot
   {
     debug( "JotBot::levelTwoAscent()" );
 
-    //Prevent robot from continuous it's last wheel velocities (e.g. rotating)
-    //while the motion if being performed
+    //Prevent robot from moving while the motion if being performed
     stopDrive();
 
     //save power by making drive wheels coast

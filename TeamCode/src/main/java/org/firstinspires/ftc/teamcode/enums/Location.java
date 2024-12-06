@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.enums;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Vector2d;
 
-@Config
 public class Location
 {
   public static Vector2d SPECIMEN_BAR_LEFT = new Vector2d( 25, 7 );

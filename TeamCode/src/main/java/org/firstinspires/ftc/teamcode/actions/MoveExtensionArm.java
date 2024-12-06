@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.Action;
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 
-@Config
 public class MoveExtensionArm extends AbstractAction implements Action
 {
   private final int position;

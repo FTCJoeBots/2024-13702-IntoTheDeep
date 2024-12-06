@@ -36,7 +36,7 @@ public class CalibrateFieldPositions extends OpMode
 
     gamepads = new Gamepads( gamepad1, gamepad2 );
 
-    robot.enableSoundEffects = true;
+    JoeBot.enableSoundEffects = true;
     robot.playSound( JoeBot.Sound.CALIBRATE_INIT, true );
   }
 
@@ -145,7 +145,6 @@ public class CalibrateFieldPositions extends OpMode
     else
     {
       Location.NamedLocation target = Location.NamedLocation.values()[ targetIndex ];
-      Vector2d position = Location.position( target );
       telemetry.addLine( String.format( "Target: %s", target ) );
       printPose();
       telemetry.update();

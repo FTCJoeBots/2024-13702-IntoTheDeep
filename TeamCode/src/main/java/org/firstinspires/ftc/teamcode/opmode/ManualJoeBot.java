@@ -70,12 +70,12 @@ public class ManualJoeBot extends OpMode
     //Print out location so we can calibrate X,Y positions and verify heading
     robot.drive().printTelemetry();
     robot.climbArm().printTelemetry();
-    telemetry.addLine( String.format( "Sound Effects: %b", robot.enableSoundEffects ) );
+    telemetry.addLine( String.format( "Sound Effects: %b", JoeBot.enableSoundEffects ) );
     telemetry.update();
 
     if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.A ) )
     {
-      robot.enableSoundEffects = !robot.enableSoundEffects;
+      JoeBot.enableSoundEffects = !JoeBot.enableSoundEffects;
     }
 
     if( gamepads.gamepad2.left_trigger > 0 )
@@ -118,17 +118,16 @@ public class ManualJoeBot extends OpMode
     {
       robot.extensionArm().fullyExtend();
     }
+    //Full retract - B + A
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
+    {
+      robot.retrieveSample();
+    }
     //Manually extend - Y
     else if( gamepad2.y )
     {
-      boolean liftIsHigh = robot.lift().isHigh();
+      final boolean liftIsHigh = robot.lift().isHigh();
       robot.extensionArm().manuallyExtend( liftIsHigh );
-    }
-
-    //Full retract - B + A
-    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
-    {
-      robot.retrieveSample();
     }
     //Manually retract - A
     else if( gamepad2.a )
@@ -157,7 +156,6 @@ public class ManualJoeBot extends OpMode
       robot.lift().travelTo( Lift.Position.FLOOR );
       addMessage( "Move Lift to Floor" );
     }
-
     //Hang specimen from high bar - x + dpad_left
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.X, Button.DPAD_LEFT ) ) &&
              robot.intake().hasSample() )
@@ -170,7 +168,6 @@ public class ManualJoeBot extends OpMode
     {
       robot.hangSpecimen( Bar.LOW_BAR );
     }
-
     //Level 1 ascent - left bumper
     else if( gamepads.buttonPressed( Participant.OPERATOR, Button.LEFT_BUMPER ) )
     {
@@ -191,13 +188,13 @@ public class ManualJoeBot extends OpMode
     //Raise lift - dpad_up
     else if( gamepad2.dpad_up && !gamepad2.x )
     {
-      if( robot.lift().fastLift() )
+      if( robot.lift().raiseLift() )
       { telemetry.addLine( "Raise lift" ); }
     }
     //Lower lift- dpad_down
     else if( gamepad2.dpad_down && !gamepad2.x )
     {
-      if( robot.lift().fastDrop() )
+      if( robot.lift().lowerLift() )
       { telemetry.addLine( "Lower lift" ); }
     }
 
@@ -292,7 +289,7 @@ public class ManualJoeBot extends OpMode
     }
     else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_UP))
     {
-      robot.drive().faceDirection( PresetDirection.FOREWARD );
+      robot.drive().faceDirection( PresetDirection.FORWARD );
     }
     else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_DOWN))
     {
