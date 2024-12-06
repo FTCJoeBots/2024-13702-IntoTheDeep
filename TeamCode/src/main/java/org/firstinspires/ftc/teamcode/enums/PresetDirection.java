@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.enums;
 
 public enum PresetDirection
 {
-  FOREWARD,
+  FORWARD,
   BACKWARD,
   LEFT,
   RIGHT,

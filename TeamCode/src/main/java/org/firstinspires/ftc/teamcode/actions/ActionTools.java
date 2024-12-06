@@ -20,6 +20,12 @@ public class ActionTools
 
     boolean running = true;
 
+    //require operator to release B and press it again to terminate a motion
+    if( robot.gamepads != null )
+    {
+      robot.gamepads.storeLastButtons();
+    }
+
     while( running &&
            !Thread.currentThread().isInterrupted() )
     {

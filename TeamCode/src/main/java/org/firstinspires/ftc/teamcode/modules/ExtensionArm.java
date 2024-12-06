@@ -229,18 +229,6 @@ public class ExtensionArm extends AbstractModule
         autoDetectStall = false;
       }
     }
-
-//    if( position == Position.FULLY_RETRACTED.value )
-//    {
-//      autoDetectStall = true;
-//      stallTimer.reset();
-//      telemetry.log().add( "Starting auto reset timer" );
-//    }
-//    else if( autoDetectStall )
-//    {
-//      telemetry.log().add( "Canceling auto reset timer" );
-//      autoDetectStall = false;
-//    }
   }
 
   public void stop()

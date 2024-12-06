@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
 
-@Config
 public class GiveUpSample extends AbstractAction implements Action
 {
   public static int defaultMaxTime = 500;

@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
 
-@Config
 public class LiftStuckArm extends AbstractAction implements Action
 {
   private final int desiredArmPosition;

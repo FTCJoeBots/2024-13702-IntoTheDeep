@@ -32,7 +32,7 @@ public class AngleTools
   {
     switch( direction )
     {
-      case FOREWARD:
+      case FORWARD:
         return 0;
       case BACKWARD:
         return 180;

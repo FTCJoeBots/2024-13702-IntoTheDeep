@@ -109,8 +109,8 @@ public class Gamepads
     return false;
   }
 
-  private final Gamepad gamepad1;
-  private final Gamepad gamepad2;
-  private final Gamepad previousButtons1 = new Gamepad();;
-  private final Gamepad previousButtons2 = new Gamepad();
+  public volatile Gamepad gamepad1;
+  public volatile Gamepad gamepad2;
+  private volatile Gamepad previousButtons1 = new Gamepad();
+  private volatile Gamepad previousButtons2 = new Gamepad();
 }

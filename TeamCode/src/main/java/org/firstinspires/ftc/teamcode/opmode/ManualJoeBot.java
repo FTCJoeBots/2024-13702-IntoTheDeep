@@ -70,12 +70,12 @@ public class ManualJoeBot extends OpMode
     //Print out location so we can calibrate X,Y positions and verify heading
     robot.drive().printTelemetry();
     robot.climbArm().printTelemetry();
-    telemetry.addLine( String.format( "Sound Effects: %b", robot.enableSoundEffects ) );
+    telemetry.addLine( String.format( "Sound Effects: %b", JoeBot.enableSoundEffects ) );
     telemetry.update();
 
     if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.A ) )
     {
-      robot.enableSoundEffects = !robot.enableSoundEffects;
+      JoeBot.enableSoundEffects = !JoeBot.enableSoundEffects;
     }
 
     if( gamepads.gamepad2.left_trigger > 0 )
@@ -118,17 +118,16 @@ public class ManualJoeBot extends OpMode
     {
       robot.extensionArm().fullyExtend();
     }
+    //Full retract - B + A
+    else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
+    {
+      robot.retrieveSample();
+    }
     //Manually extend - Y
     else if( gamepad2.y )
     {
-      boolean liftIsHigh = robot.lift().isHigh();
+      final boolean liftIsHigh = robot.lift().isHigh();
       robot.extensionArm().manuallyExtend( liftIsHigh );
-    }
-
-    //Full retract - B + A
-    if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
-    {
-      robot.retrieveSample();
     }
     //Manually retract - A
     else if( gamepad2.a )
@@ -292,7 +291,7 @@ public class ManualJoeBot extends OpMode
     }
     else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_UP))
     {
-      robot.drive().faceDirection( PresetDirection.FOREWARD );
+      robot.drive().faceDirection( PresetDirection.FORWARD );
     }
     else if( gamepads.buttonPressed( Participant.DRIVER, Button.DPAD_DOWN))
     {

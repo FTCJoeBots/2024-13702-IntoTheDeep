@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.actions;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.JoeBot;
 
-@Config
 public abstract class AbstractAction
 {
   protected JoeBot robot = null;

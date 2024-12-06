@@ -113,12 +113,7 @@ public class Lift extends AbstractModule
 
   public int liftPosition()
   {
-    int leftPosition = leftMotor.getCurrentPosition();
-    return leftPosition;
-
-//    int rightPosition = rightMotor.getCurrentPosition();
-//
-//    return Math.round( ( leftPosition + rightPosition ) / 2.0f );
+    return leftMotor.getCurrentPosition();
   }
 
   public boolean fastLift()

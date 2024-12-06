@@ -9,7 +9,6 @@ import com.acmerobotics.roadrunner.Action;
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 
-@Config
 public class GrabSample extends AbstractAction implements Action
 {
   public static int defaultMaxTime = 4000;
