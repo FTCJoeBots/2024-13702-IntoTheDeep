@@ -70,10 +70,11 @@ public class ManualJoeBot extends OpMode
     //Print out location so we can calibrate X,Y positions and verify heading
     robot.drive().printTelemetry();
     robot.climbArm().printTelemetry();
-    telemetry.addLine( String.format( "Sound Effects: %b", JoeBot.enableSoundEffects ) );
+    telemetry.addLine( String.format( "> Sound Effects: %b", JoeBot.enableSoundEffects ) );
     telemetry.update();
 
-    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.A ) )
+    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_LEFT ) ||
+        gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_RIGHT ) )
     {
       JoeBot.enableSoundEffects = !JoeBot.enableSoundEffects;
     }
