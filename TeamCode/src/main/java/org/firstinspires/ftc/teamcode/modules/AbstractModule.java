@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -18,11 +19,15 @@ public abstract class AbstractModule
 
   public static boolean encodersReset = false;
 
+  protected boolean autoDetectStall = false;
+  protected ElapsedTime stallTimer = null;
+
   public AbstractModule( HardwareMap hardwareMap, Telemetry telemetry )
   {
     this.hardwareMap = hardwareMap;
     this.telemetry = telemetry;
     motors = new ArrayList<>();
+    stallTimer = new ElapsedTime();
   }
 
   protected DcMotorEx createMotor( String name )

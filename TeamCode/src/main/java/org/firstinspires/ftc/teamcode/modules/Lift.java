@@ -129,7 +129,7 @@ public class Lift extends AbstractModule
   public boolean climb()
   {
     double power = 1.0;
-    int position = Position.TOUCHING_HIGH_HANG_BAR.value;
+    final int position = Position.TOUCHING_HIGH_HANG_BAR.value;
 
     setMotorPosition( leftMotor, position, power );
     setMotorPosition( rightMotor, position, power );
