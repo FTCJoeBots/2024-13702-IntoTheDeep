@@ -103,7 +103,7 @@ public class Lift extends AbstractModule
 
   public boolean isHigh()
   {
-    return liftPosition() > Position.HIGH_UP.value;
+    return liftPosition() >= Position.HIGH_UP.value;
   }
 
   public boolean isMoving()
