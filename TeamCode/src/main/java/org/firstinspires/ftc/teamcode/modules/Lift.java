@@ -14,51 +14,51 @@ public class Lift extends AbstractModule
 
   private static final double COAST = 0;
 
-  private static final int ADJUST_UP   = 100;
-  private static final int ADJUST_DOWN = 100;
+  private static final int ADJUST_UP   = 70;
+  private static final int ADJUST_DOWN = 70;
 
   //coast down until we are close to our target
   //IMPORTANT: this value should be less than ADJUST_DOWN or else we never will coast
   //when manually moving the lift down
-  private static final int FAR_AWAY = 50;
+  private static final int FAR_AWAY = 35;
 
   //only coast down above a minimum height since
   //gravity does not seem to cause the lift as we get close
   //to the bottom and it is necessary to use the motors to pull the lift
   //the rest of the way down.
-  private static final int MINIMUM_COAST_HEIGHT = 700;
+  private static final int MINIMUM_COAST_HEIGHT = 484;
 
   //Preset positions we can extend the arm to
   public enum Position
   {
     FLOOR( 0 ),
-    MAX_LIFT( 5200 ),
+    MAX_LIFT( 3600 ),
 
-    SAMPLE_FLOOR( 90 ),
-    SPECIMEN_FLOOR( 116 ),
+    SAMPLE_FLOOR( 18 ),
+    SPECIMEN_FLOOR( 80 ),
 
     //high enough that we don't hit the submersible bar when retracting
-    TRAVEL_WITH_SPECIMEN( 480 ),
+    TRAVEL_WITH_SPECIMEN( 332 ),
 
     //putting samples in baskets
-    HIGH_BASKET( 5150 ),
-    LOW_BASKET( 3302 ),
+    HIGH_BASKET( 3600 ),
+    LOW_BASKET( 2206 ),
 
     //hanging specimens
-    ABOVE_HIGH_SPECIMEN_BAR( 3384 ),
-    ABOVE_LOW_SPECIMEN_BAR( 1912 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3135 ),
-    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1590 ),
+    ABOVE_HIGH_SPECIMEN_BAR( 2342 ),
+    ABOVE_LOW_SPECIMEN_BAR( 1323 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 2170 ),
+    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1100 ),
 
     //level 1 ascent
-    AT_LOW_HANG_BAR( 2116 ),
+    AT_LOW_HANG_BAR( 1465 ),
 
     //level 2 ascent
-    ABOVE_ABOVE_HANG_BAR( 4470 ),
-    TOUCHING_HIGH_HANG_BAR( 3685 ),
+    ABOVE_ABOVE_HANG_BAR( 3095 ),
+    TOUCHING_HIGH_HANG_BAR( 2551 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
-    HIGH_UP( 3472 );
+    HIGH_UP( 2403 );
 
     Position( int value )
     {
