@@ -13,7 +13,7 @@ public class MoveLift extends AbstractAction implements Action
 
   public MoveLift( JoeBot robot, Lift.Position position )
   {
-    super( robot );
+    super( robot, 2000 );
     this.robot = robot;
     this.position = position;
   }

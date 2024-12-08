@@ -11,7 +11,7 @@ public class MoveLiftToClimb extends AbstractAction implements Action
 {
   public MoveLiftToClimb( JoeBot robot )
   {
-    super( robot, 1000 );
+    super( robot, 3000 );
     this.robot = robot;
   }
 

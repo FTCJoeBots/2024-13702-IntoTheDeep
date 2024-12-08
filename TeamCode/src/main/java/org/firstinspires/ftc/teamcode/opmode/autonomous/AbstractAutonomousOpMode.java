@@ -72,7 +72,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     AbstractModule.encodersReset = false;
 
     robot = new JoeBot( true, hardwareMap, telemetry );
-    JoeBot.enableSoundEffects = false;
 
     gamepads = new Gamepads( gamepad1, gamepad2 );
 
@@ -89,9 +88,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   @Override
   public void start()
   {
-    //reset the timer when the game starts
-    time.reset();
-
     //clear screen
     telemetry.update();
 
@@ -114,7 +110,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         new MoveLift( robot, Lift.Position.TRAVEL_WITH_SPECIMEN, 500 ) );
     }
 
-    robot.playSound( JoeBot.Sound.AUTONOMOUS_START, false );
+    //reset the timer when the game starts
+    time.reset();
   }
 
   @Override
@@ -142,20 +139,10 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
   protected void driveTo( Pose2d pose )
   {
-    driveTo( Collections.singletonList( pose ) );
-  }
-
-  protected void driveTo( List<Pose2d> poses )
-  {
     MecanumDrive drive = robot.mecanumDrive();
-
-    TrajectoryActionBuilder trajectory = drive.actionBuilder( drive.pose );
-    for( Pose2d pose : poses )
-    {
-      trajectory.strafeToLinearHeading( pose.position, pose.heading.toDouble() );
-    }
-
-    ActionTools.runBlocking( robot, trajectory.build() );
+    ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+      .strafeToLinearHeading( pose.position, pose.heading.toDouble() )
+      .build() );
   }
 
   protected boolean retrieveSpecimen()

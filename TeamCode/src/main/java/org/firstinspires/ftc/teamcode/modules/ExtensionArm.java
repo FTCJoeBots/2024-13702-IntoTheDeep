@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -62,9 +61,6 @@ public class ExtensionArm extends AbstractModule
   }
 
   private Action currentAction = Action.STOPPED;
-
-  private boolean autoDetectStall = false;
-  ElapsedTime stallTimer = null;
 
   public ExtensionArm( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -271,12 +267,11 @@ public class ExtensionArm extends AbstractModule
   private void initObjects()
   {
     extensionArmMotor = createMotor( "extensionArmMotor" );
-    stallTimer = new ElapsedTime();
   }
 
   private void initState()
   {
     initMotor( extensionArmMotor, DcMotor.RunMode.RUN_TO_POSITION, DcMotorSimple.Direction.REVERSE );
-    extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+    extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
   }
 }

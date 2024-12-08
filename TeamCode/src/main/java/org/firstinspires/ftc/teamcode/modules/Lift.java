@@ -9,56 +9,54 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift extends AbstractModule
 {
-  private static final double FAST_SPEED_UP = 1.0;
-  private static final double FAST_SPEED_DOWN = 1.0;
+  private static final double SPEED_UP = 1.0;
+  private static final double SPEED_DOWN = 1.0;
 
-  private static final double COAST = 0;
-
-  private static final int ADJUST_UP   = 100;
-  private static final int ADJUST_DOWN = 100;
+  private static final int ADJUST_UP   = 70;
+  private static final int ADJUST_DOWN = 70;
 
   //coast down until we are close to our target
-  //IMPORTANT: this value should be less than ADJUST_DOWN or else we never will coast
-  //when manually moving the lift down
-  private static final int FAR_AWAY = 50;
+  private static final int FAR_AWAY = 200;
 
   //only coast down above a minimum height since
   //gravity does not seem to cause the lift as we get close
   //to the bottom and it is necessary to use the motors to pull the lift
   //the rest of the way down.
-  private static final int MINIMUM_COAST_HEIGHT = 700;
+  private static final int MINIMUM_COAST_HEIGHT = 484;
+
+  public static boolean allowReset = true;
 
   //Preset positions we can extend the arm to
   public enum Position
   {
     FLOOR( 0 ),
-    MAX_LIFT( 5200 ),
+    MAX_LIFT( 3600 ),
 
-    SAMPLE_FLOOR( 90 ),
-    SPECIMEN_FLOOR( 116 ),
+    SAMPLE_FLOOR( 18 ),
+    SPECIMEN_FLOOR( 40 ),
 
     //high enough that we don't hit the submersible bar when retracting
-    TRAVEL_WITH_SPECIMEN( 480 ),
+    TRAVEL_WITH_SPECIMEN( 332 ),
 
     //putting samples in baskets
-    HIGH_BASKET( 5150 ),
-    LOW_BASKET( 3302 ),
+    HIGH_BASKET( 3600 ),
+    LOW_BASKET( 2206 ),
 
     //hanging specimens
-    ABOVE_HIGH_SPECIMEN_BAR( 3384 ),
-    ABOVE_LOW_SPECIMEN_BAR( 1912 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3135 ),
-    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1590 ),
+    ABOVE_HIGH_SPECIMEN_BAR( 2342 ),
+    ABOVE_LOW_SPECIMEN_BAR( 1323 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 2170 ),
+    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1100 ),
 
     //level 1 ascent
-    AT_LOW_HANG_BAR( 2116 ),
+    AT_LOW_HANG_BAR( 1465 ),
 
     //level 2 ascent
-    ABOVE_ABOVE_HANG_BAR( 4470 ),
-    TOUCHING_HIGH_HANG_BAR( 3685 ),
+    ABOVE_ABOVE_HANG_BAR( 3095 ),
+    TOUCHING_HIGH_HANG_BAR( 2551 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
-    HIGH_UP( 3472 );
+    HIGH_UP( 2403 );
 
     Position( int value )
     {
@@ -79,7 +77,7 @@ public class Lift extends AbstractModule
   }
 
   private Action currentAction = Action.STOPPED;
-  private double targetPower = 0;
+  private double targetPower = 1;
 
   public Lift( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -103,7 +101,7 @@ public class Lift extends AbstractModule
 
   public boolean isHigh()
   {
-    return liftPosition() > Position.HIGH_UP.value;
+    return liftPosition() >= Position.HIGH_UP.value;
   }
 
   public boolean isMoving()
@@ -118,18 +116,19 @@ public class Lift extends AbstractModule
 
   public boolean raiseLift()
   {
-    return turnMotors( DcMotorSimple.Direction.FORWARD, FAST_SPEED_UP );
+    return turnMotors( DcMotorSimple.Direction.FORWARD, SPEED_UP );
   }
 
   public boolean lowerLift()
   {
-    return turnMotors( DcMotorSimple.Direction.REVERSE, FAST_SPEED_DOWN );
+    return turnMotors( DcMotorSimple.Direction.REVERSE, SPEED_DOWN );
   }
 
   public boolean climb()
   {
     double power = 1.0;
-    int position = Position.TOUCHING_HIGH_HANG_BAR.value;
+    targetPower = 1.0;
+    final int position = Position.TOUCHING_HIGH_HANG_BAR.value;
 
     setMotorPosition( leftMotor, position, power );
     setMotorPosition( rightMotor, position, power );
@@ -143,24 +142,16 @@ public class Lift extends AbstractModule
 
     //it is smoother if we coast downwards until we get
     //close to our target position
-    int liftCurPosition = liftPosition();
-    double liftVelocity = leftMotor.getVelocity();
+    final int liftCurPosition = liftPosition();
 
     if( targetPosition < liftCurPosition &&
-      liftCurPosition > MINIMUM_COAST_HEIGHT &&
-      Math.abs( targetPosition - liftCurPosition ) > FAR_AWAY &&
-      //wait until the lift starts moving before switching to coast most
-      //to avoid getting stuck
-      liftVelocity > 10 )
+        liftCurPosition > MINIMUM_COAST_HEIGHT &&
+        liftCurPosition - targetPosition >= FAR_AWAY )
     {
-      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
-      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
-      return COAST;
+      return 0;
     }
     else
     {
-      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
       return power;
     }
   }
@@ -170,17 +161,30 @@ public class Lift extends AbstractModule
     travelTo( position.value );
   }
 
-  public void travelTo( int value )
+  public void travelTo( int liftNewPosition )
   {
-    double power = liftPosition() < value ?
-                   FAST_SPEED_UP :
-                   FAST_SPEED_DOWN;
+    final int liftCurPosition = liftPosition();
 
-    power = adjustPower( value, power );
+    double power = liftNewPosition > liftCurPosition ?
+                   SPEED_UP :
+                   SPEED_DOWN;
 
-    setMotorPosition( leftMotor, value, power );
-    setMotorPosition( rightMotor, value, power );
+    power = adjustPower( liftNewPosition, power );
+
+    setMotorPosition( leftMotor, liftNewPosition, power );
+    setMotorPosition( rightMotor, liftNewPosition, power );
     currentAction = Action.MOVING;
+
+    if( liftNewPosition < liftCurPosition &&
+        power > 0 )
+    {
+      autoDetectStall = true;
+      stallTimer.reset();
+    }
+    else
+    {
+      autoDetectStall = false;
+    }
   }
 
   public void floatMotors()
@@ -194,12 +198,14 @@ public class Lift extends AbstractModule
 
   public void stop()
   {
-    //set motors to hold the current position with full power to avoid slipping
+    leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+    rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
     leftMotor.setTargetPosition( leftMotor.getCurrentPosition() );
-    leftMotor.setPower( 1 );
     rightMotor.setTargetPosition( rightMotor.getCurrentPosition() );
+    leftMotor.setPower( 1 );
     rightMotor.setPower( 1 );
     currentAction = Action.STOPPED;
+    autoDetectStall = false;
   }
 
   public void updateState()
@@ -207,27 +213,64 @@ public class Lift extends AbstractModule
     if( currentAction == Action.STOPPED )
     { return; }
 
-    int leftDiff = Math.abs( leftMotor.getCurrentPosition() - leftMotor.getTargetPosition() );
-    int rightDiff = Math.abs( rightMotor.getCurrentPosition() - rightMotor.getTargetPosition() );
+    final int leftPos = leftMotor.getCurrentPosition();
+    final int rightPos = rightMotor.getCurrentPosition();
+    final int leftTarget = leftMotor.getTargetPosition();
+    final int rightTarget = rightMotor.getTargetPosition();
+    final int leftDiff = Math.abs( leftPos - leftTarget );
+    final int rightDiff = Math.abs( rightPos - rightTarget );
+    final int minDiff = Math.min( leftDiff, rightDiff );
 
-    int diff = Math.min( leftDiff, rightDiff );
-
-    //stop once we get close to our target position
-    if( diff <= 2 )
+    //detect stall
+    if( autoDetectStall &&
+        stallTimer.milliseconds() > 1000 &&
+        Math.min( Math.abs( leftMotor.getVelocity() ),
+                  Math.abs( rightMotor.getVelocity() ) ) <= 0.2 )
     {
-      telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", diff ) );
-      currentAction = Action.STOPPED;
-    }
+      telemetry.log().add( "Stall detected, stopping lift!" );
+      stop();
 
+      //reset the motor position if we were lowering to the floor
+      //since the belts must have slipped and we are at the new zero
+      if( leftTarget == Position.FLOOR.value &&
+          Math.max( leftPos, rightPos ) > leftTarget &&
+          minDiff < 100 &&
+          allowReset )
+      {
+        telemetry.log().add( "Resetting lift motor positions" );
+
+        leftMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+        leftMotor.setTargetPosition( 0 );
+        leftMotor.setMode( DcMotor.RunMode.RUN_TO_POSITION );
+
+        rightMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
+        rightMotor.setTargetPosition( 0 );
+        rightMotor.setMode( DcMotor.RunMode.RUN_TO_POSITION );
+      }
+    }
+    //stop once we get close to our target position
+    else if( minDiff <= 5 )
+    {
+      telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", minDiff ) );
+
+      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      leftMotor.setPower( 1 );
+      rightMotor.setPower( 1 );
+      currentAction = Action.STOPPED;
+      autoDetectStall = false;
+    }
     //switch from floating to using power once we get close to our target position
     else if( leftMotor.getZeroPowerBehavior() == DcMotor.ZeroPowerBehavior.FLOAT &&
              ( liftPosition() <= MINIMUM_COAST_HEIGHT ||
-               Math.min( leftDiff, rightDiff ) < FAR_AWAY ) )
+               minDiff < FAR_AWAY ) )
     {
-      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
       leftMotor.setPower( targetPower );
       rightMotor.setPower( targetPower );
+      leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+      autoDetectStall = true;
+      stallTimer.reset();
     }
   }
 
@@ -285,12 +328,19 @@ public class Lift extends AbstractModule
     if( liftNewPosition != leftMotor.getCurrentPosition() ||
         liftNewPosition != rightMotor.getCurrentPosition() )
     {
-      power = adjustPower( liftNewPosition, power );
+      //never coast when manually moving the lift
+      targetPower = power;
 
       setMotorPosition( leftMotor, liftNewPosition, power );
       setMotorPosition( rightMotor, liftNewPosition, power );
       Action cachedAction = currentAction;
       currentAction = Action.MOVING;
+
+      if( liftNewPosition < liftCurPosition )
+      {
+        autoDetectStall = true;
+        stallTimer.reset();
+      }
       return currentAction != cachedAction;
     }
     else
@@ -304,6 +354,10 @@ public class Lift extends AbstractModule
 
     motor.setTargetPosition( position );
     motor.setPower( power );
+    motor.setZeroPowerBehavior( power == 0 &&
+                                targetPower != 0 ?
+                                DcMotor.ZeroPowerBehavior.FLOAT :
+                                DcMotor.ZeroPowerBehavior.BRAKE );
   }
 
 }

@@ -27,7 +27,7 @@ public abstract class AbstractBasketOpMode extends AbstractAutonomousOpMode
   @Override
   protected double minimumTime()
   {
-    return 4;
+    return 2;
   }
 
   @Override
@@ -97,11 +97,7 @@ public abstract class AbstractBasketOpMode extends AbstractAutonomousOpMode
     }
     else if( state == AutonomousState.HAVE_NOTHING )
     {
-      //TODO - attempt to grab last neutral sample if desired
-
-      //we're not fast enough to get all three yellow samples so once we have picked up to
-      //perform a level 1 ascent if there is still time
-      if( neutralSamples <= 1 )
+      if( neutralSamples == 0 )
       {
         robot.debug( String.format( "BasketAuto:HAVE_NOTHING -> neutralSamplesLeft %s", neutralSamples ) );
         level1Ascent();
