@@ -70,14 +70,7 @@ public class ManualJoeBot extends OpMode
     //Print out location so we can calibrate X,Y positions and verify heading
     robot.drive().printTelemetry();
     robot.climbArm().printTelemetry();
-    telemetry.addLine( String.format( "> Sound Effects: %b", JoeBot.enableSoundEffects ) );
     telemetry.update();
-
-    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_LEFT ) ||
-        gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.DPAD_RIGHT ) )
-    {
-      JoeBot.enableSoundEffects = !JoeBot.enableSoundEffects;
-    }
 
     if( gamepads.gamepad2.left_trigger > 0 )
     {
@@ -370,8 +363,6 @@ public class ManualJoeBot extends OpMode
 
     //allow robot to be pushed around
     robot.coast();
-
-    robot.playSound( JoeBot.Sound.TELEOP_STOP, false );
   }
 
 }

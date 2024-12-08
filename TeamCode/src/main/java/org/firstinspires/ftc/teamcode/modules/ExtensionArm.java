@@ -272,6 +272,6 @@ public class ExtensionArm extends AbstractModule
   private void initState()
   {
     initMotor( extensionArmMotor, DcMotor.RunMode.RUN_TO_POSITION, DcMotorSimple.Direction.REVERSE );
-    extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+    extensionArmMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
   }
 }

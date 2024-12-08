@@ -78,6 +78,7 @@ public class ClimbArm extends AbstractModule
 
   public void climb()
   {
+    climbMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
     climbMotor.setTargetPosition( Position.HALF_CLIMB.value );
     climbMotor.setPower( 1 );
     currentAction = Action.MOVING;
@@ -126,6 +127,6 @@ public class ClimbArm extends AbstractModule
   private void initState()
   {
     initMotor( climbMotor, DcMotor.RunMode.RUN_TO_POSITION, DcMotorSimple.Direction.REVERSE );
-    climbMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+    climbMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.FLOAT );
   }
 }

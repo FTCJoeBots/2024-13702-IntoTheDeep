@@ -58,21 +58,6 @@ public class JoeBot
   private static Pose2d pose = new Pose2d( 0, 0, 0 );
 
   public static boolean debugging = true;
-  public static boolean enableSoundEffects = false;
-
-  public enum Sound
-  {
-    CALIBRATE_INIT,
-    CALIBRATE_RUN,
-    TELEOP_STOP,
-    AUTONOMOUS_START,
-    BASKET,
-    SPECIMEN,
-    CLIMB
-  }
-
-  private HashMap<Sound, Integer> soundIDs;
-  private Context appContext;
 
   public JoeBot( boolean forAutonomous,
                  HardwareMap hardwareMap,
@@ -105,17 +90,6 @@ public class JoeBot
     //RoadRunner they prefer to run using Auto instead of Manual mode
     hubs = hardwareMap.getAll( LynxModule.class );
     setupBulkCaching();
-
-    appContext = hardwareMap.appContext;
-    soundIDs = new HashMap();
-    Resources resources = appContext.getResources();
-    soundIDs.put( Sound.CALIBRATE_INIT, resources.getIdentifier( "calibrateinit", "raw", appContext.getPackageName() ) );
-    soundIDs.put( Sound.CALIBRATE_RUN, resources.getIdentifier( "calibraterun", "raw", appContext.getPackageName() ) );
-    soundIDs.put( Sound.TELEOP_STOP, resources.getIdentifier( "teleopstop", "raw", appContext.getPackageName() ) );
-    soundIDs.put( Sound.AUTONOMOUS_START, resources.getIdentifier( "autonomousstart", "raw", appContext.getPackageName() ) );
-    soundIDs.put( Sound.BASKET, resources.getIdentifier( "basket", "raw", appContext.getPackageName() ) );
-    soundIDs.put( Sound.SPECIMEN, resources.getIdentifier( "specimen", "raw", appContext.getPackageName() ) );
-    soundIDs.put( Sound.CLIMB, resources.getIdentifier( "climb", "raw", appContext.getPackageName() ) );
   }
 
   public void debug( String message )
@@ -125,30 +99,6 @@ public class JoeBot
       telemetry.log().add( message );
       telemetry.update();
     }
-  }
-
-  public void playSound( Sound sound, boolean loop )
-  {
-    if( enableSoundEffects &&
-        soundIDs.containsKey( sound ) )
-    {
-      int soundID = soundIDs.get( sound ).intValue();
-
-      // create a sound parameter that holds the desired player parameters.
-      SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
-      params.loopControl = loop ? -1 : 0;
-      params.waitForNonLoopingSoundsToFinish = false;
-
-      SoundPlayer player = SoundPlayer.getInstance();
-      player.stopPlayingAll();
-      player.startPlaying( appContext, soundID, params, null, null );
-    }
-  }
-
-  public void stopPlayingLoopingSounds()
-  {
-    SoundPlayer player = SoundPlayer.getInstance();
-    player.stopPlayingLoops();
   }
 
   private void setupBulkCaching()
@@ -309,6 +259,9 @@ public class JoeBot
     extensionArm.updateState();
     climbArm.updateState();
     intake.updateState( force );
+
+    //a specimen could jam and prevent it going all the way down
+    lift.allowReset = !intake.hasSample();
   }
 
   public void wait( int milliseconds )
@@ -403,11 +356,6 @@ public class JoeBot
 
     automaticallyResetHeadingUsingIMU();
     updateState( true );
-
-    if( !intake.hasSample() )
-    {
-      playSound( Sound.BASKET, false );
-    }
   }
 
   public void hangSpecimen( Bar bar )
@@ -452,11 +400,6 @@ public class JoeBot
 
     automaticallyResetHeadingUsingIMU();
     updateState( true );
-
-    if( !intake.hasSample() )
-    {
-      playSound( Sound.SPECIMEN, false );
-    }
   }
 
   public void levelOneAscent()
@@ -494,8 +437,6 @@ public class JoeBot
     coast();
 
     clearBulkCache();
-
-    playSound( Sound.CLIMB, false );
 
     ActionTools.runBlocking( this,
       new SequentialAction(

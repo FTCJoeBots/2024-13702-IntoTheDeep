@@ -72,7 +72,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
     AbstractModule.encodersReset = false;
 
     robot = new JoeBot( true, hardwareMap, telemetry );
-    JoeBot.enableSoundEffects = false;
 
     gamepads = new Gamepads( gamepad1, gamepad2 );
 
@@ -89,9 +88,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   @Override
   public void start()
   {
-    //reset the timer when the game starts
-    time.reset();
-
     //clear screen
     telemetry.update();
 
@@ -114,7 +110,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         new MoveLift( robot, Lift.Position.TRAVEL_WITH_SPECIMEN, 500 ) );
     }
 
-    robot.playSound( JoeBot.Sound.AUTONOMOUS_START, false );
+    //reset the timer when the game starts
+    time.reset();
   }
 
   @Override
