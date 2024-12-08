@@ -32,7 +32,7 @@ public class LiftStuckArm extends AbstractAction implements Action
       robot.debug( String.format( "LiftStuckArm: %s", desiredArmPosition ) );
       super.initialize();
 
-      //raise the lift to unstick the arm if it cannot restract to the desired position
+      //raise the lift to unstick the arm if it cannot retract to the desired position
       if( robot.extensionArm().getMotorPosition() > desiredArmPosition + 1 )
       {
         robot.lift().travelTo( raisedLiftPosition );

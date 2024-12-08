@@ -3,15 +3,9 @@ package org.firstinspires.ftc.teamcode.modules.drive;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.Twist2dDual;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.enums.PresetDirection;
 import org.firstinspires.ftc.teamcode.enums.RotateDirection;
@@ -28,11 +22,6 @@ public class Drive extends AbstractModule
 
   private ThreeDeadWheelLocalizer localizer = null;
   private Pose2d pose;
-
-  private IMU inertialMeasurementUnit = null;
-  private double imuOffset = 0;
-  private static YawPitchRollAngles orientation = new YawPitchRollAngles( AngleUnit.DEGREES, 0, 0, 0, 0 );
-  private static ElapsedTime orientationTime = new ElapsedTime();
 
   public enum Perspective
   {
@@ -77,7 +66,6 @@ public class Drive extends AbstractModule
     backLeftMotor = createMotor( "backLeftMotor" );
     backRightMotor = createMotor( "backRightMotor" );
     localizer = new ThreeDeadWheelLocalizer( hardwareMap, MecanumDrive.PARAMS.inPerTick );
-    //    inertialMeasurementUnit = hardwareMap.get( IMU.class, "imu" );
   }
 
   private void initState()
@@ -88,13 +76,6 @@ public class Drive extends AbstractModule
     initMotor( frontRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
     initMotor( backLeftMotor, runMode, DcMotorSimple.Direction.FORWARD );
     initMotor( backRightMotor, runMode, DcMotorSimple.Direction.REVERSE );
-
-    if( inertialMeasurementUnit != null )
-    {
-      RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot( RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD );
-      inertialMeasurementUnit.initialize( new IMU.Parameters( orientationOnRobot ) );
-      inertialMeasurementUnit.resetYaw();
-    }
   }
 
   public Pose2d getPos()
@@ -105,13 +86,6 @@ public class Drive extends AbstractModule
   public void resetPose( Pose2d pose )
   {
     this.pose = pose;
-
-    if( inertialMeasurementUnit != null )
-    {
-      inertialMeasurementUnit.resetYaw();
-      imuOffset = pose.heading.toDouble();
-    }
-
     telemetry.log().add( "Reset Position and Heading" );
   }
 
@@ -250,22 +224,6 @@ public class Drive extends AbstractModule
   public void updateState()
   {
     updatePose();
-    updateHeading();
-  }
-
-  private void updateHeading()
-  {
-    if( inertialMeasurementUnit == null ||
-        orientationTime.seconds() < 10 )
-    { return; }
-
-    YawPitchRollAngles angles = inertialMeasurementUnit.getRobotYawPitchRollAngles();
-
-    if( angles != null &&
-        !Double.valueOf( angles.getYaw( AngleUnit.DEGREES ) ).isNaN() )
-    { orientation = angles; }
-
-    orientationTime.reset();
   }
 
   private void updatePose()
@@ -281,15 +239,6 @@ public class Drive extends AbstractModule
   public void printTelemetry()
   {
     telemetry.addLine( String.format( "Perspective: %s", perspective ) );
-//    telemetry.addLine( String.format( "Front Left Power: %s", frontLeftMotor.getPower() ) );
-//    telemetry.addLine( String.format( "Front Right Power: %s", frontRightMotor.getPower() ) );
-//    telemetry.addLine( String.format( "Back Left Power: %s", backLeftMotor.getPower() ) );
-//    telemetry.addLine( String.format( "Back Right Power: %s", backRightMotor.getPower() ) );
-
-//    telemetry.addLine( String.format( "Front Left Pos: %s", frontLeftMotor.getCurrentPosition() ) );
-//    telemetry.addLine( String.format( "Front Right Pos: %s", frontRightMotor.getCurrentPosition() ) );
-//    telemetry.addLine( String.format( "Back Left Pos: %s", backLeftMotor.getCurrentPosition() ) );
-//    telemetry.addLine( String.format( "Back Right Pos: %s", backRightMotor.getCurrentPosition() ) );
 
     if( localizer != null )
     {
@@ -300,11 +249,6 @@ public class Drive extends AbstractModule
       telemetry.addLine().addData( "X: ", "%.1f", pose.position.x );
       telemetry.addLine().addData( "Y: ", "%.1f", pose.position.y );
       telemetry.addLine().addData( "Heading: ", "%.1f", Math.toDegrees( pose.heading.toDouble() ) );
-    }
-
-    if( inertialMeasurementUnit != null )
-    {
-      telemetry.addLine().addData( "IMU Heading: ", "%.1f", Math.toDegrees( orientation.getYaw( AngleUnit.RADIANS ) - imuOffset ) );
     }
   }
 }

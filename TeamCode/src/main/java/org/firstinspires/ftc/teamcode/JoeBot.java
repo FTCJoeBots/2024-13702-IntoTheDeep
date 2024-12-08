@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
-import com.qualcomm.ftccommon.SoundPlayer;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
@@ -34,10 +33,6 @@ import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
-import android.content.Context;
-import android.content.res.Resources;
-
-import java.util.HashMap;
 import java.util.List;
 
 public class JoeBot
@@ -207,7 +202,7 @@ public class JoeBot
 
     final YawPitchRollAngles imuAngles = imu.getRobotYawPitchRollAngles();
 
-    //acquistion time will be 0 if IMU is unresponsive
+    //acquisition time will be 0 if IMU is unresponsive
     if( imuAngles.getAcquisitionTime() == 0 )
     { return; }
 

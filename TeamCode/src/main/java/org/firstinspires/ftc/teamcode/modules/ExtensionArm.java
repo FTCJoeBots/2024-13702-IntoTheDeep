@@ -99,7 +99,7 @@ public class ExtensionArm extends AbstractModule
              stallTimer.milliseconds() > 3000 )
     {
       telemetry.log().add( "Stall detected, stopping extension arm!" );
-      telemetry.log().add( String.format( "ellapsed: %s", stallTimer.milliseconds() ) );
+      telemetry.log().add( String.format( "elapsed: %s", stallTimer.milliseconds() ) );
       telemetry.log().add( String.format( "currentVelocity: %f", extensionArmMotor.getVelocity() ) );
       telemetry.log().add( String.format( "currentPosition: %s", current ) );
       telemetry.log().add( String.format( "targetPosition: %s", target ) );
