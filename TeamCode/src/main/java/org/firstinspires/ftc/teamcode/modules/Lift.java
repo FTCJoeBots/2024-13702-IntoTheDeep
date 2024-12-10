@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -77,7 +78,9 @@ public class Lift extends AbstractModule
   }
 
   private Action currentAction = Action.STOPPED;
+  private double startingPower = 0;
   private double targetPower = 1;
+  protected ElapsedTime time = null;
 
   public Lift( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -90,6 +93,7 @@ public class Lift extends AbstractModule
   {
     leftMotor = createMotor( "leftLiftMotor" );
     rightMotor = createMotor( "rightLiftMotor" );
+    time = new ElapsedTime();
   }
 
   private void initState()
@@ -130,8 +134,7 @@ public class Lift extends AbstractModule
     targetPower = 1.0;
     final int position = Position.TOUCHING_HIGH_HANG_BAR.value;
 
-    setMotorPosition( leftMotor, position, power );
-    setMotorPosition( rightMotor, position, power );
+    setMotorPosition( position, power );
     currentAction = Action.CLIMBING;
     return true;
   }
@@ -171,8 +174,7 @@ public class Lift extends AbstractModule
 
     power = adjustPower( liftNewPosition, power );
 
-    setMotorPosition( leftMotor, liftNewPosition, power );
-    setMotorPosition( rightMotor, liftNewPosition, power );
+    setMotorPosition( liftNewPosition, power );
     currentAction = Action.MOVING;
 
     if( liftNewPosition < liftCurPosition &&
@@ -213,6 +215,17 @@ public class Lift extends AbstractModule
     if( currentAction == Action.STOPPED )
     { return; }
 
+    //ramp motor speeds
+    {
+      final double seconds = time.seconds();
+      final double rampTime = 0.5;
+      final double percent = Math.min( 1, seconds/rampTime );
+      final double power = percent * targetPower + ( 1 - percent ) * startingPower;
+//      double power = liftPosition() > 500 ? 1 : 0.2;
+      leftMotor.setPower( power );
+      rightMotor.setPower( power );
+    }
+
     final int leftPos = leftMotor.getCurrentPosition();
     final int rightPos = rightMotor.getCurrentPosition();
     final int leftTarget = leftMotor.getTargetPosition();
@@ -249,7 +262,7 @@ public class Lift extends AbstractModule
       }
     }
     //stop once we get close to our target position
-    else if( minDiff <= 5 )
+    else if( minDiff <= 2 )
     {
       telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", minDiff ) );
 
@@ -331,8 +344,7 @@ public class Lift extends AbstractModule
       //never coast when manually moving the lift
       targetPower = power;
 
-      setMotorPosition( leftMotor, liftNewPosition, power );
-      setMotorPosition( rightMotor, liftNewPosition, power );
+      setMotorPosition( liftNewPosition, power );
       Action cachedAction = currentAction;
       currentAction = Action.MOVING;
 
@@ -347,17 +359,22 @@ public class Lift extends AbstractModule
     { return false; }
   }
 
-  private void setMotorPosition( DcMotorEx motor, int position, double power )
+  private void setMotorPosition( int position, double power )
   {
-    if( motor == null )
-    { return; }
+    leftMotor.setTargetPosition( position );
+    rightMotor.setTargetPosition( position );
 
-    motor.setTargetPosition( position );
-    motor.setPower( power );
-    motor.setZeroPowerBehavior( power == 0 &&
-                                targetPower != 0 ?
-                                DcMotor.ZeroPowerBehavior.FLOAT :
-                                DcMotor.ZeroPowerBehavior.BRAKE );
+    startingPower = leftMotor.getPower();
+    targetPower = power;
+    time.reset();
+
+    DcMotor.ZeroPowerBehavior behavior = power == 0 &&
+                                         targetPower != 0 ?
+                                         DcMotor.ZeroPowerBehavior.FLOAT :
+                                         DcMotor.ZeroPowerBehavior.BRAKE;
+
+    leftMotor.setZeroPowerBehavior( behavior );
+    rightMotor.setZeroPowerBehavior( behavior );
   }
 
 }

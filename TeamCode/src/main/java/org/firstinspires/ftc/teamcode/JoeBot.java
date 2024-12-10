@@ -286,11 +286,9 @@ public class JoeBot
             Lift.Position.SPECIMEN_FLOOR :
             Lift.Position.SAMPLE_FLOOR ),
         new GrabSample( this, isSpecimen ),
-        new ParallelAction(
           new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
           new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value,
             ExtensionArm.Speed.FAST.value, 500 )
-        )
       )
     );
 
@@ -435,7 +433,7 @@ public class JoeBot
 
     ActionTools.runBlocking( this,
       new SequentialAction(
-        new MoveLift( this, Lift.Position.ABOVE_ABOVE_HANG_BAR ),
+        new MoveLift( this, Lift.Position.ABOVE_ABOVE_HANG_BAR, 6000 ),
         new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
         new MoveLiftToClimb( this ),
         new MoveExtensionArm( this, ExtensionArm.Position.RETRACT_TO_CLIMB.value, ExtensionArm.Speed.FAST.value, 500 ),
