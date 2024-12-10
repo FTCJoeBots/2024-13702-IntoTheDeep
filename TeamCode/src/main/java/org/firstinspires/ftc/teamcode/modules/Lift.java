@@ -53,8 +53,8 @@ public class Lift extends AbstractModule
     AT_LOW_HANG_BAR( 2116 ),
 
     //level 2 ascent
-    ABOVE_ABOVE_HANG_BAR( 3095 ),
-    TOUCHING_HIGH_HANG_BAR( 2551 ),
+    ABOVE_ABOVE_HANG_BAR( 4470 ),
+    TOUCHING_HIGH_HANG_BAR( 3685 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
     HIGH_UP( 3472 );
