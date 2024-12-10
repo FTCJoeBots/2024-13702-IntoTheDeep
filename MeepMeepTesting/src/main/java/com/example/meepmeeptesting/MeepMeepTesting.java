@@ -24,16 +24,17 @@ public class MeepMeepTesting {
   }
 
   public static void main(String[] args) {
-    MeepMeep meepMeep = new MeepMeep( 800 );
+    MeepMeep meepMeep = new MeepMeep( 1000 );
 
     RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
       // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
       .setConstraints(50, 50, Math.PI, Math.PI, 15)
       .build();
 
-     basketStrategy( myBot );
+//     basketStrategy( myBot );
+
 //    colomaApproach( myBot );
-//    fastStrafeApproach( myBot );
+    fastStrafeApproach( myBot );
 //    splineGrabApproach( myBot );
 //    splineTackleApproach( myBot );
 //    splineTackleApproach2( myBot );
@@ -185,7 +186,8 @@ public class MeepMeepTesting {
       .waitSeconds( grabSpecimenDelay )
 
       //hang specimen
-      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToLinearHeading( computePosition( new Vector2d( SPECIMEN_BAR_RIGHT.x,
+        SPECIMEN_BAR_RIGHT.y + 6 ) ), faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //grab specimen
@@ -195,7 +197,8 @@ public class MeepMeepTesting {
       .waitSeconds( grabSpecimenDelay )
 
       //hang specimen
-      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToLinearHeading( computePosition( new Vector2d( SPECIMEN_BAR_RIGHT.x,
+        SPECIMEN_BAR_RIGHT.y + 2*6 ) ), faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //park
