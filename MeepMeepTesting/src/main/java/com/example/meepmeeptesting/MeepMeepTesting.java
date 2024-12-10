@@ -31,17 +31,69 @@ public class MeepMeepTesting {
       .setConstraints(50, 50, Math.PI, Math.PI, 15)
       .build();
 
+     basketStrategy( myBot );
 //    colomaApproach( myBot );
 //    fastStrafeApproach( myBot );
 //    splineGrabApproach( myBot );
 //    splineTackleApproach( myBot );
-    splineTackleApproach2( myBot );
+//    splineTackleApproach2( myBot );
 
     meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_LIGHT)
-      .setDarkMode(true)
+      .setDarkMode(false)
       .setBackgroundAlpha(0.95f)
       .addEntity(myBot)
       .start();
+  }
+  //============================================================
+  static void basketStrategy( RoadRunnerBotEntity myBot )
+  {
+    final Vector2d STARTING_POSITION_BASKETS = new Vector2d( 0, 15.1 );
+    final Vector2d SPECIMEN_BAR_LEFT = new Vector2d( 25, 7 );
+    final Vector2d YELLOW_SAMPLE_1 = new Vector2d( 25, 48.7 );
+    final Vector2d YELLOW_SAMPLE_2 = new Vector2d( 25, 58 );
+     final Vector2d YELLOW_SAMPLE_3 = new Vector2d( 24.5, 58.8 );
+     final Vector2d SAMPLE_BASKETS = new Vector2d( 9.8, 52);
+    final Vector2d ASCENT_ZONE = new Vector2d( 59, 24 );
+    final double faceForward = computeAngle( 0 );
+    final double faceBasket = computeAngle( 135 );
+    final double faceRight = computeAngle( -90 );
+    final double faceSample = computeAngle( 45 );
+
+    myBot.runAction(myBot.getDrive().actionBuilder(
+        new Pose2d( computePosition( STARTING_POSITION_BASKETS ), faceForward ) )
+      //hang specimen
+      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_LEFT ), faceForward )
+      .waitSeconds( hangSpecimenDelay )
+
+      // grab sample 1
+      .strafeToLinearHeading( computePosition( YELLOW_SAMPLE_1 ), faceForward )
+      .waitSeconds( grabSpecimenDelay )
+
+      // place sample in a basket
+      .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
+      .waitSeconds( grabSpecimenDelay )
+
+      // grab sample 2
+      .strafeToLinearHeading( computePosition( YELLOW_SAMPLE_2 ), faceForward )
+      .waitSeconds( grabSpecimenDelay )
+
+      // place sample in a basket
+      .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
+      .waitSeconds( grabSpecimenDelay )
+
+      // grab sample 3
+      .strafeToLinearHeading( computePosition( YELLOW_SAMPLE_3 ), faceSample )
+      .waitSeconds( grabSpecimenDelay )
+
+      // place sample in a basket
+      .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
+      .waitSeconds( grabSpecimenDelay )
+
+      // level one ascent at the end of the autonomous.
+      .strafeToLinearHeading( computePosition( ASCENT_ZONE ), faceRight )
+
+        //start animation
+      .build());
   }
   //============================================================
   //21.03 seconds: strafe two, hangs two, park
