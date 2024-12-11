@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Math.abs;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.canvas.Canvas;
@@ -20,6 +22,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2dDual;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.ProfileParams;
 import com.acmerobotics.roadrunner.RamseteController;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TankKinematics;
 import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.TimeTrajectory;
@@ -43,7 +46,6 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -94,6 +96,8 @@ public final class TankDrive {
         // turn controller gains
         public double turnGain = 0.0;
         public double turnVelGain = 0.0;
+
+
     }
 
     public static Params PARAMS = new Params();
@@ -180,7 +184,7 @@ public final class TankDrive {
             meanRightVel /= rightEncs.size();
 
             FlightRecorder.write("TANK_LOCALIZER_INPUTS",
-                     new TankLocalizerInputsMessage(leftReadings, rightReadings));
+                    new TankLocalizerInputsMessage(leftReadings, rightReadings));
 
             if (!initialized) {
                 initialized = true;
@@ -195,11 +199,11 @@ public final class TankDrive {
             }
 
             TankKinematics.WheelIncrements<Time> twist = new TankKinematics.WheelIncrements<>(
-                    new DualNum<Time>(new double[] {
+                    new DualNum<Time>(new double[]{
                             meanLeftPos - lastLeftPos,
                             meanLeftVel
                     }).times(PARAMS.inPerTick),
-                    new DualNum<Time>(new double[] {
+                    new DualNum<Time>(new double[]{
                             meanRightPos - lastRightPos,
                             meanRightVel,
                     }).times(PARAMS.inPerTick)
@@ -407,7 +411,7 @@ public final class TankDrive {
                     Vector2dDual.constant(new Vector2d(0, 0), 3),
                     txWorldTarget.heading.velocity().plus(
                             PARAMS.turnGain * pose.heading.minus(txWorldTarget.heading.value()) +
-                            PARAMS.turnVelGain * (robotVelRobot.angVel - txWorldTarget.heading.velocity().value())
+                                    PARAMS.turnVelGain * (robotVelRobot.angVel - txWorldTarget.heading.velocity().value())
                     )
             );
             driveCommandWriter.write(new DriveCommandMessage(command));
@@ -495,4 +499,118 @@ public final class TankDrive {
                 defaultVelConstraint, defaultAccelConstraint
         );
     }
-}
+
+    public void StartPos(int sx,int sy,int so) {
+
+        double cur_pos_x;
+        double cur_pos_y;
+        double orient;
+
+        cur_pos_x = sx;
+        cur_pos_y = sy;
+        orient = so;
+
+    }
+
+
+
+    public Action forward(double x){
+        return actionBuilder(pose)
+                .lineToX(x)
+                .build();
+    }
+
+    public Action turn(double t){
+        return actionBuilder(pose)
+                .turn(Math.toRadians(t))
+                .build();
+    }
+
+    public void moveTo(int x,int y) {
+
+
+        double cur_pos_x = 0;
+        double cur_pos_y = 0;
+        double orient = 0;
+
+        double new_pos_x = x;
+        double new_pos_y = y;
+
+
+        //Veritcal Movment
+        if (cur_pos_x == new_pos_x){
+
+            if (new_pos_y > cur_pos_y) {
+                turn(90 - orient);
+                forward(new_pos_y - cur_pos_y);
+                orient = 90;
+            } else if (new_pos_y < cur_pos_y) {
+                double taa = -90 - orient;
+                if (abs(taa) > 181) {
+                    taa = 270 - orient;
+                }
+                turn(taa);
+                forward(Math.abs(new_pos_y - cur_pos_y));
+                orient = -90;
+            }
+        }
+
+    //Horizontal Movment
+
+        else if (cur_pos_y == new_pos_y){
+
+            if (new_pos_x > cur_pos_x) {
+                turn(-orient);
+                forward(new_pos_x - cur_pos_x);
+                orient = 0;
+            } else if (new_pos_x < cur_pos_x) {
+                double ta = -180 - orient;
+                if (abs(ta) > 181) {
+                    ta = -180 - orient;
+                }
+                turn(ta);
+                forward(Math.abs(new_pos_x - cur_pos_x));
+                orient = 180;
+            }
+        }
+
+
+
+    //Diagonal Movement
+        else{
+
+            if (new_pos_x > cur_pos_x){
+                double dif_x = new_pos_x - cur_pos_x;
+                double dif_y = new_pos_y - cur_pos_y;
+
+                double distance = Math.pow((dif_x * dif_x) + (dif_y * dif_y), 0.5);
+                double angle = Math.toDegrees(Math.asin(dif_y / distance));
+
+                turn(angle - orient);
+                forward(distance);
+
+                orient = angle;
+            }
+
+            else if (new_pos_x < cur_pos_x){
+                double dif_x = new_pos_x - cur_pos_x;
+                double dif_y = new_pos_y - cur_pos_y;
+                double distance = Math.pow((dif_x * dif_x) + (dif_y * dif_y), 0.5);
+
+                double angle = Math.toDegrees(Math.asin(dif_y / distance));
+                double angle2 = (180 - (2 * angle)) + angle;
+                turn(angle2 - orient);
+                forward(distance);
+
+                orient = angle2;
+            }
+
+
+            cur_pos_x = new_pos_x;
+            cur_pos_y = new_pos_y;
+        }
+
+
+}}
+
+
