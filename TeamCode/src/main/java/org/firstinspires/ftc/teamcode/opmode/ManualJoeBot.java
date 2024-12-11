@@ -115,6 +115,9 @@ public class ManualJoeBot extends OpMode
     //Full retract - B + A
     else if( gamepads.buttonsPressed( Participant.OPERATOR, EnumSet.of( Button.B, Button.A ) ) )
     {
+      //Prevent robot from moving while the motion if being performed
+      robot.drive().stop();
+
       robot.retrieveSample();
     }
     //Manually extend - Y
@@ -212,6 +215,9 @@ public class ManualJoeBot extends OpMode
         gamepad2.x &&
         gamepad2.left_stick_y > 0 )
     {
+      //Prevent robot from moving while the motion if being performed
+      robot.drive().stop();
+
       robot.grabSample( false );
       robot.intake().updateState( true );
       if( robot.intake().hasSample() )
@@ -222,6 +228,9 @@ public class ManualJoeBot extends OpMode
              gamepad2.x &&
              gamepad2.left_stick_y < 0 )
     {
+      //Prevent robot from moving while the motion if being performed
+      robot.drive().stop();
+
       robot.grabSample( true );
       robot.intake().updateState( true );
       if( robot.intake().hasSample() )

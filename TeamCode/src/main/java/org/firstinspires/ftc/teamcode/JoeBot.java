@@ -262,8 +262,8 @@ public class JoeBot
   {
     debug( String.format( "JoeBot::grabSample isSpecimen=%s", isSpecimen ) );
 
-    //Prevent robot from moving while the motion if being performed
-    stopDrive();
+//    //Prevent robot from moving while the motion if being performed
+//    stopDrive();
 
     ActionTools.runBlocking( this,
       new SequentialAction(
@@ -286,8 +286,8 @@ public class JoeBot
   {
     debug( "JoeBot::retrieveSample" );
 
-    //Prevent robot from moving while the motion if being performed
-    stopDrive();
+//    //Prevent robot from moving while the motion if being performed
+//    stopDrive();
 
     ActionTools.runBlocking( this,
       new SequentialAction(
