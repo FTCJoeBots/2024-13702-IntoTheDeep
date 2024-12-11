@@ -49,16 +49,16 @@ public abstract class AbstractModule
     if( motor == null )
     { return; }
 
-    motor.setPower( 0 );
-    motor.setDirection( direction );
-    motor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-
     // Reset the motor encoder so that it reads zero ticks
     if( !encodersReset )
     {
       motor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
       motor.setTargetPosition( 0 );
     }
+
+    motor.setDirection( direction );
+    motor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
+    motor.setPower( 0 );
 
     // Turn the motor back on
     motor.setMode( runMode );

@@ -97,7 +97,7 @@ public abstract class AbstractBasketOpMode extends AbstractAutonomousOpMode
     }
     else if( state == AutonomousState.HAVE_NOTHING )
     {
-      if( neutralSamples == 0 )
+      if( neutralSamples == 1 )
       {
         robot.debug( String.format( "BasketAuto:HAVE_NOTHING -> neutralSamplesLeft %s", neutralSamples ) );
         level1Ascent();

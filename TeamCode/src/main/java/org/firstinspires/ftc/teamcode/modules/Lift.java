@@ -13,8 +13,8 @@ public class Lift extends AbstractModule
   private static final double SPEED_UP = 1.0;
   private static final double SPEED_DOWN = 1.0;
 
-  private static final int ADJUST_UP   = 70;
-  private static final int ADJUST_DOWN = 70;
+  private static final int ADJUST_UP   = 100;
+  private static final int ADJUST_DOWN = 100;
 
   //coast down until we are close to our target
   private static final int FAR_AWAY = 200;
@@ -23,7 +23,7 @@ public class Lift extends AbstractModule
   //gravity does not seem to cause the lift as we get close
   //to the bottom and it is necessary to use the motors to pull the lift
   //the rest of the way down.
-  private static final int MINIMUM_COAST_HEIGHT = 484;
+  private static final int MINIMUM_COAST_HEIGHT = 700;
 
   public static boolean allowReset = true;
 
@@ -31,33 +31,33 @@ public class Lift extends AbstractModule
   public enum Position
   {
     FLOOR( 0 ),
-    MAX_LIFT( 3600 ),
+    MAX_LIFT( 5200 ),
 
-    SAMPLE_FLOOR( 18 ),
-    SPECIMEN_FLOOR( 40 ),
+    SAMPLE_FLOOR( 90 ),
+    SPECIMEN_FLOOR( 116 ),
 
     //high enough that we don't hit the submersible bar when retracting
-    TRAVEL_WITH_SPECIMEN( 332 ),
+    TRAVEL_WITH_SPECIMEN( 480 ),
 
     //putting samples in baskets
-    HIGH_BASKET( 3600 ),
-    LOW_BASKET( 2206 ),
+    HIGH_BASKET( 5150 ),
+    LOW_BASKET( 3302 ),
 
     //hanging specimens
-    ABOVE_HIGH_SPECIMEN_BAR( 2342 ),
-    ABOVE_LOW_SPECIMEN_BAR( 1323 ),
-    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 2170 ),
-    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1100 ),
+    ABOVE_HIGH_SPECIMEN_BAR( 3444 ),
+    ABOVE_LOW_SPECIMEN_BAR( 1912 ),
+    SPECIMEN_CLIPPED_ONTO_HIGH_BAR( 3140 ),
+    SPECIMEN_CLIPPED_ONTO_LOW_BAR( 1590 ),
 
     //level 1 ascent
-    AT_LOW_HANG_BAR( 1465 ),
+    AT_LOW_HANG_BAR( 2116 ),
 
     //level 2 ascent
-    ABOVE_ABOVE_HANG_BAR( 3095 ),
-    TOUCHING_HIGH_HANG_BAR( 2551 ),
+    ABOVE_ABOVE_HANG_BAR( 4470 ),
+    TOUCHING_HIGH_HANG_BAR( 3685 ),
 
     //height above which we should limit extending the extension arm to avoid tipping over
-    HIGH_UP( 2403 );
+    HIGH_UP( 3472 );
 
     Position( int value )
     {
@@ -81,6 +81,10 @@ public class Lift extends AbstractModule
   private double startingPower = 0;
   private double targetPower = 1;
   protected ElapsedTime time = null;
+
+  private static final boolean coastDown = true;
+  private static final boolean rampPower = false;
+  private static final boolean detectStalls = false;
 
   public Lift( HardwareMap hardwareMap, Telemetry telemetry )
   {
@@ -147,7 +151,8 @@ public class Lift extends AbstractModule
     //close to our target position
     final int liftCurPosition = liftPosition();
 
-    if( targetPosition < liftCurPosition &&
+    if( coastDown &&
+        targetPosition < liftCurPosition &&
         liftCurPosition > MINIMUM_COAST_HEIGHT &&
         liftCurPosition - targetPosition >= FAR_AWAY )
     {
@@ -177,7 +182,8 @@ public class Lift extends AbstractModule
     setMotorPosition( liftNewPosition, power );
     currentAction = Action.MOVING;
 
-    if( liftNewPosition < liftCurPosition &&
+    if( detectStalls &&
+        liftNewPosition < liftCurPosition &&
         power > 0 )
     {
       autoDetectStall = true;
@@ -216,6 +222,7 @@ public class Lift extends AbstractModule
     { return; }
 
     //ramp motor speeds
+    if( rampPower )
     {
       final double seconds = time.seconds();
       final double rampTime = 0.5;
@@ -235,7 +242,8 @@ public class Lift extends AbstractModule
     final int minDiff = Math.min( leftDiff, rightDiff );
 
     //detect stall
-    if( autoDetectStall &&
+    if( detectStalls &&
+        autoDetectStall &&
         stallTimer.milliseconds() > 1000 &&
         Math.min( Math.abs( leftMotor.getVelocity() ),
                   Math.abs( rightMotor.getVelocity() ) ) <= 0.2 )
@@ -262,7 +270,7 @@ public class Lift extends AbstractModule
       }
     }
     //stop once we get close to our target position
-    else if( minDiff <= 2 )
+    else if( minDiff <= 3 )
     {
       telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", minDiff ) );
 
@@ -282,8 +290,12 @@ public class Lift extends AbstractModule
       rightMotor.setPower( targetPower );
       leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
       rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
-      autoDetectStall = true;
-      stallTimer.reset();
+
+      if( detectStalls )
+      {
+        autoDetectStall = true;
+        stallTimer.reset();
+      }
     }
   }
 
@@ -348,11 +360,13 @@ public class Lift extends AbstractModule
       Action cachedAction = currentAction;
       currentAction = Action.MOVING;
 
-      if( liftNewPosition < liftCurPosition )
+      if( detectStalls &&
+          liftNewPosition < liftCurPosition )
       {
         autoDetectStall = true;
         stallTimer.reset();
       }
+
       return currentAction != cachedAction;
     }
     else
@@ -364,9 +378,17 @@ public class Lift extends AbstractModule
     leftMotor.setTargetPosition( position );
     rightMotor.setTargetPosition( position );
 
-    startingPower = leftMotor.getPower();
-    targetPower = power;
-    time.reset();
+    if( rampPower )
+    {
+      startingPower = leftMotor.getPower();
+      targetPower = power;
+      time.reset();
+    }
+    else
+    {
+      leftMotor.setPower( power );
+      rightMotor.setPower( power );
+    }
 
     DcMotor.ZeroPowerBehavior behavior = power == 0 &&
                                          targetPower != 0 ?
