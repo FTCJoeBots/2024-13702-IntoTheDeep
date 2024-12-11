@@ -270,7 +270,7 @@ public class Lift extends AbstractModule
       }
     }
     //stop once we get close to our target position
-    else if( minDiff <= 2 )
+    else if( minDiff <= 3 )
     {
       telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", minDiff ) );
 
