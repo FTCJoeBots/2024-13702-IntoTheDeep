@@ -500,11 +500,12 @@ public final class TankDrive {
         );
     }
 
-    public void StartPos(int sx,int sy,int so) {
+    double cur_pos_x = 0.5;
+    double cur_pos_y = 3;
+    double orient = 0;
 
-        double cur_pos_x;
-        double cur_pos_y;
-        double orient;
+
+    public void StartPos(int sx,int sy,int so) {
 
         cur_pos_x = sx;
         cur_pos_y = sy;
@@ -527,11 +528,6 @@ public final class TankDrive {
     }
 
     public void moveTo(int x,int y) {
-
-
-        double cur_pos_x = 0;
-        double cur_pos_y = 0;
-        double orient = 0;
 
         double new_pos_x = x;
         double new_pos_y = y;
