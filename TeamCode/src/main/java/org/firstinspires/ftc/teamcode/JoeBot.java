@@ -367,14 +367,8 @@ public class JoeBot
         new MoveExtensionArm( this, extendedPosition, ExtensionArm.Speed.FAST.value, 500  ),
         //drop down so when we pull back the specimen will be clipped to the bar
         new MoveLift( this, clippedPosition, 1000 ),
-        //run intake slowly while we retract the arm to clip the specimen onto the bar
-          new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value,
-            ExtensionArm.Speed.HANG_SPECIMEN.value, 500 ),
-        //check for and raise lift if the arm gets stuck while retracting
-        //so we don't get hung up on the bar and tangle the lift strings
-//        new LiftStuckArm( this, extendBeforeBar, abovePosition.value ),
-//        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, ExtensionArm.Speed.FAST.value, 2000 ),
-        new MoveLift( this, Lift.Position.FLOOR, 0 )
+        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, ExtensionArm.Speed.HANG_SPECIMEN.value, 500 ),
+        new MoveLift( this, Lift.Position.SPECIMEN_FLOOR, 0 )
       )
     );
 
