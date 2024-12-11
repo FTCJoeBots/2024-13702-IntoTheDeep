@@ -21,24 +21,25 @@ public class AutoTester extends LinearOpMode {
 
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(-90));// Starting position
         TankDrive drive = new  TankDrive(hardwareMap, startPose);
-
+        boolean test1 = false;
 
         Action start = drive.actionBuilder(drive.pose)
                 .lineToX(6)
                 .build();
 
-
-
         while(!isStopRequested() && !opModeIsActive()) {}
 
         waitForStart();
 
-        Actions.runBlocking(new SequentialAction(
-
-                start
-
-        ));
-
+        if(test1) {
+            Actions.runBlocking(new SequentialAction(
+                    start
+            ));
+        }
+        else {
+            drive.StartPos(0.5, 3, 0);
+            drive.moveTo(1, 3);
+        }
         if (isStopRequested()) return;
     }
 }

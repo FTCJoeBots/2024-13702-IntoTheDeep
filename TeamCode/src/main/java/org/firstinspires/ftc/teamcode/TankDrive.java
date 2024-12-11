@@ -505,7 +505,7 @@ public final class TankDrive {
     double orient = 0;
 
 
-    public void StartPos(int sx,int sy,int so) {
+    public void StartPos(double sx,double sy,double so) {
 
         cur_pos_x = sx;
         cur_pos_y = sy;
