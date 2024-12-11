@@ -97,8 +97,8 @@ public class Lift extends AbstractModule
   private void initState()
   {
     final DcMotor.RunMode runMode = DcMotor.RunMode.RUN_TO_POSITION;
-    initMotor( leftMotor, runMode, DcMotorSimple.Direction.FORWARD );
-    initMotor( rightMotor, runMode, DcMotorSimple.Direction.REVERSE );
+    initMotor( leftMotor, runMode, DcMotorSimple.Direction.REVERSE );
+    initMotor( rightMotor, runMode, DcMotorSimple.Direction.FORWARD );
   }
 
   public boolean isHigh()
