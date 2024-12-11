@@ -2,8 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+//import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -21,7 +20,6 @@ import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
-import java.util.Collections;
 import java.util.List;
 
 public abstract class AbstractAutonomousOpMode extends OpMode
@@ -148,7 +146,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   protected boolean retrieveSpecimen()
   {
     //give human player a change to position the specimen
-    ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
+//    ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
 
     driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
 
@@ -163,7 +161,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
         driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
 
         //give human player a change to position the specimen
-        ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
+//        ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
 
         driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
       }

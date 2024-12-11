@@ -209,7 +209,6 @@ public class JoeBot
     final double imuHeading = imuAngles.getYaw( AngleUnit.DEGREES );
     final double angleDifference = AngleTools.angleDifference( deadWheelHeading, imuHeading );
 
-
     if( angleDifference > 0.5 )
     {
       telemetry.log().add( "angleDifference: %f", angleDifference );
@@ -259,19 +258,6 @@ public class JoeBot
     lift.allowReset = !intake.hasSample();
   }
 
-  public void wait( int milliseconds )
-  {
-    debug( String.format( "JoeBot::wait %s", milliseconds ) );
-
-    ActionTools.runBlocking( this,
-      new SequentialAction(
-        new SleepAction( milliseconds )
-      )
-    );
-
-    automaticallyResetHeadingUsingIMU();
-  }
-
   public void grabSample( boolean isSpecimen )
   {
     debug( String.format( "JoeBot::grabSample isSpecimen=%s", isSpecimen ) );
@@ -286,9 +272,10 @@ public class JoeBot
             Lift.Position.SPECIMEN_FLOOR :
             Lift.Position.SAMPLE_FLOOR ),
         new GrabSample( this, isSpecimen ),
+        new ParallelAction(
           new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
-          new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value,
-            ExtensionArm.Speed.FAST.value, 500 )
+          new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value, ExtensionArm.Speed.FAST.value, 500 )
+        )
       )
     );
 
