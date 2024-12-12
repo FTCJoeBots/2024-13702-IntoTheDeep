@@ -256,7 +256,7 @@ public abstract class AbstractSpecimensOpMode extends AbstractAutonomousOpMode
         }
         else
         {
-          driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+          driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, retrieveAngle() ) );
 
           state = retrieveSpecimen() ?
             AutonomousState.HAVE_SPECIMEN :

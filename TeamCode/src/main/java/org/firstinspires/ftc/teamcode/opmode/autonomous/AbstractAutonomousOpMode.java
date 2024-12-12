@@ -12,10 +12,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
+import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
 import org.firstinspires.ftc.teamcode.enums.Location;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.enums.Team;
+import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -38,6 +40,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   //set to false to speed up debugging by ejecting samples
   //without operating the lift
   public static boolean enableLiftMotions = true;
+
+  public static boolean extendArmWhileParking = true;
 
   protected AbstractAutonomousOpMode( Team team, AutonomousState startState )
   {
@@ -131,7 +135,18 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   protected void park()
   {
     robot.debug( "Autonomous:park" );
-    driveTo( new Pose2d( Location.PARK_IN_OBSERVATION_ZONE, 0 ) );
+
+    if( extendArmWhileParking )
+    {
+      MecanumDrive drive = robot.mecanumDrive();
+      ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+                 .afterTime( 1, new MoveExtensionArm( robot, ExtensionArm.Position.FULLY_EXTENDED.value ) )
+                 .strafeToLinearHeading( Location.PARK_IN_OBSERVATION_ZONE, Math.toRadians( -110 ) ).build() );
+    }
+    else
+    {
+      driveTo( new Pose2d( Location.PARK_IN_OBSERVATION_ZONE, 0 ) );
+    }
     state = AutonomousState.PARKED;
   }
 
@@ -143,12 +158,20 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       .build() );
   }
 
+  protected double retrieveAngle()
+  {
+    //face back
+//    return Math.PI;
+
+    //face angle
+    return Math.toRadians( -135 );
+  }
+
   protected boolean retrieveSpecimen()
   {
-    //give human player a change to position the specimen
-//    ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
+    final double angle = retrieveAngle();
 
-    driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
+    driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, angle ) );
 
     while( !timeRunningOut() )
     {
@@ -158,12 +181,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       { return true; }
       else
       {
-        driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
-
-        //give human player a change to position the specimen
-//        ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
-
-        driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
+        driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, angle ) );
+        driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, angle ) );
       }
     }
 
