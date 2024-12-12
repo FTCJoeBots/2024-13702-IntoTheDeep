@@ -26,7 +26,7 @@ public class Location
 
   public static Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 5, -50 );
 
-  public static Vector2d NEAR_ASCENT_ZONE = new Vector2d( 63.9, 52 );
+  public static Vector2d NEAR_ASCENT_ZONE = new Vector2d( 59, 52 );
   public static Vector2d ASCENT_ZONE = new Vector2d( 59, 21 );
 
   public static Vector2d NEAR_YELLOW_SAMPLES_1 = new Vector2d( 30, 40 );

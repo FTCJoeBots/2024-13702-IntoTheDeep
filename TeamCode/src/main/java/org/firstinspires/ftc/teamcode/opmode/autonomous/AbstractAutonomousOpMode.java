@@ -127,7 +127,18 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     robot.debug( "Autonomous:level1Ascent" );
     final double faceRight = Math.toRadians( -90 );
-    driveTo( new Pose2d( Location.ASCENT_ZONE, faceRight ) ) ;
+
+    //raise lift while driving to ascent zone
+    robot.lift().travelTo( Lift.Position.AT_LOW_HANG_BAR );
+
+    MecanumDrive drive = robot.mecanumDrive();
+    ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+      .strafeToLinearHeading( Location.NEAR_ASCENT_ZONE, faceRight )
+      .strafeToLinearHeading( Location.ASCENT_ZONE, faceRight )
+      .build() );
+
+//    driveTo( new Pose2d( Location.ASCENT_ZONE, faceRight ) ) ;
+
     robot.levelOneAscent();
     state = AutonomousState.PARKED;
   }

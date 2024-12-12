@@ -59,7 +59,7 @@ public class ClimbArm extends AbstractModule
 
   public boolean armsRaised()
   {
-    return Math.abs( climbMotor.getCurrentPosition() - Position.HOOKS_RAISED.value ) <= 50;
+    return Math.abs( climbMotor.getCurrentPosition() - Position.HOOKS_RAISED.value ) <= 2000;
   }
 
   public void raiseHooks()
