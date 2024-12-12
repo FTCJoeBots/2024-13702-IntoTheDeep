@@ -141,7 +141,7 @@ public abstract class AbstractSpecimensOpMode extends AbstractAutonomousOpMode
     else if( state == AutonomousState.HAVE_SPECIMEN )
     {
       robot.debug( "SpecimenAuto:HAVE_SPECIMEN -> hangSpecimen" );
-      Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.x + specimensHung,
+      Vector2d location = new Vector2d( Location.SPECIMEN_BAR_RIGHT.x + 1 * specimensHung,
                                         Location.SPECIMEN_BAR_RIGHT.y + 6 * specimensHung );
       if( enableLiftMotions )
       {
@@ -256,7 +256,7 @@ public abstract class AbstractSpecimensOpMode extends AbstractAutonomousOpMode
         }
         else
         {
-          driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
+          driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, retrieveAngle() ) );
 
           state = retrieveSpecimen() ?
             AutonomousState.HAVE_SPECIMEN :

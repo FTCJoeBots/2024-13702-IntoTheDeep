@@ -31,10 +31,9 @@ public class MeepMeepTesting {
       .setConstraints(50, 50, Math.PI, Math.PI, 15)
       .build();
 
-//     basketStrategy( myBot );
-
+     basketStrategy( myBot );
 //    colomaApproach( myBot );
-    fastStrafeApproach( myBot );
+//    fastStrafeApproach( myBot );
 //    splineGrabApproach( myBot );
 //    splineTackleApproach( myBot );
 //    splineTackleApproach2( myBot );

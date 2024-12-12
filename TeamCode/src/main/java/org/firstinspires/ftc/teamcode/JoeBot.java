@@ -209,7 +209,6 @@ public class JoeBot
     final double imuHeading = imuAngles.getYaw( AngleUnit.DEGREES );
     final double angleDifference = AngleTools.angleDifference( deadWheelHeading, imuHeading );
 
-
     if( angleDifference > 0.5 )
     {
       telemetry.log().add( "angleDifference: %f", angleDifference );
@@ -259,25 +258,12 @@ public class JoeBot
     lift.allowReset = !intake.hasSample();
   }
 
-  public void wait( int milliseconds )
-  {
-    debug( String.format( "JoeBot::wait %s", milliseconds ) );
-
-    ActionTools.runBlocking( this,
-      new SequentialAction(
-        new SleepAction( milliseconds )
-      )
-    );
-
-    automaticallyResetHeadingUsingIMU();
-  }
-
   public void grabSample( boolean isSpecimen )
   {
     debug( String.format( "JoeBot::grabSample isSpecimen=%s", isSpecimen ) );
 
-    //Prevent robot from moving while the motion if being performed
-    stopDrive();
+//    //Prevent robot from moving while the motion if being performed
+//    stopDrive();
 
     ActionTools.runBlocking( this,
       new SequentialAction(
@@ -286,9 +272,10 @@ public class JoeBot
             Lift.Position.SPECIMEN_FLOOR :
             Lift.Position.SAMPLE_FLOOR ),
         new GrabSample( this, isSpecimen ),
+        new ParallelAction(
           new MoveLift( this, Lift.Position.TRAVEL_WITH_SPECIMEN ),
-          new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value,
-            ExtensionArm.Speed.FAST.value, 500 )
+          new MoveExtensionArm( this, ExtensionArm.Position.RETRACTED_WITH_SAMPLE.value, ExtensionArm.Speed.FAST.value, 500 )
+        )
       )
     );
 
@@ -299,8 +286,8 @@ public class JoeBot
   {
     debug( "JoeBot::retrieveSample" );
 
-    //Prevent robot from moving while the motion if being performed
-    stopDrive();
+//    //Prevent robot from moving while the motion if being performed
+//    stopDrive();
 
     ActionTools.runBlocking( this,
       new SequentialAction(
@@ -380,14 +367,8 @@ public class JoeBot
         new MoveExtensionArm( this, extendedPosition, ExtensionArm.Speed.FAST.value, 500  ),
         //drop down so when we pull back the specimen will be clipped to the bar
         new MoveLift( this, clippedPosition, 1000 ),
-        //run intake slowly while we retract the arm to clip the specimen onto the bar
-          new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value,
-            ExtensionArm.Speed.HANG_SPECIMEN.value, 500 ),
-        //check for and raise lift if the arm gets stuck while retracting
-        //so we don't get hung up on the bar and tangle the lift strings
-//        new LiftStuckArm( this, extendBeforeBar, abovePosition.value ),
-//        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, ExtensionArm.Speed.FAST.value, 2000 ),
-        new MoveLift( this, Lift.Position.FLOOR, 0 )
+        new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, ExtensionArm.Speed.HANG_SPECIMEN.value, 500 ),
+        new MoveLift( this, Lift.Position.SPECIMEN_FLOOR, 0 )
       )
     );
 

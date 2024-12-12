@@ -2,8 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+//import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -13,15 +12,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
+import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
 import org.firstinspires.ftc.teamcode.enums.Location;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.enums.Team;
+import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Intake;
 import org.firstinspires.ftc.teamcode.modules.Lift;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
-import java.util.Collections;
 import java.util.List;
 
 public abstract class AbstractAutonomousOpMode extends OpMode
@@ -40,6 +40,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   //set to false to speed up debugging by ejecting samples
   //without operating the lift
   public static boolean enableLiftMotions = true;
+
+  public static boolean extendArmWhileParking = true;
 
   protected AbstractAutonomousOpMode( Team team, AutonomousState startState )
   {
@@ -125,7 +127,18 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   {
     robot.debug( "Autonomous:level1Ascent" );
     final double faceRight = Math.toRadians( -90 );
-    driveTo( new Pose2d( Location.ASCENT_ZONE, faceRight ) ) ;
+
+    //raise lift while driving to ascent zone
+    robot.lift().travelTo( Lift.Position.AT_LOW_HANG_BAR );
+
+    MecanumDrive drive = robot.mecanumDrive();
+    ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+      .strafeToLinearHeading( Location.NEAR_ASCENT_ZONE, faceRight )
+      .strafeToLinearHeading( Location.ASCENT_ZONE, faceRight )
+      .build() );
+
+//    driveTo( new Pose2d( Location.ASCENT_ZONE, faceRight ) ) ;
+
     robot.levelOneAscent();
     state = AutonomousState.PARKED;
   }
@@ -133,7 +146,18 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   protected void park()
   {
     robot.debug( "Autonomous:park" );
-    driveTo( new Pose2d( Location.PARK_IN_OBSERVATION_ZONE, 0 ) );
+
+    if( extendArmWhileParking )
+    {
+      MecanumDrive drive = robot.mecanumDrive();
+      ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+                 .afterTime( 1, new MoveExtensionArm( robot, ExtensionArm.Position.FULLY_EXTENDED.value ) )
+                 .strafeToLinearHeading( Location.PARK_IN_OBSERVATION_ZONE, Math.toRadians( -110 ) ).build() );
+    }
+    else
+    {
+      driveTo( new Pose2d( Location.PARK_IN_OBSERVATION_ZONE, 0 ) );
+    }
     state = AutonomousState.PARKED;
   }
 
@@ -145,12 +169,20 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       .build() );
   }
 
+  protected double retrieveAngle()
+  {
+    //face back
+//    return Math.PI;
+
+    //face angle
+    return Math.toRadians( -135 );
+  }
+
   protected boolean retrieveSpecimen()
   {
-    //give human player a change to position the specimen
-    ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
+    final double angle = retrieveAngle();
 
-    driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
+    driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, angle ) );
 
     while( !timeRunningOut() )
     {
@@ -160,12 +192,8 @@ public abstract class AbstractAutonomousOpMode extends OpMode
       { return true; }
       else
       {
-        driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, Math.PI ) );
-
-        //give human player a change to position the specimen
-        ActionTools.runBlocking( robot, new SleepAction( 0.5 ) );
-
-        driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, Math.PI ) );
+        driveTo( new Pose2d( Location.NEAR_THE_OBSERVATION_ZONE, angle ) );
+        driveTo( new Pose2d( Location.RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, angle ) );
       }
     }
 
