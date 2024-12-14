@@ -8,13 +8,15 @@ import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
 public class MeepMeepTesting {
 
-  private static final double hangSpecimenDelay = 1.5;
+  private static final double hangSpecimenDelay = 2;
+  private static final double placeSampleDelay = 4;
   private static final double grabSpecimenDelay = 1.5;
+  private static final double level1Delay = 1;
 
   public static Vector2d computePosition( Vector2d location )
   {
     double x = -location.y;
-    double y = location.x - 63;
+    double y = location.x - 61;
     return new Vector2d( x, y );
   }
 
@@ -24,7 +26,7 @@ public class MeepMeepTesting {
   }
 
   public static void main(String[] args) {
-    MeepMeep meepMeep = new MeepMeep( 1000 );
+    MeepMeep meepMeep = new MeepMeep( 800 );
 
     RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
       // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
@@ -49,10 +51,16 @@ public class MeepMeepTesting {
   {
     final Vector2d STARTING_POSITION_BASKETS = new Vector2d( 0, 15.1 );
     final Vector2d SPECIMEN_BAR_LEFT = new Vector2d( 25, 7 );
-    final Vector2d YELLOW_SAMPLE_1 = new Vector2d( 25, 48.7 );
-    final Vector2d YELLOW_SAMPLE_2 = new Vector2d( 25, 58 );
-     final Vector2d YELLOW_SAMPLE_3 = new Vector2d( 24.5, 58.8 );
+    final Vector2d YELLOW_SAMPLE_1 = new Vector2d( 23.5, 48.7 );
+    final Vector2d YELLOW_SAMPLE_2 = new Vector2d( 23.5, 58 );
+     final Vector2d YELLOW_SAMPLE_3 = new Vector2d( 23, 58.8 );
      final Vector2d SAMPLE_BASKETS = new Vector2d( 9.8, 52);
+
+    final Vector2d STRAFE_1 = new Vector2d( 50, 50 );
+    final Vector2d STRAFE_2 = new Vector2d( 50, 62 );
+    final Vector2d STRAFE_3 = new Vector2d( 15, 62 );
+
+    final Vector2d NEAR_ASCENT_ZONE = new Vector2d( 59, 52 );
     final Vector2d ASCENT_ZONE = new Vector2d( 59, 24 );
     final double faceForward = computeAngle( 0 );
     final double faceBasket = computeAngle( 135 );
@@ -71,7 +79,7 @@ public class MeepMeepTesting {
 
       // place sample in a basket
       .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
-      .waitSeconds( grabSpecimenDelay )
+      .waitSeconds( placeSampleDelay )
 
       // grab sample 2
       .strafeToLinearHeading( computePosition( YELLOW_SAMPLE_2 ), faceForward )
@@ -79,18 +87,31 @@ public class MeepMeepTesting {
 
       // place sample in a basket
       .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
-      .waitSeconds( grabSpecimenDelay )
+      .waitSeconds( placeSampleDelay )
 
       // grab sample 3
-      .strafeToLinearHeading( computePosition( YELLOW_SAMPLE_3 ), faceSample )
-      .waitSeconds( grabSpecimenDelay )
+//      .strafeToLinearHeading( computePosition( YELLOW_SAMPLE_3 ), faceSample )
+//      .waitSeconds( grabSpecimenDelay )
+//
+//      // place sample in a basket
+//      .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
+//      .waitSeconds( placeSampleDelay )
 
-      // place sample in a basket
-      .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
-      .waitSeconds( grabSpecimenDelay )
+      //strafe 3
+      .strafeToLinearHeading( computePosition( STRAFE_1 ), faceRight )
+     .strafeToLinearHeading( computePosition( STRAFE_2 ), faceRight )
+      .strafeToLinearHeading( computePosition( STRAFE_3 ), faceRight )
+//      .setReversed( true )
+//        .splineToLinearHeading( new Pose2d( computePosition( STRAFE_3 ), faceRight ), 1.6 )
+
+
+
 
       // level one ascent at the end of the autonomous.
+      .strafeToLinearHeading( computePosition( NEAR_ASCENT_ZONE ), faceRight )
       .strafeToLinearHeading( computePosition( ASCENT_ZONE ), faceRight )
+            .waitSeconds( level1Delay )
+
 
         //start animation
       .build());
@@ -235,7 +256,7 @@ public class MeepMeepTesting {
       //strafe in sample
       .strafeToConstantHeading( computePosition( NEAR_TEAM_SAMPLES_1 ) )
       .splineToConstantHeading( computePosition( NEAR_TEAM_SAMPLES_2 ), faceUp )
-      .splineToSplineHeading( new Pose2d( computePosition( TEAM_SAMPLE_1 ), faceRight ), 16. )
+      .splineToSplineHeading( new Pose2d( computePosition( TEAM_SAMPLE_1 ), faceRight ), 1.6 )
       .strafeToLinearHeading( computePosition( strafePos1 ), faceRight )
 
       //grab specimen

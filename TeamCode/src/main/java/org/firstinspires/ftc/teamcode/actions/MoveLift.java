@@ -11,6 +11,8 @@ public class MoveLift extends AbstractAction implements Action
 {
   private Lift.Position position;
 
+  public Integer minimumHeight = null;
+
   public MoveLift( JoeBot robot, Lift.Position position )
   {
     super( robot, 3000 );
@@ -45,6 +47,11 @@ public class MoveLift extends AbstractAction implements Action
     //let the action complete if the maximum time has been exceeded
     //that is ok, we sometimes want to let te lift continue to drift down while we are driving
     if( timeExceeded() )
+    { return false; }
+
+    //lift is high enough
+    if( minimumHeight != null &&
+        robot.lift().liftPosition() >= minimumHeight )
     { return false; }
 
     return robot.lift().isMoving();
