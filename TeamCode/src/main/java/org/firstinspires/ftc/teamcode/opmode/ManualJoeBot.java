@@ -47,19 +47,6 @@ public class ManualJoeBot extends OpMode
 
     //Allow robot to be pushed around before the start button is pressed
     robot.drive().coast();
-
-    //auto retract arm and drop lift in case level 1 ascent was previously performed in Autonomous
-    if( robot.extensionArm().getMotorPosition() > ExtensionArm.Position.FULLY_RETRACTED.value )
-    {
-      addMessage( "Automatically Retracting Extension Arm" );
-      robot.extensionArm().fullyRetract();
-    }
-
-    if( robot.lift().liftPosition() > Lift.Position.FLOOR.value )
-    {
-      addMessage( "Automatically Dropping Lift" );
-      robot.lift().travelTo( Lift.Position.FLOOR );
-    }
   }
 
   @Override
@@ -87,6 +74,19 @@ public class ManualJoeBot extends OpMode
   {
     //Prevent robot from being pushed around
     robot.brake();
+
+    //auto retract arm and drop lift in case level 1 ascent was previously performed in Autonomous
+    if( robot.extensionArm().getMotorPosition() > ExtensionArm.Position.FULLY_RETRACTED.value )
+    {
+      addMessage( "Automatically Retracting Extension Arm" );
+      robot.extensionArm().fullyRetract();
+    }
+
+    if( robot.lift().liftPosition() > Lift.Position.FLOOR.value )
+    {
+      addMessage( "Automatically Dropping Lift" );
+      robot.lift().travelTo( Lift.Position.FLOOR );
+    }
 
     //update state including the color sensor
     robot.updateState( true );

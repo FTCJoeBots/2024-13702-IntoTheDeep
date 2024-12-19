@@ -3,13 +3,17 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
+import org.firstinspires.ftc.teamcode.actions.ActionTools;
+import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.enums.Bar;
 import org.firstinspires.ftc.teamcode.enums.Basket;
 import org.firstinspires.ftc.teamcode.enums.Button;
 import org.firstinspires.ftc.teamcode.enums.Location;
 import org.firstinspires.ftc.teamcode.enums.Participant;
 import org.firstinspires.ftc.teamcode.enums.Team;
+import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
 import org.firstinspires.ftc.teamcode.modules.Lift;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 public abstract class AbstractBasketOpMode extends AbstractAutonomousOpMode
 {
@@ -100,7 +104,28 @@ public abstract class AbstractBasketOpMode extends AbstractAutonomousOpMode
       if( neutralSamples == 1 )
       {
         robot.debug( String.format( "BasketAuto:HAVE_NOTHING -> neutralSamplesLeft %s", neutralSamples ) );
-        level1Ascent();
+
+        //strafe in final sample
+        final double faceRight = Math.toRadians( -90 );
+
+        final Vector2d STRAFE_1 = new Vector2d( 50, 50 );
+        final Vector2d STRAFE_2 = new Vector2d( 50, 62 );
+        final Vector2d STRAFE_3 = new Vector2d( 15, 62 );
+
+        MecanumDrive drive = robot.mecanumDrive();
+        ActionTools.runBlocking( robot, drive.actionBuilder( drive.pose )
+          .strafeToLinearHeading( STRAFE_1, faceRight )
+          .strafeToLinearHeading( STRAFE_2, faceRight )
+          .strafeToLinearHeading( STRAFE_3, faceRight )
+          .build() );
+
+        //raise lift while driving to ascent zone
+        robot.lift().travelTo( Lift.Position.AT_LOW_HANG_BAR );
+        robot.extensionArm().travelTo( 700 );
+
+        driveTo( new Pose2d( Location.ASCENT_ZONE, faceRight ) ) ;
+
+        state = AutonomousState.PARKED;
       }
       else
       {

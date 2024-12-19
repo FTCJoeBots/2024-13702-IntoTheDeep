@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -262,9 +261,6 @@ public class JoeBot
   {
     debug( String.format( "JoeBot::grabSample isSpecimen=%s", isSpecimen ) );
 
-//    //Prevent robot from moving while the motion if being performed
-//    stopDrive();
-
     ActionTools.runBlocking( this,
       new SequentialAction(
         new MoveLift( this,
@@ -285,9 +281,6 @@ public class JoeBot
   public void retrieveSample()
   {
     debug( "JoeBot::retrieveSample" );
-
-//    //Prevent robot from moving while the motion if being performed
-//    stopDrive();
 
     ActionTools.runBlocking( this,
       new SequentialAction(
@@ -320,17 +313,22 @@ public class JoeBot
     final int currentPosition = extensionArm.getMotorPosition();
     final int extendedPosition = currentPosition + ExtensionArm.Position.EXTEND_TO_DUMP_IN_BASKET.value;
 
+    Lift.Position raisePosition = basket == Basket.HIGH_BASKET ?
+      Lift.Position.HIGH_BASKET :
+      Lift.Position.LOW_BASKET;
+
+    MoveLift moveUp = new MoveLift( this, raisePosition, 8000 );
+
+    //avoid pause, start moving in while lift is still going up the last bit
+    moveUp.minimumHeight = raisePosition.value - 30;
+
     ActionTools.runBlocking( this,
       new SequentialAction(
-        new MoveLift( this,
-                      basket == Basket.HIGH_BASKET ?
-                        Lift.Position.HIGH_BASKET :
-                        Lift.Position.LOW_BASKET,
-          8000 ),
+        moveUp,
         new MoveExtensionArm( this, extendedPosition ),
         new OperateIntake( this, Intake.Direction.PUSH, 2000 ),
         new MoveExtensionArm( this, ExtensionArm.Position.FULLY_RETRACTED.value, ExtensionArm.Speed.FAST.value, 500 ),
-        new MoveLift( this, Lift.Position.FLOOR, 0 )
+        new MoveLift( this, Lift.Position.SAMPLE_FLOOR, 0 )
       )
     );
 
@@ -359,10 +357,15 @@ public class JoeBot
         Lift.Position.SPECIMEN_CLIPPED_ONTO_HIGH_BAR :
         Lift.Position.SPECIMEN_CLIPPED_ONTO_LOW_BAR;
 
+    MoveLift moveUp = new MoveLift( this, abovePosition, 6000 );
+
+    //avoid pause, start moving in while lift is still going up the last bit
+    moveUp.minimumHeight = abovePosition.value - 30;
+
     ActionTools.runBlocking( this,
       new SequentialAction(
         //raise lift above bar
-        new MoveLift( this, abovePosition, 6000 ),
+        moveUp,
         //extend past bar
         new MoveExtensionArm( this, extendedPosition, ExtensionArm.Speed.FAST.value, 500  ),
         //drop down so when we pull back the specimen will be clipped to the bar
@@ -380,18 +383,15 @@ public class JoeBot
   {
     debug( "JotBot::levelOneAscent()" );
 
-    //Prevent robot from moving while the motion if being performed
-    stopDrive();
-
-    clearBulkCache();
-
     //prevent slipping gears on the extension arm by letting the robot move backwards as the
     //extension arm comes in contact with the submersible frame
     coast();
 
+    clearBulkCache();
+
     ActionTools.runBlocking( this,
       new SequentialAction(
-        new MoveLift( this, Lift.Position.AT_LOW_HANG_BAR ),
+        new MoveLift( this, Lift.Position.AT_LOW_HANG_BAR, 1000 ),
         new MoveExtensionArm( this, ExtensionArm.Position.EXTEND_TO_TOUCH_BAR.value )
       )
     );
