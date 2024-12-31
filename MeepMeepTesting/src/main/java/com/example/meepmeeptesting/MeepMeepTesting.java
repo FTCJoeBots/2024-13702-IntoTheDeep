@@ -19,12 +19,7 @@ public class MeepMeepTesting {
     double y = location.x - 61;
     return new Vector2d( x, y );
   }
-
-  public static double computeAngle( double degrees )
-  {
-    return Math.toRadians( degrees + 90 );
-  }
-
+  
   public static void main(String[] args) {
     MeepMeep meepMeep = new MeepMeep( 800 );
 
@@ -33,12 +28,12 @@ public class MeepMeepTesting {
       .setConstraints(50, 50, Math.PI, Math.PI, 15)
       .build();
 
-     basketStrategy( myBot );
-//    colomaApproach( myBot );
-//    fastStrafeApproach( myBot );
-//    splineGrabApproach( myBot );
-//    splineTackleApproach( myBot );
-//    splineTackleApproach2( myBot );
+//     basketStrategy( myBot );
+    colomaApproach( myBot );
+    fastStrafeApproach( myBot );
+    splineGrabApproach( myBot );
+    splineTackleApproach( myBot );
+    splineTackleApproach2( myBot );
 
     meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_LIGHT)
       .setDarkMode(false)
@@ -62,10 +57,10 @@ public class MeepMeepTesting {
 
     final Vector2d NEAR_ASCENT_ZONE = new Vector2d( 59, 52 );
     final Vector2d ASCENT_ZONE = new Vector2d( 59, 24 );
-    final double faceForward = computeAngle( 0 );
-    final double faceBasket = computeAngle( 135 );
-    final double faceRight = computeAngle( -90 );
-    final double faceSample = computeAngle( 45 );
+    final double faceForward = Math.toRadians ( 90 );
+    final double faceBasket = Math.toRadians( 225 );
+    final double faceRight = Math.toRadians( 0 );
+    final double faceSample = Math.toRadians( 135 );
 
     myBot.runAction(myBot.getDrive().actionBuilder(
         new Pose2d( computePosition( STARTING_POSITION_BASKETS ), faceForward ) )
@@ -129,9 +124,9 @@ public class MeepMeepTesting {
     final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 50.0, -34 );
     final Vector2d TEAM_SAMPLE_1 = new Vector2d( 51, -45 );
     final Vector2d TEAM_SAMPLE_2 = new Vector2d( 51, -54 );
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceLeft = computeAngle( 90 );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceLeft = Math.toRadians( 180 );
 
     Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_1.y );
     Vector2d strafePos2 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_2.y );
@@ -180,9 +175,9 @@ public class MeepMeepTesting {
     final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -45 );
     final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 0, -61 );//4.5, -53.8 );
 
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceRight = computeAngle( -90 );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceRight = Math.toRadians( 0 );
 
     Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_1.y );
 
@@ -240,9 +235,9 @@ public class MeepMeepTesting {
     final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -44 );
     final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 0, -61 );
 
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceRight = computeAngle( -90 );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceRight = Math.toRadians( 0 );
 
     Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_1.y );
 
@@ -300,9 +295,9 @@ public class MeepMeepTesting {
     final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -54 );
     final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 0, -61 );
 
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceRight = computeAngle( -90 );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceRight = Math.toRadians( 0 );
 
     Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_1.y );
     Vector2d strafePos2 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x - 2, TEAM_SAMPLE_2.y );
@@ -345,7 +340,7 @@ public class MeepMeepTesting {
 //        NEAR_TEAM_SAMPLES_1.y - 5.5 ) ) )
       .strafeToLinearHeading( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_1.x - 4,
                                                                NEAR_TEAM_SAMPLES_1.y - 5.5 ) ),
-                                  computeAngle( -45 ) )
+        Math.toRadians( 45 ) )
       .splineToSplineHeading( new Pose2d( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_2.x,
                                                                          NEAR_TEAM_SAMPLES_2.y - 5.5 ) ), faceRight ), 1.6 )
       .splineToConstantHeading( computePosition( TEAM_SAMPLE_2 ), faceRight )
@@ -371,9 +366,9 @@ public class MeepMeepTesting {
     final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -54 );
     final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 5, -50 );
 
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceRight = computeAngle( -90 );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceRight = Math.toRadians( 0 );
 
     Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x + 4, TEAM_SAMPLE_1.y );
     Vector2d strafePos2 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_2.y );
