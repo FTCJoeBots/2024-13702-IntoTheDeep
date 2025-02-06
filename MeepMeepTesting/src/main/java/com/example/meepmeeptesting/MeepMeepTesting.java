@@ -8,9 +8,9 @@ import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
 public class MeepMeepTesting {
 
-  private static final double hangSpecimenDelay = 2;
-  private static final double placeSampleDelay = 4;
-  private static final double grabSpecimenDelay = 1.5;
+  private static final double hangSpecimenDelay = 0.2;//2;
+  private static final double placeSampleDelay = 0.2;//4;
+  private static final double grabSpecimenDelay = 0.2;//1.5;
   private static final double level1Delay = 1;
 
   public static void main(String[] args) {
