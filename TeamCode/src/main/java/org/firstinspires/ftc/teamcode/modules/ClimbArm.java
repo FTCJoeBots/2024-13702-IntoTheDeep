@@ -16,7 +16,7 @@ public class ClimbArm extends AbstractModule
   {
     HOOKS_RETRACTED( 0 ),
     HALF_CLIMB( 6900 ),
-    HOOKS_RAISED( 10000 );
+    HOOKS_RAISED( 10001 );
 
     Position( int value )
     {
