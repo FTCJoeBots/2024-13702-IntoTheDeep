@@ -8,22 +8,10 @@ import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
 public class MeepMeepTesting {
 
-  private static final double hangSpecimenDelay = 2;
-  private static final double placeSampleDelay = 4;
-  private static final double grabSpecimenDelay = 1.5;
+  private static final double hangSpecimenDelay = 0.2;//2;
+  private static final double placeSampleDelay = 0.2;//4;
+  private static final double grabSpecimenDelay = 0.2;//1.5;
   private static final double level1Delay = 1;
-
-  public static Vector2d computePosition( Vector2d location )
-  {
-    double x = -location.y;
-    double y = location.x - 61;
-    return new Vector2d( x, y );
-  }
-
-  public static double computeAngle( double degrees )
-  {
-    return Math.toRadians( degrees + 90 );
-  }
 
   public static void main(String[] args) {
     MeepMeep meepMeep = new MeepMeep( 800 );
@@ -49,307 +37,284 @@ public class MeepMeepTesting {
   //============================================================
   static void basketStrategy( RoadRunnerBotEntity myBot )
   {
-    final Vector2d STARTING_POSITION_BASKETS = new Vector2d( 0, 15.1 );
-    final Vector2d SPECIMEN_BAR_LEFT = new Vector2d( 25, 7 );
-    final Vector2d YELLOW_SAMPLE_1 = new Vector2d( 23.5, 48.7 );
-    final Vector2d YELLOW_SAMPLE_2 = new Vector2d( 23.5, 58 );
-     final Vector2d YELLOW_SAMPLE_3 = new Vector2d( 23, 58.8 );
-     final Vector2d SAMPLE_BASKETS = new Vector2d( 9.8, 52);
+    final Vector2d STARTING_POSITION_BASKETS = new Vector2d( -15.1, -61 );
+    final Vector2d SPECIMEN_BAR_LEFT = new Vector2d( -7, -36 );
+    final Vector2d YELLOW_SAMPLE_1 = new Vector2d( -48.7, -37.5 );
+    final Vector2d YELLOW_SAMPLE_2 = new Vector2d( -58, -37.5 );
+    final Vector2d YELLOW_SAMPLE_3 = new Vector2d( -58.8, -38 );
+    final Vector2d SAMPLE_BASKETS = new Vector2d( -52, -51.2 );
+    final Vector2d STRAFE_1 = new Vector2d( -50, -11 );
+    final Vector2d STRAFE_2 = new Vector2d( -62, -11 );
+    final Vector2d STRAFE_3 = new Vector2d( -62, -46 );
+    final Vector2d NEAR_ASCENT_ZONE = new Vector2d( -52, -2 );
+    final Vector2d ASCENT_ZONE = new Vector2d( -24, -2 );
 
-    final Vector2d STRAFE_1 = new Vector2d( 50, 50 );
-    final Vector2d STRAFE_2 = new Vector2d( 50, 62 );
-    final Vector2d STRAFE_3 = new Vector2d( 15, 62 );
-
-    final Vector2d NEAR_ASCENT_ZONE = new Vector2d( 59, 52 );
-    final Vector2d ASCENT_ZONE = new Vector2d( 59, 24 );
-    final double faceForward = computeAngle( 0 );
-    final double faceBasket = computeAngle( 135 );
-    final double faceRight = computeAngle( -90 );
-    final double faceSample = computeAngle( 45 );
+    final double faceForward = Math.toRadians ( 90 );
+    final double faceBasket = Math.toRadians( 225 );
+    final double faceRight = Math.toRadians( 0 );
+    final double faceSample = Math.toRadians( 135 );
 
     myBot.runAction(myBot.getDrive().actionBuilder(
-        new Pose2d( computePosition( STARTING_POSITION_BASKETS ), faceForward ) )
+        new Pose2d( STARTING_POSITION_BASKETS, faceForward ) )
       //hang specimen
-      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_LEFT ), faceForward )
+      .strafeToLinearHeading( SPECIMEN_BAR_LEFT, faceForward )
       .waitSeconds( hangSpecimenDelay )
 
       // grab sample 1
-      .strafeToLinearHeading( computePosition( YELLOW_SAMPLE_1 ), faceForward )
+      .strafeToLinearHeading( YELLOW_SAMPLE_1, faceForward )
       .waitSeconds( grabSpecimenDelay )
 
       // place sample in a basket
-      .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
+      .strafeToLinearHeading( SAMPLE_BASKETS, faceBasket )
       .waitSeconds( placeSampleDelay )
 
       // grab sample 2
-      .strafeToLinearHeading( computePosition( YELLOW_SAMPLE_2 ), faceForward )
+      .strafeToLinearHeading( YELLOW_SAMPLE_2, faceForward )
       .waitSeconds( grabSpecimenDelay )
 
       // place sample in a basket
-      .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
+      .strafeToLinearHeading( SAMPLE_BASKETS, faceBasket )
       .waitSeconds( placeSampleDelay )
 
-      // grab sample 3
-//      .strafeToLinearHeading( computePosition( YELLOW_SAMPLE_3 ), faceSample )
-//      .waitSeconds( grabSpecimenDelay )
-//
-//      // place sample in a basket
-//      .strafeToLinearHeading( computePosition( SAMPLE_BASKETS ), faceBasket )
-//      .waitSeconds( placeSampleDelay )
-
       //strafe 3
-      .strafeToLinearHeading( computePosition( STRAFE_1 ), faceRight )
-     .strafeToLinearHeading( computePosition( STRAFE_2 ), faceRight )
-      .strafeToLinearHeading( computePosition( STRAFE_3 ), faceRight )
-//      .setReversed( true )
-//        .splineToLinearHeading( new Pose2d( computePosition( STRAFE_3 ), faceRight ), 1.6 )
-
-
-
+     .strafeToLinearHeading( STRAFE_1, faceRight )
+     .strafeToLinearHeading( STRAFE_2, faceRight )
+     .strafeToLinearHeading( STRAFE_3, faceRight )
 
       // level one ascent at the end of the autonomous.
-      .strafeToLinearHeading( computePosition( NEAR_ASCENT_ZONE ), faceRight )
-      .strafeToLinearHeading( computePosition( ASCENT_ZONE ), faceRight )
-            .waitSeconds( level1Delay )
+      .strafeToLinearHeading( NEAR_ASCENT_ZONE, faceRight )
+      .strafeToLinearHeading( ASCENT_ZONE, faceRight )
+     .waitSeconds( level1Delay )
 
-
-        //start animation
+      //start animation
       .build());
   }
   //============================================================
   //21.03 seconds: strafe two, hangs two, park
   static void colomaApproach( RoadRunnerBotEntity myBot )
   {
-    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 25, -7 );
-    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
-    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20, -62.5 );
-    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 10, -62.5 );
-    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 10, -62.5 );
-    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 28, -34 );
-    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 50.0, -34 );
-    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 51, -45 );
-    final Vector2d TEAM_SAMPLE_2 = new Vector2d( 51, -54 );
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceLeft = computeAngle( 90 );
+    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 7, -36 );
+    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 15.6, -61 );
+    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 62.5, -41 );
+    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 62.5, -51 );
+    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 62.5,  -51 );
+    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 34, -33 );
+    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 34, -11 );
+    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 45, -10 );
+    final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -10 );
 
-    Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_1.y );
-    Vector2d strafePos2 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_2.y );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceLeft = Math.toRadians( 180 );
+
+    Vector2d strafePos1 = new Vector2d( TEAM_SAMPLE_1.x, STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.y );
+    Vector2d strafePos2 = new Vector2d( TEAM_SAMPLE_2.x, STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.y );
 
     myBot.runAction(myBot.getDrive().actionBuilder(
-        new Pose2d( computePosition( STARTING_POSITION_SPECIMENS ), faceUp ) )
+        new Pose2d( STARTING_POSITION_SPECIMENS, faceUp ) )
 
       //hang specimen
-      .strafeTo( computePosition( SPECIMEN_BAR_RIGHT ) )
+      .strafeTo( SPECIMEN_BAR_RIGHT )
       .waitSeconds( hangSpecimenDelay )
 
       //strafe in sample
-      .strafeToLinearHeading( computePosition( NEAR_TEAM_SAMPLES_1 ), faceLeft )
-      .strafeToLinearHeading( computePosition( NEAR_TEAM_SAMPLES_2 ), faceLeft )
-      .strafeToLinearHeading( computePosition( TEAM_SAMPLE_1 ), faceLeft )
-      .strafeToLinearHeading( computePosition( strafePos1 ), faceLeft )
+      .strafeToLinearHeading( NEAR_TEAM_SAMPLES_1, faceLeft )
+      .strafeToLinearHeading( NEAR_TEAM_SAMPLES_2, faceLeft )
+      .strafeToLinearHeading( TEAM_SAMPLE_1, faceLeft )
+      .strafeToLinearHeading( strafePos1, faceLeft )
 
       //grab specimen
-      .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .strafeTo( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ) )
+      .strafeToLinearHeading( NEAR_THE_OBSERVATION_ZONE, faceDown )
+      .strafeTo( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE )
       .waitSeconds( grabSpecimenDelay )
 
       //hang specimen
-      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToLinearHeading( SPECIMEN_BAR_RIGHT, faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //strafe in sample
-      .strafeToLinearHeading( computePosition( NEAR_TEAM_SAMPLES_1 ), faceLeft )
-      .strafeToLinearHeading( computePosition( NEAR_TEAM_SAMPLES_2 ), faceLeft )
-      .strafeToLinearHeading( computePosition( TEAM_SAMPLE_2 ), faceLeft )
-      .strafeToLinearHeading( computePosition( strafePos2 ), faceLeft )
+      .strafeToLinearHeading( NEAR_TEAM_SAMPLES_1, faceLeft )
+      .strafeToLinearHeading( NEAR_TEAM_SAMPLES_2, faceLeft )
+      .strafeToLinearHeading( TEAM_SAMPLE_2, faceLeft )
+      .strafeToLinearHeading( strafePos2, faceLeft )
 
       .build());
   }
   //============================================================
-  //26.07 seconds: strafe 1, hang three, park, with 0.5 second wait for human operator
+  //26.07 seconds: strafe 1, hang three, park, with 0.5 second wait for human player
   static void fastStrafeApproach( RoadRunnerBotEntity myBot )
   {
-    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 25, -7 );
-    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
-    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20, -47 );
-    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 11, -47 );
-    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 10, -47 );
-    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 25, -35 );
-    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 54, -35 );
-    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -45 );
-    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 0, -61 );//4.5, -53.8 );
+    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 7, -36 );
+    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 15.6, -61 );
+    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 47, -41 );
+    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 47, -50 );
+    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 47, -51 );
+    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 35, -36 );
+    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 35, -7 );
+    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 45, -7 );
+    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 61, -61 );
 
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceRight = computeAngle( -90 );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceRight = Math.toRadians( 0 );
 
-    Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_1.y );
+    Vector2d strafePos1 = new Vector2d( TEAM_SAMPLE_1.x, STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.y );
 
     myBot.runAction(myBot.getDrive().actionBuilder(
-        new Pose2d( computePosition( STARTING_POSITION_SPECIMENS ), faceUp ) )
+        new Pose2d( STARTING_POSITION_SPECIMENS, faceUp ) )
 
       //hang specimen
-      .strafeTo( computePosition( SPECIMEN_BAR_RIGHT ) )
+      .strafeTo( SPECIMEN_BAR_RIGHT )
       .waitSeconds( hangSpecimenDelay )
 
       //strafe in sample
-      .strafeToLinearHeading( computePosition( NEAR_TEAM_SAMPLES_1 ), faceRight )
-      .strafeToLinearHeading( computePosition( NEAR_TEAM_SAMPLES_2 ), faceRight )
-      .strafeToLinearHeading( computePosition( TEAM_SAMPLE_1 ), faceRight )
-      .strafeToLinearHeading( computePosition( strafePos1 ), faceRight )
+      .strafeToLinearHeading( NEAR_TEAM_SAMPLES_1, faceRight )
+      .strafeToLinearHeading( NEAR_TEAM_SAMPLES_2, faceRight )
+      .strafeToLinearHeading( TEAM_SAMPLE_1, faceRight )
+      .strafeToLinearHeading( strafePos1, faceRight )
 
       //grab specimen
-      .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .waitSeconds( 0.5 ) //wait for human operator
-      .strafeTo( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ) )
+      .strafeToLinearHeading( NEAR_THE_OBSERVATION_ZONE, faceDown )
+      .waitSeconds( 0.5 ) //wait for human player
+      .strafeTo( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE )
       .waitSeconds( grabSpecimenDelay )
 
       //hang specimen
-      .strafeToLinearHeading( computePosition( new Vector2d( SPECIMEN_BAR_RIGHT.x,
-        SPECIMEN_BAR_RIGHT.y + 6 ) ), faceUp )
+      .strafeToLinearHeading( new Vector2d( SPECIMEN_BAR_RIGHT.x - 6, SPECIMEN_BAR_RIGHT.y ), faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //grab specimen
-      .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
+      .strafeToLinearHeading( NEAR_THE_OBSERVATION_ZONE, faceDown )
       .waitSeconds( 0.5 ) //wait for human operator
-      .strafeToLinearHeading( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ), faceDown )
+      .strafeToLinearHeading( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, faceDown )
       .waitSeconds( grabSpecimenDelay )
 
       //hang specimen
-      .strafeToLinearHeading( computePosition( new Vector2d( SPECIMEN_BAR_RIGHT.x,
-        SPECIMEN_BAR_RIGHT.y + 2*6 ) ), faceUp )
+      .strafeToLinearHeading( new Vector2d( SPECIMEN_BAR_RIGHT.x - 12, SPECIMEN_BAR_RIGHT.y ), faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //park
-      .strafeTo( computePosition( PARK_IN_OBSERVATION_ZONE ) )
+      .strafeTo( PARK_IN_OBSERVATION_ZONE )
 
       .build());
   }
   //============================================================
-  //25.15 seconds: strafe 1, hang three, park, and 0.5 second wait for human operator
+  //25.15 seconds: strafe 1, hang three, park, and 0.5 second wait for human player
   static void splineGrabApproach( RoadRunnerBotEntity myBot )
   {
-    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 25, -7 );
-    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
-    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20, -47 );
-    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 11, -47 );
-    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 10, -47 );
-    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 25, -28 );
-    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 47.0, -35 );
-    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -44 );
-    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 0, -61 );
+    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 7, -36 );
+    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 15.6, -61 );
+    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 47, -41 );
+    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 47, -50 );
+    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 47, -51 );
+    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 28, -36 );
+    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 35, -14 );
+    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 44, -7 );
+    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 61, -61 );
 
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceRight = computeAngle( -90 );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceRight = Math.toRadians( 0 );
 
-    Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_1.y );
+    Vector2d strafePos1 = new Vector2d( TEAM_SAMPLE_1.x, STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.y );
 
     myBot.runAction(myBot.getDrive().actionBuilder(
-        new Pose2d( computePosition( STARTING_POSITION_SPECIMENS ), faceUp ) )
+        new Pose2d( STARTING_POSITION_SPECIMENS, faceUp ) )
 
       //hang specimen
-      .strafeTo( computePosition( SPECIMEN_BAR_RIGHT ) )
+      .strafeTo( SPECIMEN_BAR_RIGHT )
       .waitSeconds( hangSpecimenDelay )
 
       //strafe in sample
-      .strafeToConstantHeading( computePosition( NEAR_TEAM_SAMPLES_1 ) )
-      .splineToConstantHeading( computePosition( NEAR_TEAM_SAMPLES_2 ), faceUp )
-      .splineToSplineHeading( new Pose2d( computePosition( TEAM_SAMPLE_1 ), faceRight ), 1.6 )
-      .strafeToLinearHeading( computePosition( strafePos1 ), faceRight )
+      .strafeToConstantHeading( NEAR_TEAM_SAMPLES_1 )
+      .splineToConstantHeading( NEAR_TEAM_SAMPLES_2, faceUp )
+      .splineToSplineHeading( new Pose2d( TEAM_SAMPLE_1, faceRight ), 1.6 )
+      .strafeToLinearHeading( strafePos1, faceRight )
 
       //grab specimen
-      .strafeToSplineHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .waitSeconds( 0.5 ) //wait for human operator
-      .strafeTo( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ) )
+      .strafeToSplineHeading( NEAR_THE_OBSERVATION_ZONE, faceDown )
+      .waitSeconds( 0.5 ) //wait for human player
+      .strafeTo( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE )
       .waitSeconds( grabSpecimenDelay )
 
       //hang specimen
-      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToLinearHeading( SPECIMEN_BAR_RIGHT, faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //grab specimen
-      .strafeToSplineHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .waitSeconds( 0.5 ) //wait for human operator
-      .strafeToLinearHeading( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ), faceDown )
+      .strafeToSplineHeading( NEAR_THE_OBSERVATION_ZONE, faceDown )
+      .waitSeconds( 0.5 ) //wait for human player
+      .strafeToLinearHeading( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, faceDown )
       .waitSeconds( grabSpecimenDelay )
 
       //hang specimen
-      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToLinearHeading( SPECIMEN_BAR_RIGHT, faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //park
-      .strafeTo( computePosition( PARK_IN_OBSERVATION_ZONE ) )
+      .strafeTo( PARK_IN_OBSERVATION_ZONE )
 
       .build());
   }
   //============================================================
-  //25.07 seconds: strafe 2, hang three, park
-  //29.19 with park forward and spline heading interpolation when hanging specimens
   static void splineTackleApproach( RoadRunnerBotEntity myBot )
   {
-    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 25, -7 );
-    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
-    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20, -47 );
-    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 11, -47 );
-    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 3, -47 );
-    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 25, -28 );
-    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 47.0, -35 );
-    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -44 );
-    final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -54 );
-    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 0, -61 );
+    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 7, -36 );
+    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 15.6, -61 );
+    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 47, -41 );
+    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 47, -50 );
+    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 47, -58 );
+    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 28, -36 );
+    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 35, -14 );
+    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 44, -7 );
+    final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -7 );
+    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 61, -61 );
 
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceRight = computeAngle( -90 );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceRight = Math.toRadians( 0 );
 
-    Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_1.y );
-    Vector2d strafePos2 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x - 2, TEAM_SAMPLE_2.y );
+    Vector2d strafePos1 = new Vector2d( TEAM_SAMPLE_1.x, STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.y );
+    Vector2d strafePos2 = new Vector2d( TEAM_SAMPLE_2.x, STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.y );
 
     myBot.runAction(myBot.getDrive().actionBuilder(
-        new Pose2d( computePosition( STARTING_POSITION_SPECIMENS ), faceUp ) )
+        new Pose2d( STARTING_POSITION_SPECIMENS, faceUp ) )
 
       //hang specimen
-      .strafeTo( computePosition( SPECIMEN_BAR_RIGHT ) )
+      .strafeTo( SPECIMEN_BAR_RIGHT )
       .waitSeconds( hangSpecimenDelay )
 
       //strafe in first sample
-      .strafeToConstantHeading( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_1.x - 2,
-                                                               NEAR_TEAM_SAMPLES_1.y - 0 ) ) )
-      .splineToConstantHeading( computePosition( NEAR_TEAM_SAMPLES_2 ), faceUp )
-      .splineToSplineHeading( new Pose2d( computePosition( TEAM_SAMPLE_1 ), faceRight ), 1.6 )
-      .strafeToLinearHeading( computePosition( strafePos1 ), faceRight )
+      .strafeToConstantHeading( new Vector2d( NEAR_TEAM_SAMPLES_1.x, NEAR_TEAM_SAMPLES_1.y - 2 ) )
+      .splineToConstantHeading( NEAR_TEAM_SAMPLES_2, faceUp )
+      .splineToSplineHeading( new Pose2d( TEAM_SAMPLE_1, faceRight ), 1.6 )
+      .strafeToLinearHeading( strafePos1, faceRight )
 
       //grab specimen
-      .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .waitSeconds( 0.5 ) //wait for human operator
-      .strafeTo( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ) )
+      .strafeToLinearHeading( NEAR_THE_OBSERVATION_ZONE, faceDown )
+      .waitSeconds( 0.5 ) //wait for human player
+      .strafeTo( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE )
 
       //hang specimen
-      .strafeToSplineHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToSplineHeading( SPECIMEN_BAR_RIGHT, faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //grab specimen
-      .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .waitSeconds( 0.5 ) //wait for human operator
-      .strafeToLinearHeading( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ), faceDown )
+      .strafeToLinearHeading( NEAR_THE_OBSERVATION_ZONE, faceDown )
+      .waitSeconds( 0.5 ) //wait for human player
+      .strafeToLinearHeading( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, faceDown )
 
       //hang specimen
-//      .strafeToLinearHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
-      .strafeToSplineHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+//      .strafeToLinearHeading( SPECIMEN_BAR_RIGHT, faceUp )
+      .strafeToSplineHeading( SPECIMEN_BAR_RIGHT, faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //strafe in second sample - takes 5 seconds, if running low we should just park instead?
-//      .strafeToConstantHeading( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_1.x,
-//        NEAR_TEAM_SAMPLES_1.y - 5.5 ) ) )
-      .strafeToLinearHeading( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_1.x - 4,
-                                                               NEAR_TEAM_SAMPLES_1.y - 5.5 ) ),
-                                  computeAngle( -45 ) )
-      .splineToSplineHeading( new Pose2d( computePosition( new Vector2d( NEAR_TEAM_SAMPLES_2.x,
-                                                                         NEAR_TEAM_SAMPLES_2.y - 5.5 ) ), faceRight ), 1.6 )
-      .splineToConstantHeading( computePosition( TEAM_SAMPLE_2 ), faceRight )
-      .strafeToLinearHeading( computePosition( strafePos2 ), faceRight )
+      .strafeToLinearHeading( new Vector2d( NEAR_TEAM_SAMPLES_1.x + 5.5, NEAR_TEAM_SAMPLES_1.y - 4 ),
+        Math.toRadians( 45 ) )
+      .splineToSplineHeading( new Pose2d( new Vector2d( NEAR_TEAM_SAMPLES_2.x + 5.5, NEAR_TEAM_SAMPLES_2.y ), faceRight ), 1.6 )
+      .splineToConstantHeading( TEAM_SAMPLE_2, faceRight )
+      .strafeToLinearHeading( strafePos2, faceRight )
 
       //park facing up
       .turn( faceUp )
@@ -360,63 +325,62 @@ public class MeepMeepTesting {
   //28.18 seconds: strafe 2, hang three, park
   static void splineTackleApproach2( RoadRunnerBotEntity myBot )
   {
-    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 25, -7 );
-    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 0, -15.6 );
-    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 20, -47 );
-    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 11, -47 );
-    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 2.4, -48 );
-    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 23, -28 );
-    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 47, -36 );
-    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 54, -44 );
-    final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -54 );
-    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 5, -50 );
+    final Vector2d SPECIMEN_BAR_RIGHT = new Vector2d( 7, -36 );
+    final Vector2d STARTING_POSITION_SPECIMENS = new Vector2d( 15.6, -61 );
+    final Vector2d NEAR_THE_OBSERVATION_ZONE = new Vector2d( 47, -41 );
+    final Vector2d STRAFE_SAMPLE_INTO_OBSERVATION_ZONE = new Vector2d( 47, -50 );
+    final Vector2d RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE = new Vector2d( 48, -58.6 );
+    final Vector2d NEAR_TEAM_SAMPLES_1 = new Vector2d( 28, -38 );
+    final Vector2d NEAR_TEAM_SAMPLES_2 = new Vector2d( 36, -14 );
+    final Vector2d TEAM_SAMPLE_1 = new Vector2d( 44, -7 );
+    final Vector2d TEAM_SAMPLE_2 = new Vector2d( 54, -7 );
+    final Vector2d PARK_IN_OBSERVATION_ZONE = new Vector2d( 50, -56 );
 
-    final double faceUp = computeAngle( 0 );
-    final double faceDown = computeAngle( 180 );
-    final double faceRight = computeAngle( -90 );
+    final double faceUp = Math.toRadians( 90 );
+    final double faceDown = Math.toRadians( 270 );
+    final double faceRight = Math.toRadians( 0 );
 
-    Vector2d strafePos1 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x + 4, TEAM_SAMPLE_1.y );
-    Vector2d strafePos2 = new Vector2d( STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.x, TEAM_SAMPLE_2.y );
+    Vector2d strafePos1 = new Vector2d( TEAM_SAMPLE_1.x, STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.y + 4 );
+    Vector2d strafePos2 = new Vector2d( TEAM_SAMPLE_2.x, STRAFE_SAMPLE_INTO_OBSERVATION_ZONE.y );
 
     myBot.runAction(myBot.getDrive().actionBuilder(
-        new Pose2d( computePosition( STARTING_POSITION_SPECIMENS ), faceUp ) )
+        new Pose2d( STARTING_POSITION_SPECIMENS, faceUp ) )
 
       //hang specimen
-      .strafeTo( computePosition( SPECIMEN_BAR_RIGHT ) )
+      .strafeTo( SPECIMEN_BAR_RIGHT )
       .waitSeconds( hangSpecimenDelay )
 
       //strafe in first sample
-      .strafeToLinearHeading( computePosition( NEAR_TEAM_SAMPLES_1 ), faceUp )
-      .splineToConstantHeading( computePosition( NEAR_TEAM_SAMPLES_2 ), faceUp )
-      .splineToSplineHeading( new Pose2d( computePosition( TEAM_SAMPLE_1 ), faceRight ), 0 )
-      .strafeToLinearHeading( computePosition( strafePos1 ), faceRight )
+      .strafeToLinearHeading( NEAR_TEAM_SAMPLES_1, faceUp )
+      .splineToConstantHeading( NEAR_TEAM_SAMPLES_2, faceUp )
+      .splineToSplineHeading( new Pose2d( TEAM_SAMPLE_1, faceRight ), 0 )
+      .strafeToLinearHeading( strafePos1, faceRight )
 
       //strafe in second sample
-      .strafeToLinearHeading( computePosition( new Vector2d( strafePos1.x + 20,
-                                                             strafePos1.y + 2 ) ), faceRight )
-      .splineToConstantHeading( computePosition( TEAM_SAMPLE_2 ), faceRight )
-      .strafeToLinearHeading( computePosition( strafePos2 ), faceRight )
+      .strafeToLinearHeading( new Vector2d( strafePos1.x - 2, strafePos1.y + 20 ), faceRight )
+      .splineToConstantHeading( TEAM_SAMPLE_2, faceRight )
+      .strafeToLinearHeading( strafePos2, faceRight )
 
       //grab specimen
-      .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .waitSeconds( 1 ) //wait for human operator
-      .strafeTo( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ) )
+      .strafeToLinearHeading( NEAR_THE_OBSERVATION_ZONE, faceDown )
+      .waitSeconds( 1 ) //wait for human player
+      .strafeTo( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE )
 
       //hang specimen
-      .strafeToSplineHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToSplineHeading( SPECIMEN_BAR_RIGHT, faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //grab specimen
-      .strafeToLinearHeading( computePosition( NEAR_THE_OBSERVATION_ZONE ), faceDown )
-      .waitSeconds( 1 ) //wait for human operator
-      .strafeToLinearHeading( computePosition( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE ), faceDown )
+      .strafeToLinearHeading( NEAR_THE_OBSERVATION_ZONE, faceDown )
+      .waitSeconds( 1 ) //wait for human player
+      .strafeToLinearHeading( RETRIEVE_SPECIMEN_IN_OBSERVATION_ZONE, faceDown )
 
       //hang specimen
-      .strafeToSplineHeading( computePosition( SPECIMEN_BAR_RIGHT ), faceUp )
+      .strafeToSplineHeading( SPECIMEN_BAR_RIGHT, faceUp )
       .waitSeconds( hangSpecimenDelay )
 
       //park facing up
-      .strafeTo( computePosition( PARK_IN_OBSERVATION_ZONE ) )
+      .strafeTo( PARK_IN_OBSERVATION_ZONE )
 
       .build());
   }
