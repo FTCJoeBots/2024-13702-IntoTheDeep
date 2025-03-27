@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.actions.OperateClimbArm;
 import org.firstinspires.ftc.teamcode.actions.OperateIntake;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.modules.ClimbArm;
+import org.firstinspires.ftc.teamcode.modules.Vision;
 import org.firstinspires.ftc.teamcode.modules.drive.AngleTools;
 import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
@@ -41,6 +42,7 @@ public class JoeBot
   private Lift lift = null;
   private Intake intake = null;
   private ClimbArm climbArm = null;
+  private Vision vision = null;
 
   public volatile Gamepads gamepads = null;
 
@@ -65,6 +67,7 @@ public class JoeBot
     lift = new Lift( hardwareMap, telemetry );
     intake = new Intake( hardwareMap, telemetry );
     climbArm = new ClimbArm( hardwareMap, telemetry );
+    vision = new Vision( hardwareMap, telemetry );
 
     if( forAutonomous )
     {
@@ -132,6 +135,9 @@ public class JoeBot
   public ClimbArm climbArm()
   { return climbArm; }
 
+  public Vision vision()
+  { return vision; }
+
   public IMU imu()
   { return imu; }
 
@@ -173,6 +179,7 @@ public class JoeBot
     lift.stop();
     intake.stop();
     climbArm.stop();
+    vision.stop();
 
     stopDrive();
   }
@@ -252,6 +259,7 @@ public class JoeBot
     extensionArm.updateState();
     climbArm.updateState();
     intake.updateState( force );
+    vision.updateState();
 
     //a specimen could jam and prevent it going all the way down
     lift.allowReset = !intake.hasSample();

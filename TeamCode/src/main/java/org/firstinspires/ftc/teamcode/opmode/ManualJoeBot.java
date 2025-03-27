@@ -23,7 +23,7 @@ public class ManualJoeBot extends OpMode
 {
   private enum Module
   {
-    NONE, CLIMB_ARM, LIFT, EXTENSION_ARM, INTAKE, DRIVE,
+    NONE, CLIMB_ARM, LIFT, EXTENSION_ARM, INTAKE, DRIVE, VISION
   }
 
   private ElapsedTime time = null;
@@ -56,7 +56,7 @@ public class ManualJoeBot extends OpMode
 
     //Print out location so we can calibrate X,Y positions and verify heading
     robot.drive().printTelemetry();
-    robot.climbArm().printTelemetry();
+    robot.vision().printTelemetry();
     telemetry.update();
 
     if( gamepads.gamepad2.left_trigger > 0 )
@@ -354,6 +354,9 @@ public class ManualJoeBot extends OpMode
         break;
       case DRIVE:
         robot.drive().printTelemetry();
+        break;
+      case VISION:
+        robot.vision().printTelemetry();
         break;
     }
 
