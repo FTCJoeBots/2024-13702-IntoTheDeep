@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.modules;
+package org.firstinspires.ftc.teamcode.modules.vision;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 
 import java.util.List;
 
@@ -16,18 +17,36 @@ public class Vision extends AbstractModule
   private Limelight3A camera;
   private LLStatus status;
   private LLResult result;
+  private Sample sample;
 
   public Vision( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( hardwareMap, telemetry );
     initObjects();
     initState();
+
+    sample = new Sample();
   }
 
   public void updateState()
   {
     status = camera.getStatus();
     result = camera.getLatestResult();
+
+    Sample latestSample = new Sample( result.getPythonOutput() );
+
+    if( latestSample.color != Color.NOTHING )
+    { sample=latestSample;}
+    else
+    {
+      sample.age++;
+
+      if( sample.age >= 60 )
+      {
+        sample = new Sample();
+      }
+
+    }
   }
 
   public void stop()
@@ -39,12 +58,18 @@ public class Vision extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addData("Name", "%s",
-      status.getName());
-    telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-      status.getTemp(), status.getCpu(),(int)status.getFps());
-    telemetry.addData("Pipeline", "Index: %d, Type: %s",
-      status.getPipelineIndex(), status.getPipelineType());
+    if( sample.color != Color.NOTHING )
+    {
+      telemetry.addData( "horizontal position ", Math.round( sample.horizontalPosition ) );
+      telemetry.addData( "vertical position ", Math.round( sample.verticalPosition ) );
+      telemetry.addData( "area", Math.round( sample.area ) );
+      telemetry.addData( "color", sample.color );
+      telemetry.addData( "age", sample.age );
+    }
+    else
+    {
+      telemetry.addLine( "nothing observed!" );
+    }
 
     if (result != null)
     {

@@ -1,7 +1,14 @@
 import math
+from enum import Enum
 
 import cv2
 import numpy as np
+
+class Color(Enum):
+        RED = 0
+        YELLOW = 1
+        BLUE = 2
+        NOTHING = -1
 
 def identifySamples(image, hueImage, darkColor, lightColor):
     mask = cv2.inRange(hueImage, darkColor, lightColor)
@@ -71,11 +78,18 @@ def chooseSample(allSamples):
 def runPipeline(image, llrobot):
     hueImage = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
+    #set exposure to 616
+    #set sensor gain to 16.5
     redSamples = identifySamples(image,hueImage, np.array([0, 225, 97]), np.array([10, 255, 221]) )
     yellowSamples = identifySamples(image,hueImage, np.array([8, 240, 111]), np.array([30, 255, 192]) )
     blueSamples = identifySamples(image,hueImage, np.array([83, 166, 42]), np.array([142, 255, 150]) )
 
     allSamples = redSamples + yellowSamples + blueSamples
+
+    x=0
+    y=0
+    area=0
+    color = Color.NOTHING
 
     if len(allSamples) > 0:
         chosenSample = chooseSample(allSamples)
@@ -84,10 +98,18 @@ def runPipeline(image, llrobot):
         thickness = 10
         cv2.rectangle(image, rectangle[0], rectangle[1], color, thickness)
 
+        center = computeCenter(chosenSample)
+        x=center[0]
+        y=center[1]
+        area= cv2.contourArea(chosenSample)
+        color = Color.YELLOW
+
     # findClosest(image, redSamples)
     # findClosest(image, yellowSamples)
     # findClosest(image, blueSamples)
 
+    #TODO: color of the sample
+
     largestContour = np.array([[]])
-    data = [0, 0, 0, 0, 0, 0]
+    data = [y, x, area, color.value, 0, 0, 0]
     return largestContour, image, data

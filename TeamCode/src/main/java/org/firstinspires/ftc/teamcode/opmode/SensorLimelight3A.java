@@ -108,8 +108,14 @@ public class SensorLimelight3A extends LinearOpMode {
                 double parseLatency = result.getParseLatency();
                 telemetry.addData("LL Latency", captureLatency + targetingLatency);
                 telemetry.addData("Parse Latency", parseLatency);
-                telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
-                
+
+                double[] dataFromCamera = result.getPythonOutput();
+                telemetry.addData("PythonOutput", java.util.Arrays.toString(dataFromCamera  ) );
+                double x = dataFromCamera[ 0 ];
+                double y = dataFromCamera[ 1 ];
+                telemetry.addData( "Sample X ",x );
+                telemetry.addData( "Sample Y", y );
+
                 if (result.isValid()) {
                     telemetry.addData("tx", result.getTx());
                     telemetry.addData("txnc", result.getTxNC());

@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.actions.OperateClimbArm;
 import org.firstinspires.ftc.teamcode.actions.OperateIntake;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.firstinspires.ftc.teamcode.modules.ClimbArm;
-import org.firstinspires.ftc.teamcode.modules.Vision;
+import org.firstinspires.ftc.teamcode.modules.vision.Vision;
 import org.firstinspires.ftc.teamcode.modules.drive.AngleTools;
 import org.firstinspires.ftc.teamcode.modules.drive.Drive;
 import org.firstinspires.ftc.teamcode.modules.ExtensionArm;
