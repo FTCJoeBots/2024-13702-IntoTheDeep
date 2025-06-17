@@ -56,7 +56,8 @@ public class CalibrateFieldPositions extends OpMode
     telemetry.addLine( String.format( "X,Y = %.1f, %.1f  Heading = %.1f", pose.position.x, pose.position.y, Math.toDegrees( pose.heading.toDouble() ) ) );
 
     final double yaw = robot.imu().getRobotYawPitchRollAngles().getYaw( AngleUnit.DEGREES );
-    telemetry.addLine().addData( "IMU Heading: ", "%.1f", yaw );
+//    telemetry.addLine().addData( "IMU Heading: ", "%.1f", yaw );
+    telemetry.addLine( String.format( "IMU Heading:  %.1f", yaw ) );
   }
 
   @Override

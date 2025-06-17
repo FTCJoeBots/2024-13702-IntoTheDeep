@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modules.vision;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -7,8 +8,11 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
 
@@ -19,6 +23,10 @@ public class Vision extends AbstractModule
   private LLResult result;
   private Sample sample;
 
+  LimeLightImageTools tools;
+
+  private int nextSnapshot = 1;
+
   public Vision( HardwareMap hardwareMap, Telemetry telemetry )
   {
     super( hardwareMap, telemetry );
@@ -26,6 +34,12 @@ public class Vision extends AbstractModule
     initState();
 
     sample = new Sample();
+  }
+
+  public void takeSnapshot()
+  {
+    camera.captureSnapshot( String.format( "Capture %d", nextSnapshot ) );
+    nextSnapshot++;
   }
 
   public void updateState()
@@ -110,5 +124,13 @@ public class Vision extends AbstractModule
   {
     camera.pipelineSwitch(0);
     camera.start();
+    camera.deleteSnapshots();
+
+    tools = new LimeLightImageTools( camera );
+    tools.setDriverStationStreamSource();
+
+    //TODO - only when dashboard is toggled on,..
+    tools.forwardAll();
+    FtcDashboard.getInstance().startCameraStream( tools.getStreamSource(), 10 );
   }
 }

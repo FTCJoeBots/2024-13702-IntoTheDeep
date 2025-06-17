@@ -30,6 +30,11 @@ public abstract class AbstractModule
     stallTimer = new ElapsedTime();
   }
 
+  public void setTelemetry( Telemetry telemetry )
+  {
+    this.telemetry = telemetry;
+  }
+
   protected DcMotorEx createMotor( String name )
   {
     DcMotorEx motor = hardwareMap.get( DcMotorEx.class, name );

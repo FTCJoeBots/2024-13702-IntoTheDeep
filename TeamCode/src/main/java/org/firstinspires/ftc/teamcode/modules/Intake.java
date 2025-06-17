@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.modules;
 
 import android.graphics.Color;
 
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -375,7 +376,17 @@ public class Intake extends AbstractModule
     if ( !colorKnown )
     { updateColorAndDistance(); }
 
-    telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] );
+    //the following line crashes FTC dashboard
+//    if( !( telemetry instanceof MultipleTelemetry ) )
+    {
+//      telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] );
+
+      telemetry.addLine( String.format( "Hue %.3f", hsvValues[ 0 ] ) +
+                         "  " +
+                         String.format( "Saturation %.3f", hsvValues[ 1 ] ) );
+
+    }
+
     telemetry.addData( "Distance (cm)", "%.3f", distance );
     telemetry.addData( "Observed:", "%s", getObservedObject() );
     telemetry.addData( "Current Action:", "%s", currentAction );

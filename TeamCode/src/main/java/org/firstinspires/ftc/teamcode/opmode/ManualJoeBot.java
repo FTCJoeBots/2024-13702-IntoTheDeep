@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
 import org.firstinspires.ftc.teamcode.enums.Button;
@@ -31,6 +34,32 @@ public class ManualJoeBot extends OpMode
   private JoeBot robot = null;
   private Gamepads gamepads = null;
 
+  private Telemetry driverStation     = null;
+  private Telemetry ftcDashboard      = null;
+  private Telemetry multipleTelemetry = null;
+  private boolean usingMultipleTelemetry = false;
+
+  private void toggleMultipleTelemetry()
+  {
+    usingMultipleTelemetry = !usingMultipleTelemetry;
+
+    if( usingMultipleTelemetry )
+    {
+      if( multipleTelemetry == null )
+      {
+        driverStation = telemetry;
+        ftcDashboard = FtcDashboard.getInstance().getTelemetry();
+        multipleTelemetry = new MultipleTelemetry( telemetry, ftcDashboard );
+      }
+
+      telemetry = multipleTelemetry;
+    }
+    else
+    { telemetry = driverStation; }
+
+    robot.setTelemetry( telemetry );
+  }
+
   //We run this when the user hits "INIT" on the app
   @Override
   public void init()
@@ -38,6 +67,8 @@ public class ManualJoeBot extends OpMode
     time = new ElapsedTime();
 
     gamepads = new Gamepads( gamepad1, gamepad2 );
+
+//    telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
     robot = new JoeBot( false, hardwareMap, telemetry );
     robot.gamepads = gamepads;
@@ -90,6 +121,10 @@ public class ManualJoeBot extends OpMode
 
     //update state including the color sensor
     robot.updateState( true );
+
+//    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//    OpenCvWebcam camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get( WebcamName.class, "limelight"), cameraMonitorViewId);
+//    FtcDashboard.getInstance().startCameraStream(camera, 0);
   }
 
   private void addMessage( String message)
@@ -299,12 +334,10 @@ public class ManualJoeBot extends OpMode
       robot.drive().faceDirection( PresetDirection.BACKWARD );
     }
 
-    /*
     if( gamepads.buttonPressed( Participant.DRIVER, Button.LEFT_STICK ) )
     {
       robot.drive().togglePerspective();
     }
-    */
 
     double forward = gamepad1.left_stick_y;
     double strafe = -( gamepad1.left_stick_x + gamepad1.right_stick_x );
@@ -322,7 +355,7 @@ public class ManualJoeBot extends OpMode
     robot.drive().move( forward, strafe, rotate );
 
     //Cycle through telemetry
-    if( gamepads.buttonPressed( Participant.DRIVER_OR_OPERATOR, Button.GUIDE ) )
+    if( gamepads.buttonsPressed( Participant.DRIVER_OR_OPERATOR, EnumSet.of( Button.GUIDE, Button.A ) ) )
     {
       final Module[] modules = Module.values();
 
@@ -330,7 +363,16 @@ public class ManualJoeBot extends OpMode
       { currentModule = modules[ 0 ]; }
       else
       { currentModule = modules[ currentModule.ordinal() + 1 ]; }
+
+      telemetry.clearAll();
     }
+
+    //Toggle sending telemetry to FTC dashboard
+    if( gamepads.buttonsPressed( Participant.DRIVER_OR_OPERATOR, EnumSet.of( Button.GUIDE, Button.B ) ) )
+    { toggleMultipleTelemetry(); }
+
+    if( gamepads.buttonsPressed( Participant.DRIVER_OR_OPERATOR, EnumSet.of( Button.GUIDE, Button.X ) ) )
+    { robot.vision().takeSnapshot(); }
 
     telemetry.addLine( currentModule.name() );
 

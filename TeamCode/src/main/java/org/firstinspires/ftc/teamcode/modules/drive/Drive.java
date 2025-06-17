@@ -242,13 +242,21 @@ public class Drive extends AbstractModule
 
     if( localizer != null )
     {
-//      telemetry.addLine().addData( "XL: ", "%s", localizer.par0.getPositionAndVelocity().position );
-//      telemetry.addLine().addData( "XR: ", "%s", localizer.par1.getPositionAndVelocity().position );
-//      telemetry.addLine().addData( "XS: ", "%s", localizer.perp.getPositionAndVelocity().position );
+      //this does not work with ftc dashboard!
+      //      telemetry.addLine().addData( "XL: ", "%s", localizer.par0.getPositionAndVelocity().position );
+      //      telemetry.addLine().addData( "XR: ", "%s", localizer.par1.getPositionAndVelocity().position );
+      //      telemetry.addLine().addData( "XS: ", "%s", localizer.perp.getPositionAndVelocity().position );
+      telemetry.addLine( String.format( "XL:  %s", localizer.par0.getPositionAndVelocity().position ) );
+      telemetry.addLine( String.format( "XR:  %s", localizer.par1.getPositionAndVelocity().position ) );
+      telemetry.addLine( String.format( "XS:  %s", localizer.perp.getPositionAndVelocity().position ) );
 
-      telemetry.addLine().addData( "X: ", "%.1f", pose.position.x );
-      telemetry.addLine().addData( "Y: ", "%.1f", pose.position.y );
-      telemetry.addLine().addData( "Heading: ", "%.1f", Math.toDegrees( pose.heading.toDouble() ) );
+//      telemetry.addLine().addData( "X: ", "%.1f", pose.position.x );
+//      telemetry.addLine().addData( "Y: ", "%.1f", pose.position.y );
+      telemetry.addLine( String.format( "X:  %.1f", pose.position.x ) );
+      telemetry.addLine( String.format( "Y:  %.1f", pose.position.y ) );
+
+//      telemetry.addLine().addData( "Heading: ", "%.1f", Math.toDegrees( pose.heading.toDouble() ) );
+      telemetry.addLine( String.format( "Heading:  %.1f", Math.toDegrees( pose.heading.toDouble() ) ) );
     }
   }
 }

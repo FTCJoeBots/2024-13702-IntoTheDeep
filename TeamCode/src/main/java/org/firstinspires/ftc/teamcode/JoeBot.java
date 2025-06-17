@@ -38,6 +38,7 @@ import java.util.List;
 public class JoeBot
 {
   private Telemetry telemetry = null;
+
   private ExtensionArm extensionArm = null;
   private Lift lift = null;
   private Intake intake = null;
@@ -173,13 +174,29 @@ public class JoeBot
     }
   }
 
+  private AbstractModule[] modules()
+  {
+    return new AbstractModule[]{ extensionArm, lift, intake, climbArm, vision };
+  }
+
+  public void setTelemetry( Telemetry telemetry )
+  {
+    this.telemetry = telemetry;
+
+    for( AbstractModule module : modules() )
+    {
+      if( module != null )
+      { module.setTelemetry( telemetry ); }
+    }
+  }
+
   public void stop()
   {
-    extensionArm.stop();
-    lift.stop();
-    intake.stop();
-    climbArm.stop();
-    vision.stop();
+    for( AbstractModule module : modules() )
+    {
+      if( module != null )
+      { module.stop(); }
+    }
 
     stopDrive();
   }
