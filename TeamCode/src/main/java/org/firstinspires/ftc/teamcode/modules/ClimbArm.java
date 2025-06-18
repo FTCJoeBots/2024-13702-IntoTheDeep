@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Reporter;
 
 public class ClimbArm extends AbstractModule
 {
@@ -34,9 +35,9 @@ public class ClimbArm extends AbstractModule
 
   private Action currentAction = Action.STOPPED;
 
-  public ClimbArm( HardwareMap hardwareMap, Telemetry telemetry )
+  public ClimbArm( HardwareMap hardwareMap, Reporter reporter )
   {
-    super( hardwareMap, telemetry );
+    super( hardwareMap, reporter );
     initObjects();
     initState();
   }
@@ -52,7 +53,7 @@ public class ClimbArm extends AbstractModule
 
     if( diff <= 1 )
     {
-      telemetry.log().add( String.format( "Climb Arm stopping, current %s target %s", current, target ) );
+      reporter.log().add( String.format( "Climb Arm stopping, current %s target %s", current, target ) );
       stop();
     }
   }
@@ -102,7 +103,7 @@ public class ClimbArm extends AbstractModule
       super.stop();
     }
 
-    telemetry.log().add( "Climb Arm stopped" );
+    reporter.log().add( "Climb Arm stopped" );
     currentAction = Action.STOPPED;
   }
 
@@ -115,8 +116,8 @@ public class ClimbArm extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Climb Arm Position: %s", climbMotor.getCurrentPosition() ) );
-    telemetry.addLine( String.format( "Climb Arm Power: %s", climbMotor.getPower() ) );
+    reporter.addLine( String.format( "Climb Arm Position: %s", climbMotor.getCurrentPosition() ) );
+    reporter.addLine( String.format( "Climb Arm Power: %s", climbMotor.getPower() ) );
   }
 
   private void initObjects()

@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-//import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -11,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.Reporter;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.actions.MoveExtensionArm;
 import org.firstinspires.ftc.teamcode.actions.MoveLift;
@@ -36,6 +34,7 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   protected List<LynxModule> hubs;
   protected JoeBot robot = null;
   protected Gamepads gamepads = null;
+  protected Reporter reporter = null;
 
   //set to false to speed up debugging by ejecting samples
   //without operating the lift
@@ -54,13 +53,6 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   public void init()
   {
     Intake.team = team;
-
-    //print telemetry to Dashboard
-    if( JoeBot.debugging )
-    {
-      telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-    }
-
     time = new ElapsedTime();
 
     //setup bulk reads
@@ -72,16 +64,18 @@ public abstract class AbstractAutonomousOpMode extends OpMode
 
     //force encoders to be reset at the beginning of autonomous
     AbstractModule.encodersReset = false;
+    reporter = new Reporter(telemetry);
 
-    robot = new JoeBot( true, hardwareMap, telemetry );
+    robot = new JoeBot( true, hardwareMap, reporter );
 
     gamepads = new Gamepads( gamepad1, gamepad2 );
+
 
     //prevent resetting encoders again
     AbstractModule.encodersReset = true;
 
-    telemetry.log().add( "Initialized Auto" );
-    telemetry.update();
+    reporter.log().add( "Initialized Auto" );
+    reporter.update();
 
     //Allow robot to be pushed around before the start button is pressed
     robot.coast();
@@ -91,13 +85,13 @@ public abstract class AbstractAutonomousOpMode extends OpMode
   public void start()
   {
     //clear screen
-    telemetry.update();
+    reporter.update();
 
     //Prevent robot from being pushed around
     robot.brake();
 
     //always reset the position and heading at the beginning of Autonomous
-    telemetry.log().add( "Resetting Position and Heading" );
+    reporter.log().add( "Resetting Position and Heading" );
     robot.resetPos( defaultPos() );
 
     //update robot state including the color sensor

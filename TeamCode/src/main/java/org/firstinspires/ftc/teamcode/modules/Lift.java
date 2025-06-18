@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Reporter;
 
 public class Lift extends AbstractModule
 {
@@ -86,9 +87,9 @@ public class Lift extends AbstractModule
   private static final boolean rampPower = false;
   private static final boolean detectStalls = false;
 
-  public Lift( HardwareMap hardwareMap, Telemetry telemetry )
+  public Lift( HardwareMap hardwareMap, Reporter reporter )
   {
-    super( hardwareMap, telemetry );
+    super( hardwareMap, reporter );
     initObjects();
     initState();
   }
@@ -248,7 +249,7 @@ public class Lift extends AbstractModule
         Math.min( Math.abs( leftMotor.getVelocity() ),
                   Math.abs( rightMotor.getVelocity() ) ) <= 0.2 )
     {
-      telemetry.log().add( "Stall detected, stopping lift!" );
+      reporter.log().add( "Stall detected, stopping lift!" );
       stop();
 
       //reset the motor position if we were lowering to the floor
@@ -258,7 +259,7 @@ public class Lift extends AbstractModule
           minDiff < 100 &&
           allowReset )
       {
-        telemetry.log().add( "Resetting lift motor positions" );
+        reporter.log().add( "Resetting lift motor positions" );
 
         leftMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
         leftMotor.setTargetPosition( 0 );
@@ -272,7 +273,7 @@ public class Lift extends AbstractModule
     //stop once we get close to our target position
     else if( minDiff <= 3 )
     {
-      telemetry.log().add( String.format( "Lift.updateState stopping, diff: %s", minDiff ) );
+      reporter.log().add( String.format( "Lift.updateState stopping, diff: %s", minDiff ) );
 
       leftMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
       rightMotor.setZeroPowerBehavior( DcMotor.ZeroPowerBehavior.BRAKE );
@@ -304,16 +305,16 @@ public class Lift extends AbstractModule
   public void printTelemetry()
   {
     //this isn;t upodating hter dashboard, addData does,..???
-    telemetry.addLine( String.format( "Lift Action: %s", currentAction ) );
+    reporter.addLine( String.format( "Lift Action: %s", currentAction ) );
 
     if( leftMotor != null )
     {
-      telemetry.addLine( String.format( "Left Lift Motor: %s", leftMotor.getCurrentPosition() ) );
-      telemetry.addLine( String.format( "Left Lift Velocity: %f", leftMotor.getVelocity() ) );
+      reporter.addLine( String.format( "Left Lift Motor: %s", leftMotor.getCurrentPosition() ) );
+      reporter.addLine( String.format( "Left Lift Velocity: %f", leftMotor.getVelocity() ) );
     }
 
     if( rightMotor != null )
-    { telemetry.addLine( String.format( "Right Lift Motor: %s", rightMotor.getCurrentPosition() ) ); }
+    { reporter.addLine( String.format( "Right Lift Motor: %s", rightMotor.getCurrentPosition() ) ); }
   }
 
   private boolean turnMotors( DcMotorSimple.Direction direction, double power )

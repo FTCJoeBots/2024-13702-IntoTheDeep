@@ -8,13 +8,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Reporter;
 
 import java.util.ArrayList;
 
 public abstract class AbstractModule
 {
   protected HardwareMap hardwareMap = null;
-  protected Telemetry telemetry = null;
+  protected Reporter reporter = null;
   private ArrayList<DcMotorSimple> motors = null;
 
   public static boolean encodersReset = false;
@@ -22,17 +23,12 @@ public abstract class AbstractModule
   protected boolean autoDetectStall = false;
   protected ElapsedTime stallTimer = null;
 
-  public AbstractModule( HardwareMap hardwareMap, Telemetry telemetry )
+  public AbstractModule( HardwareMap hardwareMap, Reporter reporter )
   {
     this.hardwareMap = hardwareMap;
-    this.telemetry = telemetry;
+    this.reporter = reporter;
     motors = new ArrayList<>();
     stallTimer = new ElapsedTime();
-  }
-
-  public void setTelemetry( Telemetry telemetry )
-  {
-    this.telemetry = telemetry;
   }
 
   protected DcMotorEx createMotor( String name )

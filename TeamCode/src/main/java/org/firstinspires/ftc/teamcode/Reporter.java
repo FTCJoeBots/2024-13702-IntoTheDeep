@@ -17,7 +17,7 @@ public class Reporter
     this.driverStation = driverStation;
   }
 
-  private void toggleDashboard()
+  public void toggleDashboard()
   {
     dashboardEnabled = !dashboardEnabled;
 
@@ -29,7 +29,7 @@ public class Reporter
     }
   }
 
-  void addLine( String text )
+  public void addLine( String text )
   {
     if( dashboardEnabled )
     {
@@ -42,4 +42,40 @@ public class Reporter
 
   }
 
+  public Telemetry.Log log() {
+    return driverStation.log();
+  }
+
+  public void update() {
+    if (dashboardEnabled){
+      multipleTelemetry.update();
+    } else {
+      driverStation.update();
+    }
+  }
+
+  public void addData(String caption, String format, Object... args) {
+    if (dashboardEnabled){
+      multipleTelemetry.addData(caption, format, args);
+    } else {
+      driverStation.addData(caption, format, args);
+    }
+  }
+
+  public void addData(String caption, Object value) {
+    if (dashboardEnabled){
+      multipleTelemetry.addData(caption, value);
+    } else {
+      driverStation.addData(caption, value);
+    }
+  }
+
+
+  public void clearAll() {
+    if (dashboardEnabled){
+      multipleTelemetry.clearAll();
+    } else {
+      driverStation.clearAll();
+    }
+  }
 }

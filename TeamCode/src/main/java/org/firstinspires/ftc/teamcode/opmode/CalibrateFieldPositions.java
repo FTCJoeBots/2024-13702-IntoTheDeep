@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.Reporter;
 import org.firstinspires.ftc.teamcode.actions.ActionTools;
 import org.firstinspires.ftc.teamcode.enums.Button;
 import org.firstinspires.ftc.teamcode.enums.Location;
@@ -22,6 +23,7 @@ public class CalibrateFieldPositions extends OpMode
   private JoeBot robot = null;
 
   private Gamepads gamepads = null;
+  private Reporter reporter = null;
   private int targetIndex = 0;
   private final int numTargets = Location.NamedLocation.values().length;
 
@@ -30,12 +32,12 @@ public class CalibrateFieldPositions extends OpMode
   public void init()
   {
     gamepads = new Gamepads( gamepad1, gamepad2 );
-
-    robot = new JoeBot( true, hardwareMap, telemetry );
+    reporter = new Reporter(telemetry);
+    robot = new JoeBot( true, hardwareMap, reporter );
     robot.gamepads = gamepads;
 
-    telemetry.addLine( "Initialized Calibrate" );
-    telemetry.update();
+    reporter.addLine( "Initialized Calibrate" );
+    reporter.update();
 
     //Allow robot to be pushed around before the start button is pressed
     robot.coast();
@@ -47,17 +49,17 @@ public class CalibrateFieldPositions extends OpMode
     robot.clearBulkCache();
     robot.mecanumDrive().updatePoseEstimate();
     printPose();
-    telemetry.update();
+    reporter.update();
   }
 
   private void printPose()
   {
     final Pose2d pose = robot.mecanumDrive().pose;
-    telemetry.addLine( String.format( "X,Y = %.1f, %.1f  Heading = %.1f", pose.position.x, pose.position.y, Math.toDegrees( pose.heading.toDouble() ) ) );
+    reporter.addLine( String.format( "X,Y = %.1f, %.1f  Heading = %.1f", pose.position.x, pose.position.y, Math.toDegrees( pose.heading.toDouble() ) ) );
 
     final double yaw = robot.imu().getRobotYawPitchRollAngles().getYaw( AngleUnit.DEGREES );
-//    telemetry.addLine().addData( "IMU Heading: ", "%.1f", yaw );
-    telemetry.addLine( String.format( "IMU Heading:  %.1f", yaw ) );
+//    reporter.addLine().addData( "IMU Heading: ", "%.1f", yaw );
+    reporter.addLine( String.format( "IMU Heading:  %.1f", yaw ) );
   }
 
   @Override
@@ -89,8 +91,8 @@ public class CalibrateFieldPositions extends OpMode
     {
       Location.NamedLocation target = Location.NamedLocation.values()[ targetIndex ];
 
-      telemetry.addLine( String.format( "Driving to: %s", target ) );
-      telemetry.update();
+      reporter.addLine( String.format( "Driving to: %s", target ) );
+      reporter.update();
 
       MecanumDrive drive = robot.mecanumDrive();
 
@@ -146,9 +148,9 @@ public class CalibrateFieldPositions extends OpMode
     else
     {
       Location.NamedLocation target = Location.NamedLocation.values()[ targetIndex ];
-      telemetry.addLine( String.format( "Target: %s", target ) );
+      reporter.addLine( String.format( "Target: %s", target ) );
       printPose();
-      telemetry.update();
+      reporter.update();
     }
 
     gamepads.storeLastButtons();

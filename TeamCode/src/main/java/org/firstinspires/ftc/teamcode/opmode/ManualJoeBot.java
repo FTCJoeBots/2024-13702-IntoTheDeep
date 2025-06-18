@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -9,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Gamepads;
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.Reporter;
 import org.firstinspires.ftc.teamcode.enums.Button;
 import org.firstinspires.ftc.teamcode.enums.Participant;
 import org.firstinspires.ftc.teamcode.enums.PresetDirection;
@@ -34,31 +33,7 @@ public class ManualJoeBot extends OpMode
   private JoeBot robot = null;
   private Gamepads gamepads = null;
 
-  private Telemetry driverStation     = null;
-  private Telemetry ftcDashboard      = null;
-  private Telemetry multipleTelemetry = null;
-  private boolean usingMultipleTelemetry = false;
-
-  private void toggleMultipleTelemetry()
-  {
-    usingMultipleTelemetry = !usingMultipleTelemetry;
-
-    if( usingMultipleTelemetry )
-    {
-      if( multipleTelemetry == null )
-      {
-        driverStation = telemetry;
-        ftcDashboard = FtcDashboard.getInstance().getTelemetry();
-        multipleTelemetry = new MultipleTelemetry( telemetry, ftcDashboard );
-      }
-
-      telemetry = multipleTelemetry;
-    }
-    else
-    { telemetry = driverStation; }
-
-    robot.setTelemetry( telemetry );
-  }
+  private Reporter reporter = null;
 
   //We run this when the user hits "INIT" on the app
   @Override
@@ -67,14 +42,13 @@ public class ManualJoeBot extends OpMode
     time = new ElapsedTime();
 
     gamepads = new Gamepads( gamepad1, gamepad2 );
+    reporter = new Reporter( telemetry);
 
-//    telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
-    robot = new JoeBot( false, hardwareMap, telemetry );
+    robot = new JoeBot( false, hardwareMap, reporter );
     robot.gamepads = gamepads;
 
-    telemetry.addLine( "Initialized Manual" );
-    telemetry.update();
+    reporter.addLine( "Initialized Manual" );
+    reporter.update();
 
     //Allow robot to be pushed around before the start button is pressed
     robot.drive().coast();
@@ -88,7 +62,7 @@ public class ManualJoeBot extends OpMode
     //Print out location so we can calibrate X,Y positions and verify heading
     robot.drive().printTelemetry();
     robot.vision().printTelemetry();
-    telemetry.update();
+    reporter.update();
 
     if( gamepads.gamepad2.left_trigger > 0 )
     {
@@ -129,7 +103,7 @@ public class ManualJoeBot extends OpMode
 
   private void addMessage( String message)
   {
-    telemetry.log().add( message );
+    reporter.log().add( message );
   }
 
   @Override
@@ -215,19 +189,19 @@ public class ManualJoeBot extends OpMode
     else if( gamepad2.dpad_down && gamepad2.b && gamepad2.x )
     {
       if( robot.lift().climb() )
-      { telemetry.addLine( "Climb" ); }
+      { reporter.addLine( "Climb" ); }
     }
     //Raise lift - dpad_up
     else if( gamepad2.dpad_up && !gamepad2.x )
     {
       if( robot.lift().raiseLift() )
-      { telemetry.addLine( "Raise lift" ); }
+      { reporter.addLine( "Raise lift" ); }
     }
     //Lower lift- dpad_down
     else if( gamepad2.dpad_down && !gamepad2.x )
     {
       if( robot.lift().lowerLift() )
-      { telemetry.addLine( "Lower lift" ); }
+      { reporter.addLine( "Lower lift" ); }
     }
 
     //==================
@@ -364,20 +338,21 @@ public class ManualJoeBot extends OpMode
       else
       { currentModule = modules[ currentModule.ordinal() + 1 ]; }
 
-      telemetry.clearAll();
+      reporter.clearAll();
     }
 
     //Toggle sending telemetry to FTC dashboard
     if( gamepads.buttonsPressed( Participant.DRIVER_OR_OPERATOR, EnumSet.of( Button.GUIDE, Button.B ) ) )
-    { toggleMultipleTelemetry(); }
+    { reporter.toggleDashboard();
+    robot.vision().toggleDashboard();}
 
     if( gamepads.buttonsPressed( Participant.DRIVER_OR_OPERATOR, EnumSet.of( Button.GUIDE, Button.X ) ) )
     { robot.vision().takeSnapshot(); }
 
-    telemetry.addLine( currentModule.name() );
+    reporter.addLine( currentModule.name() );
 
     long fps = Math.round( 1.0 / time.seconds() );
-    telemetry.addData( "FPS", "%s", fps );
+    reporter.addData( "FPS", "%s", fps );
     time.reset();
 
     switch( currentModule )
@@ -402,7 +377,7 @@ public class ManualJoeBot extends OpMode
         break;
     }
 
-    telemetry.update();
+    reporter.update();
     gamepads.storeLastButtons();
   }
 

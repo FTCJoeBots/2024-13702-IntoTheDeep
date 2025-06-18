@@ -47,8 +47,8 @@ public abstract class AbstractBasketOpMode extends AbstractAutonomousOpMode
         0 ];
     }
 
-    telemetry.addLine( String.format( "> Initial State: %s", state ) );
-    telemetry.update();
+    reporter.addLine( String.format( "> Initial State: %s", state ) );
+    reporter.update();
     gamepads.storeLastButtons();
   }
 

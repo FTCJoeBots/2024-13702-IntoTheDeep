@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.modules;
 
 import android.graphics.Color;
 
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -12,9 +11,9 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.JoeBot;
+import org.firstinspires.ftc.teamcode.Reporter;
 import org.firstinspires.ftc.teamcode.enums.Team;
 
 public class Intake extends AbstractModule
@@ -164,9 +163,9 @@ public class Intake extends AbstractModule
     return ObservedObject.NOTHING;
   }
 
-  public Intake( HardwareMap hardwareMap, Telemetry telemetry )
+  public Intake( HardwareMap hardwareMap, Reporter reporter )
   {
-    super( hardwareMap, telemetry );
+    super( hardwareMap, reporter );
     initObjects();
     initState();
   }
@@ -258,7 +257,7 @@ public class Intake extends AbstractModule
     }
 
     if( JoeBot.debugging )
-    { telemetry.log().add( "Intake.turnOnServos - turning on" ); }
+    { reporter.log().add( "Intake.turnOnServos - turning on" ); }
 
     int    multiplier = direction == Direction.PULL ? -1 : 1;
     double speed      = sampleDetected ? SPIT_OUT_SPEED : PULL_IN_SPEED;
@@ -270,7 +269,7 @@ public class Intake extends AbstractModule
   public void stop()
   {
     if( JoeBot.debugging )
-    { telemetry.log().add( "Intake.stop" ); }
+    { reporter.log().add( "Intake.stop" ); }
     currentAction = Action.DOING_NOTHING;
     super.stop();
   }
@@ -299,8 +298,8 @@ public class Intake extends AbstractModule
           {
             if( JoeBot.debugging )
             {
-              telemetry.log().add( "Intake wrong color sample detected!" );
-              telemetry.update();
+              reporter.log().add( "Intake wrong color sample detected!" );
+              reporter.update();
             }
 
             currentAction = currentAction == Action.PULL_IN_SAMPLE_FROM_IN_FRONT ?
@@ -311,8 +310,8 @@ public class Intake extends AbstractModule
           {
             if( JoeBot.debugging )
             {
-              telemetry.log().add( "Intake sampleDetected, scheduling turning off" );
-              telemetry.update();
+              reporter.log().add( "Intake sampleDetected, scheduling turning off" );
+              reporter.update();
             }
 
             currentAction = Action.TURN_OFF_AFTER_DELAY;
@@ -328,7 +327,7 @@ public class Intake extends AbstractModule
         if( !sampleDetected )
         {
           if( JoeBot.debugging )
-          { telemetry.log().add( "Intake sampleLost, scheduling turning off" ); }
+          { reporter.log().add( "Intake sampleLost, scheduling turning off" ); }
           currentAction = Action.TURN_OFF_AFTER_DELAY;
           delay = EJECT_DELAY;
           time.reset();
@@ -339,7 +338,7 @@ public class Intake extends AbstractModule
         if( time.milliseconds() >= delay )
         {
           if( JoeBot.debugging )
-          { telemetry.log().add( "Intake delay met" ); }
+          { reporter.log().add( "Intake delay met" ); }
           stop();
         }
 
@@ -365,7 +364,7 @@ public class Intake extends AbstractModule
     if( servo == null )
     { return; }
 
-    telemetry.addLine( name + ": " + String.format( "%s", servo.getPower() ) );
+    reporter.addLine( name + ": " + String.format( "%s", servo.getPower() ) );
   }
 
   private void printColor()
@@ -377,18 +376,18 @@ public class Intake extends AbstractModule
     { updateColorAndDistance(); }
 
     //the following line crashes FTC dashboard
-//    if( !( telemetry instanceof MultipleTelemetry ) )
+//    if( !( reporter instanceof Multiplereporter ) )
     {
-//      telemetry.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] );
+//      reporter.addLine().addData( "Hue", "%.3f", hsvValues[ 0 ] ).addData( "Saturation", "%.3f", hsvValues[ 1 ] );
 
-      telemetry.addLine( String.format( "Hue %.3f", hsvValues[ 0 ] ) +
+      reporter.addLine( String.format( "Hue %.3f", hsvValues[ 0 ] ) +
                          "  " +
                          String.format( "Saturation %.3f", hsvValues[ 1 ] ) );
 
     }
 
-    telemetry.addData( "Distance (cm)", "%.3f", distance );
-    telemetry.addData( "Observed:", "%s", getObservedObject() );
-    telemetry.addData( "Current Action:", "%s", currentAction );
+    reporter.addData( "Distance (cm)", "%.3f", distance );
+    reporter.addData( "Observed:", "%s", getObservedObject() );
+    reporter.addData( "Current Action:", "%s", currentAction );
   }
 }

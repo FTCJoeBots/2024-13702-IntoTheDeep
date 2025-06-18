@@ -37,7 +37,7 @@ import java.util.List;
 
 public class JoeBot
 {
-  private Telemetry telemetry = null;
+  private Reporter reporter = null;
 
   private ExtensionArm extensionArm = null;
   private Lift lift = null;
@@ -58,17 +58,17 @@ public class JoeBot
 
   public JoeBot( boolean forAutonomous,
                  HardwareMap hardwareMap,
-                 Telemetry telemetry )
+                 Reporter reporter )
   {
     if( !AbstractModule.encodersReset )
-    { telemetry.addLine( "Resetting Encoders" ); }
+    { reporter.addLine( "Resetting Encoders" ); }
 
-    this.telemetry = telemetry;
-    extensionArm = new ExtensionArm( hardwareMap, telemetry );
-    lift = new Lift( hardwareMap, telemetry );
-    intake = new Intake( hardwareMap, telemetry );
-    climbArm = new ClimbArm( hardwareMap, telemetry );
-    vision = new Vision( hardwareMap, telemetry );
+    this.reporter = reporter;
+    extensionArm = new ExtensionArm( hardwareMap, reporter );
+    lift = new Lift( hardwareMap, reporter );
+    intake = new Intake( hardwareMap, reporter );
+    climbArm = new ClimbArm( hardwareMap, reporter );
+    vision = new Vision( hardwareMap, reporter );
 
     if( forAutonomous )
     {
@@ -76,7 +76,7 @@ public class JoeBot
     }
     else
     {
-      drive = new Drive( hardwareMap, telemetry, pose );
+      drive = new Drive( hardwareMap, reporter, pose );
     }
 
     imu = hardwareMap.get( IMU.class, "imu" );
@@ -94,8 +94,8 @@ public class JoeBot
   {
     if( debugging )
     {
-      telemetry.log().add( message );
-      telemetry.update();
+      reporter.log().add(message);
+      reporter.update();
     }
   }
 
@@ -115,8 +115,8 @@ public class JoeBot
     }
   }
 
-  public Telemetry telemetry()
-  { return telemetry; }
+  public Reporter reporter()
+  { return reporter; }
 
   public ExtensionArm extensionArm()
   { return extensionArm; }
@@ -179,17 +179,6 @@ public class JoeBot
     return new AbstractModule[]{ extensionArm, lift, intake, climbArm, vision };
   }
 
-  public void setTelemetry( Telemetry telemetry )
-  {
-    this.telemetry = telemetry;
-
-    for( AbstractModule module : modules() )
-    {
-      if( module != null )
-      { module.setTelemetry( telemetry ); }
-    }
-  }
-
   public void stop()
   {
     for( AbstractModule module : modules() )
@@ -234,8 +223,8 @@ public class JoeBot
 
     if( angleDifference > 0.5 )
     {
-      telemetry.log().add( "angleDifference: %f", angleDifference );
-      telemetry.log().add( "Resetting heading from %f to %f", deadWheelHeading, imuHeading );
+      reporter.log().add( "angleDifference: %f", angleDifference );
+      reporter.log().add( "Resetting heading from %f to %f", deadWheelHeading, imuHeading );
 
       Pose2d updatedPose = new Pose2d( pose.position, Math.toRadians( imuHeading ) );
 

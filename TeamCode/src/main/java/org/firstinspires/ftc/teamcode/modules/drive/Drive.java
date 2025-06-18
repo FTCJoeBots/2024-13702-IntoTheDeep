@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Reporter;
 import org.firstinspires.ftc.teamcode.enums.PresetDirection;
 import org.firstinspires.ftc.teamcode.enums.RotateDirection;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
@@ -51,9 +52,9 @@ public class Drive extends AbstractModule
   private RotateDirection targetDirection = RotateDirection.RIGHT;
   private double targetAngle = 0;
 
-  public Drive( HardwareMap hardwareMap, Telemetry telemetry, Pose2d pose )
+  public Drive(HardwareMap hardwareMap, Reporter reporter, Pose2d pose )
   {
-    super( hardwareMap, telemetry );
+    super( hardwareMap, reporter );
     this.pose = pose;
     initObjects();
     initState();
@@ -86,7 +87,7 @@ public class Drive extends AbstractModule
   public void resetPose( Pose2d pose )
   {
     this.pose = pose;
-    telemetry.log().add( "Reset Position and Heading" );
+    reporter.log().add( "Reset Position and Heading" );
   }
 
   public void turnAround( RotateDirection direction )
@@ -99,16 +100,16 @@ public class Drive extends AbstractModule
   public void faceDirection( PresetDirection direction )
   {
     double currentAngle = AngleTools.angleForHeading( Math.toDegrees( pose.heading.toDouble() ) );
-    telemetry.log().add( String.format( "currentAngle: %f", currentAngle ) );
+    reporter.log().add( String.format( "currentAngle: %f", currentAngle ) );
 
     double nextHeading = AngleTools.headingForDirection( direction );
-    telemetry.log().add( String.format( "nextHeading: %f", nextHeading ) );
+    reporter.log().add( String.format( "nextHeading: %f", nextHeading ) );
 
     double nextAngle = AngleTools.angleForHeading( nextHeading );
-    telemetry.log().add( String.format( "nextAngle: %f", nextAngle ) );
+    reporter.log().add( String.format( "nextAngle: %f", nextAngle ) );
 
     RotateDirection rotateDirection = AngleTools.quickestDirection( currentAngle, nextAngle );
-    telemetry.log().add( String.format( "rotateDirection: %s", rotateDirection ) );
+    reporter.log().add( String.format( "rotateDirection: %s", rotateDirection ) );
 
     turnToAngle( rotateDirection, nextAngle );
   }
@@ -238,25 +239,25 @@ public class Drive extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Perspective: %s", perspective ) );
+    reporter.addLine( String.format( "Perspective: %s", perspective ) );
 
     if( localizer != null )
     {
       //this does not work with ftc dashboard!
-      //      telemetry.addLine().addData( "XL: ", "%s", localizer.par0.getPositionAndVelocity().position );
-      //      telemetry.addLine().addData( "XR: ", "%s", localizer.par1.getPositionAndVelocity().position );
-      //      telemetry.addLine().addData( "XS: ", "%s", localizer.perp.getPositionAndVelocity().position );
-      telemetry.addLine( String.format( "XL:  %s", localizer.par0.getPositionAndVelocity().position ) );
-      telemetry.addLine( String.format( "XR:  %s", localizer.par1.getPositionAndVelocity().position ) );
-      telemetry.addLine( String.format( "XS:  %s", localizer.perp.getPositionAndVelocity().position ) );
+      //      reporter.addLine().addData( "XL: ", "%s", localizer.par0.getPositionAndVelocity().position );
+      //      reporter.addLine().addData( "XR: ", "%s", localizer.par1.getPositionAndVelocity().position );
+      //      reporter.addLine().addData( "XS: ", "%s", localizer.perp.getPositionAndVelocity().position );
+      reporter.addLine( String.format( "XL:  %s", localizer.par0.getPositionAndVelocity().position ) );
+      reporter.addLine( String.format( "XR:  %s", localizer.par1.getPositionAndVelocity().position ) );
+      reporter.addLine( String.format( "XS:  %s", localizer.perp.getPositionAndVelocity().position ) );
 
-//      telemetry.addLine().addData( "X: ", "%.1f", pose.position.x );
-//      telemetry.addLine().addData( "Y: ", "%.1f", pose.position.y );
-      telemetry.addLine( String.format( "X:  %.1f", pose.position.x ) );
-      telemetry.addLine( String.format( "Y:  %.1f", pose.position.y ) );
+//      reporter.addLine().addData( "X: ", "%.1f", pose.position.x );
+//      reporter.addLine().addData( "Y: ", "%.1f", pose.position.y );
+      reporter.addLine( String.format( "X:  %.1f", pose.position.x ) );
+      reporter.addLine( String.format( "Y:  %.1f", pose.position.y ) );
 
-//      telemetry.addLine().addData( "Heading: ", "%.1f", Math.toDegrees( pose.heading.toDouble() ) );
-      telemetry.addLine( String.format( "Heading:  %.1f", Math.toDegrees( pose.heading.toDouble() ) ) );
+//      reporter.addLine().addData( "Heading: ", "%.1f", Math.toDegrees( pose.heading.toDouble() ) );
+      reporter.addLine( String.format( "Heading:  %.1f", Math.toDegrees( pose.heading.toDouble() ) ) );
     }
   }
 }

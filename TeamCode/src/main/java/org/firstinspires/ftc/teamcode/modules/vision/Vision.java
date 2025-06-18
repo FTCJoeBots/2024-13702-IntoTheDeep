@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.Reporter;
 import org.firstinspires.ftc.teamcode.modules.AbstractModule;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvWebcam;
@@ -22,14 +23,15 @@ public class Vision extends AbstractModule
   private LLStatus status;
   private LLResult result;
   private Sample sample;
+  private boolean dashboardOn = false;
 
   LimeLightImageTools tools;
 
   private int nextSnapshot = 1;
 
-  public Vision( HardwareMap hardwareMap, Telemetry telemetry )
+  public Vision( HardwareMap hardwareMap, Reporter reporter )
   {
-    super( hardwareMap, telemetry );
+    super( hardwareMap, reporter );
     initObjects();
     initState();
 
@@ -74,15 +76,15 @@ public class Vision extends AbstractModule
   {
     if( sample.color != Color.NOTHING )
     {
-      telemetry.addData( "horizontal position ", Math.round( sample.horizontalPosition ) );
-      telemetry.addData( "vertical position ", Math.round( sample.verticalPosition ) );
-      telemetry.addData( "area", Math.round( sample.area ) );
-      telemetry.addData( "color", sample.color );
-      telemetry.addData( "age", sample.age );
+      reporter.addData( "horizontal position ", Math.round( sample.horizontalPosition ) );
+      reporter.addData( "vertical position ", Math.round( sample.verticalPosition ) );
+      reporter.addData( "area", Math.round( sample.area ) );
+      reporter.addData( "color", sample.color );
+      reporter.addData( "age", sample.age );
     }
     else
     {
-      telemetry.addLine( "nothing observed!" );
+      reporter.addLine( "nothing observed!" );
     }
 
     if (result != null)
@@ -92,29 +94,37 @@ public class Vision extends AbstractModule
 
       if( result.isValid() )
       {
-        telemetry.addData( "tx", result.getTx() );
-        telemetry.addData( "txnc", result.getTxNC() );
-        telemetry.addData( "ty", result.getTy() );
-        telemetry.addData( "tync", result.getTyNC() );
-        telemetry.addData( "Botpose", botpose.toString() );
+        reporter.addData( "tx", result.getTx() );
+        reporter.addData( "txnc", result.getTxNC() );
+        reporter.addData( "ty", result.getTy() );
+        reporter.addData( "tync", result.getTyNC() );
+        reporter.addData( "Botpose", botpose.toString() );
 
         // Access fiducial results
         List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
         for( LLResultTypes.FiducialResult fr : fiducialResults )
         {
-          telemetry.addData( "Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees() );
+          reporter.addData( "Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees() );
         }
 
         // Access color results
         List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
         for( LLResultTypes.ColorResult cr : colorResults )
         {
-          telemetry.addData( "Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees() );
+          reporter.addData( "Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees() );
         }
       }
     }
   }
-
+  public void toggleDashboard () {
+    dashboardOn = !dashboardOn;
+    if (dashboardOn){
+      tools.forwardAll();
+      FtcDashboard.getInstance().startCameraStream( tools.getStreamSource(), 10 );
+    } else {
+      FtcDashboard.getInstance().stopCameraStream();
+    }
+  }
   private void initObjects()
   {
     camera = hardwareMap.get(Limelight3A.class, "limelight");
@@ -130,7 +140,6 @@ public class Vision extends AbstractModule
     tools.setDriverStationStreamSource();
 
     //TODO - only when dashboard is toggled on,..
-    tools.forwardAll();
-    FtcDashboard.getInstance().startCameraStream( tools.getStreamSource(), 10 );
+
   }
 }

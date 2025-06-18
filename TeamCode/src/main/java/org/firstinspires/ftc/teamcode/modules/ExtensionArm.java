@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Reporter;
 
 public class ExtensionArm extends AbstractModule
 {
@@ -62,9 +63,9 @@ public class ExtensionArm extends AbstractModule
 
   private Action currentAction = Action.STOPPED;
 
-  public ExtensionArm( HardwareMap hardwareMap, Telemetry telemetry )
+  public ExtensionArm( HardwareMap hardwareMap, Reporter reporter )
   {
-    super( hardwareMap, telemetry );
+    super( hardwareMap, reporter );
     initObjects();
     initState();
   }
@@ -85,7 +86,7 @@ public class ExtensionArm extends AbstractModule
 
     if( diff <= 2 )
     {
-      telemetry.log().add( String.format( "Arm stopping, current %s target %s", current, target ) );
+      reporter.log().add( String.format( "Arm stopping, current %s target %s", current, target ) );
 
       stop();
     }
@@ -98,11 +99,11 @@ public class ExtensionArm extends AbstractModule
              Math.abs( extensionArmMotor.getVelocity() ) <= 0.2 &&
              stallTimer.milliseconds() > 3000 )
     {
-      telemetry.log().add( "Stall detected, stopping extension arm!" );
-      telemetry.log().add( String.format( "elapsed: %s", stallTimer.milliseconds() ) );
-      telemetry.log().add( String.format( "currentVelocity: %f", extensionArmMotor.getVelocity() ) );
-      telemetry.log().add( String.format( "currentPosition: %s", current ) );
-      telemetry.log().add( String.format( "targetPosition: %s", target ) );
+      reporter.log().add( "Stall detected, stopping extension arm!" );
+      reporter.log().add( String.format( "elapsed: %s", stallTimer.milliseconds() ) );
+      reporter.log().add( String.format( "currentVelocity: %f", extensionArmMotor.getVelocity() ) );
+      reporter.log().add( String.format( "currentPosition: %s", current ) );
+      reporter.log().add( String.format( "targetPosition: %s", target ) );
       super.stop();
       currentAction = Action.STOPPED;
       autoDetectStall = false;
@@ -113,7 +114,7 @@ public class ExtensionArm extends AbstractModule
           current > target &&
           diff < 100 )
       {
-        telemetry.log().add( "Resetting motor position" );
+        reporter.log().add( "Resetting motor position" );
         extensionArmMotor.setMode( DcMotor.RunMode.STOP_AND_RESET_ENCODER );
         extensionArmMotor.setMode( DcMotor.RunMode.RUN_TO_POSITION );
       }
@@ -209,7 +210,7 @@ public class ExtensionArm extends AbstractModule
 
     if( position != currentPosition )
     {
-      telemetry.log().add( String.format("Arm traveling to %s", position ) );
+      reporter.log().add( String.format("Arm traveling to %s", position ) );
       extensionArmMotor.setTargetPosition( position );
       extensionArmMotor.setPower( power );
       currentAction = Action.MOVING;
@@ -218,7 +219,7 @@ public class ExtensionArm extends AbstractModule
       {
         autoDetectStall = true;
         stallTimer.reset();
-        telemetry.log().add( "Starting auto stall timer" );
+        reporter.log().add( "Starting auto stall timer" );
       }
       else
       {
@@ -241,12 +242,12 @@ public class ExtensionArm extends AbstractModule
       super.stop();
     }
 
-    telemetry.log().add( "Arm stopped" );
+    reporter.log().add( "Arm stopped" );
     currentAction = Action.STOPPED;
 
     if( autoDetectStall )
     {
-      telemetry.log().add( "Canceling stall detection" );
+      reporter.log().add( "Canceling stall detection" );
       autoDetectStall = false;
     }
   }
@@ -255,8 +256,8 @@ public class ExtensionArm extends AbstractModule
   @Override
   public void printTelemetry()
   {
-    telemetry.addLine( String.format( "Extension Arm Action: %s", currentAction ) );
-    telemetry.addLine( String.format( "Extension Arm Position: %s", getMotorPosition() ) );
+    reporter.addLine( String.format( "Extension Arm Action: %s", currentAction ) );
+    reporter.addLine( String.format( "Extension Arm Position: %s", getMotorPosition() ) );
   }
 
   public int getMotorPosition()

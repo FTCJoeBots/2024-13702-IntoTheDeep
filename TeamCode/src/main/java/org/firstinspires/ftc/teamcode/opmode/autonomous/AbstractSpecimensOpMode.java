@@ -114,10 +114,10 @@ public abstract class AbstractSpecimensOpMode extends AbstractAutonomousOpMode
       }
     }
 
-    telemetry.addLine( formatSetting( Setting.STATE,        String.format( "Initial State: %s", state ) ) );
-    telemetry.addLine( formatSetting( Setting.SPLINE_PATHS, String.format( "Spline Paths:  %b", useSplinePaths ) ) );
-    telemetry.addLine( formatSetting( Setting.STRAFE_TWO,   String.format( "Strafe Two:    %b", strafeTwo ) ) );
-    telemetry.update();
+    reporter.addLine( formatSetting( Setting.STATE,        String.format( "Initial State: %s", state ) ) );
+    reporter.addLine( formatSetting( Setting.SPLINE_PATHS, String.format( "Spline Paths:  %b", useSplinePaths ) ) );
+    reporter.addLine( formatSetting( Setting.STRAFE_TWO,   String.format( "Strafe Two:    %b", strafeTwo ) ) );
+    reporter.update();
     gamepads.storeLastButtons();
   }
 
