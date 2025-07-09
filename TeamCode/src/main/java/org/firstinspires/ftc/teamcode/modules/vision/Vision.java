@@ -136,6 +136,12 @@ public class Vision extends AbstractModule
     camera.start();
     camera.deleteSnapshots();
 
+    double[] cameraData = new double[ 3 ];
+    cameraData[0] = 1; //red yes
+    cameraData[1] = 0; //blue no
+    cameraData[2] = 1; //yellow yes
+    camera.updatePythonInputs( cameraData );
+    
     tools = new LimeLightImageTools( camera );
     tools.setDriverStationStreamSource();
 

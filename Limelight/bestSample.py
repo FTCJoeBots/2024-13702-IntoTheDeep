@@ -10,10 +10,14 @@ class Color(Enum):
         BLUE = 2
         NOTHING = -1
 
-def identifySamples(image, hueImage, darkColor, lightColor):
+class Sample:
+    color = Color.NOTHING
+    shape = None
+
+def identifySamples(image, color, hueImage, darkColor, lightColor):
     mask = cv2.inRange(hueImage, darkColor, lightColor)
     shapes, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    goodShapes = []
+    samples = []
     for shape in shapes:
         x, y, width, height = cv2.boundingRect(shape)
         topLeft = (x, y)
@@ -24,26 +28,32 @@ def identifySamples(image, hueImage, darkColor, lightColor):
         area = width * height
         ratio = width / height
         if 3 > ratio > 2 and area > 500:
-            goodShapes.append(shape)
+            sample  = Sample()
+            sample.color = color
+            sample.shape = shape
+            samples.append(sample)
             cv2.rectangle(image, topLeft, bottomRight, color, thickness)
-    return goodShapes
+    return samples
+
+def computeArea(sample):
+    return cv2.contourArea( sample.shape )
 
 def findClosest(image, samples):
     if len(samples) > 0:
-        biggestShape = max(samples, key=cv2.contourArea)
-        rectangle=computeRectangle(biggestShape)
+        biggestSample = max(samples, key=computeArea)
+        rectangle=computeRectangle(biggestSample)
         color = (255, 0, 255)
         thickness = 10
         cv2.rectangle(image, rectangle[0], rectangle[1], color, thickness)
 
-def computeRectangle(shape):
-    x, y, width, height = cv2.boundingRect(shape)
+def computeRectangle(sample):
+    x, y, width, height = cv2.boundingRect(sample.shape)
     topLeft = (x, y)
     bottomRight = (x + width, y + height)
     return topLeft, bottomRight
 
-def computeCenter(shape):
-    x, y, width, height = cv2.boundingRect(shape)
+def computeCenter(sample):
+    x, y, width, height = cv2.boundingRect(sample.shape)
     center = (x+width/2, y+height/2)
     return center
 
@@ -78,13 +88,20 @@ def chooseSample(allSamples):
 def runPipeline(image, llrobot):
     hueImage = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
+    allSamples = []
     #set exposure to 616
     #set sensor gain to 16.5
-    redSamples = identifySamples(image,hueImage, np.array([0, 225, 97]), np.array([10, 255, 221]) )
-    yellowSamples = identifySamples(image,hueImage, np.array([8, 240, 111]), np.array([30, 255, 192]) )
-    blueSamples = identifySamples(image,hueImage, np.array([83, 166, 42]), np.array([142, 255, 150]) )
+    if llrobot[0] == 1:
+        redSamples = identifySamples(image,hueImage, Color.RED,  np.array([0, 225, 97]), np.array([10, 255, 221]) )
+        allSamples.append(redSamples)
 
-    allSamples = redSamples + yellowSamples + blueSamples
+    if llrobot[1] == 1:
+        blueSamples = identifySamples(image,hueImage, Color.BLUE, np.array([83, 166, 42]), np.array([142, 255, 150]) )
+        allSamples.append(blueSamples)
+
+    if llrobot[2] == 1:
+        yellowSamples = identifySamples(image,hueImage, Color.YELLOW, np.array([8, 240, 111]), np.array([30, 255, 192]) )
+        allSamples.append(yellowSamples)
 
     x=0
     y=0
@@ -101,14 +118,12 @@ def runPipeline(image, llrobot):
         center = computeCenter(chosenSample)
         x=center[0]
         y=center[1]
-        area= cv2.contourArea(chosenSample)
-        color = Color.YELLOW
+        area= cv2.contourArea(chosenSample.shape)
+        color = chosenSample.color
 
     # findClosest(image, redSamples)
     # findClosest(image, yellowSamples)
     # findClosest(image, blueSamples)
-
-    #TODO: color of the sample
 
     largestContour = np.array([[]])
     data = [y, x, area, color.value, 0, 0, 0]
