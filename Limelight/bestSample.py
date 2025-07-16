@@ -14,8 +14,10 @@ class Sample:
     color = Color.NOTHING
     shape = None
 
-def identifySamples(image, color, hueImage, darkColor, lightColor):
+def identifySamples(image, hueImage, color, darkColor, lightColor):
     mask = cv2.inRange(hueImage, darkColor, lightColor)
+    cv2.imshow('Mask', mask)
+    cv2.waitKey(0)
     shapes, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     samples = []
     for shape in shapes:
@@ -23,8 +25,8 @@ def identifySamples(image, color, hueImage, darkColor, lightColor):
         topLeft = (x, y)
         bottomRight = (x + width, y + height)
 
-        color = (0, 255, 0)
-        thickness = 10
+        rectangleColor = (0, 255, 0)
+        rectangleThickness = 10
         area = width * height
         ratio = width / height
         if 3 > ratio > 2 and area > 500:
@@ -32,7 +34,7 @@ def identifySamples(image, color, hueImage, darkColor, lightColor):
             sample.color = color
             sample.shape = shape
             samples.append(sample)
-            cv2.rectangle(image, topLeft, bottomRight, color, thickness)
+            cv2.rectangle(image, topLeft, bottomRight, rectangleColor, rectangleThickness)
     return samples
 
 def computeArea(sample):
@@ -87,21 +89,23 @@ def chooseSample(allSamples):
 
 def runPipeline(image, llrobot):
     hueImage = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    cv2.imshow('hueImage', hueImage)
+    cv2.waitKey(0)
 
     allSamples = []
     #set exposure to 616
     #set sensor gain to 16.5
     if llrobot[0] == 1:
         redSamples = identifySamples(image,hueImage, Color.RED,  np.array([0, 225, 97]), np.array([10, 255, 221]) )
-        allSamples.append(redSamples)
+        allSamples = allSamples + redSamples
 
     if llrobot[1] == 1:
         blueSamples = identifySamples(image,hueImage, Color.BLUE, np.array([83, 166, 42]), np.array([142, 255, 150]) )
-        allSamples.append(blueSamples)
+        allSamples = allSamples + blueSamples
 
     if llrobot[2] == 1:
         yellowSamples = identifySamples(image,hueImage, Color.YELLOW, np.array([8, 240, 111]), np.array([30, 255, 192]) )
-        allSamples.append(yellowSamples)
+        allSamples = allSamples + yellowSamples
 
     x=0
     y=0
@@ -111,9 +115,9 @@ def runPipeline(image, llrobot):
     if len(allSamples) > 0:
         chosenSample = chooseSample(allSamples)
         rectangle=computeRectangle(chosenSample)
-        color = (255, 0, 255)
-        thickness = 10
-        cv2.rectangle(image, rectangle[0], rectangle[1], color, thickness)
+        rectangleColor = (255, 0, 255)
+        rectangleThickness = 10
+        cv2.rectangle(image, rectangle[0], rectangle[1], rectangleColor, rectangleThickness)
 
         center = computeCenter(chosenSample)
         x=center[0]
@@ -127,4 +131,16 @@ def runPipeline(image, llrobot):
 
     largestContour = np.array([[]])
     data = [y, x, area, color.value, 0, 0, 0]
+    cv2.imshow('Limelight Image - best sample', image)
+    cv2.waitKey(0)
     return largestContour, image, data
+
+#image = cv2.imread('yellowSample.png')
+#image = cv2.imread('redSample.png')
+#image = cv2.imread('blueSample.png')
+image = cv2.imread('yellowBest2.png')
+cv2.imshow('Limelight Image - Camera Image', image)
+cv2.waitKey(0)
+
+llrobot = [1, 1, 1]
+runPipeline(image, llrobot)
