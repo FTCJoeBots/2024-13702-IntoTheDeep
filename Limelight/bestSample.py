@@ -1,5 +1,6 @@
 import math
 from enum import Enum
+import random
 
 import cv2
 import numpy as np
@@ -14,18 +15,56 @@ class Sample:
     color = Color.NOTHING
     shape = None
 
+def randomColor():
+    blue = random.randint(0, 255)
+    green = random.randint(0, 255)
+    red = random.randint(0, 255)
+    return(blue, green, red)
+
+
+
+def colorToBGR(color):
+    if color == Color.RED:
+        return (0, 0, 255)
+    if color == Color.BLUE:
+        return (255, 0, 0)
+    if color == Color.YELLOW:
+        return (0,255, 255)
+    else:
+        return None
+
+
+def colorToString(color):
+        if color == Color.RED:
+            return "Red"
+        if color == Color.BLUE:
+            return "Blue"
+        if color == Color.YELLOW:
+            return "Yellow"
+        else:
+            return "Unknown"
+
 def identifySamples(image, hueImage, color, darkColor, lightColor):
     mask = cv2.inRange(hueImage, darkColor, lightColor)
-    cv2.imshow('Mask', mask)
-    cv2.waitKey(0)
+    showImage(colorToString(color) + ' Mask', mask)
+    # remove noise
+    mask = cv2.erode(mask, None, iterations = 2)
+    showImage(colorToString(color) + 'Eroded Mask', mask)
+    #fill in holes
+    mask = cv2.dilate(mask, None, iterations = 6)
+    showImage(colorToString(color) + 'Dilated Mask', mask)
+
     shapes, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for shape in shapes:
+        cv2.drawContours(image, [shape], -1, randomColor(), 3)
+
     samples = []
     for shape in shapes:
         x, y, width, height = cv2.boundingRect(shape)
         topLeft = (x, y)
         bottomRight = (x + width, y + height)
 
-        rectangleColor = (0, 255, 0)
+        rectangleColor = colorToBGR(color)
         rectangleThickness = 10
         area = width * height
         ratio = width / height
@@ -87,10 +126,12 @@ def chooseSample(allSamples):
 
     return bestSample
 
+def showImage(title, image):
+    cv2.imshow(title, image)
+    cv2.waitKey(0)
+
 def runPipeline(image, llrobot):
     hueImage = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    cv2.imshow('hueImage', hueImage)
-    cv2.waitKey(0)
 
     allSamples = []
     #set exposure to 616
@@ -116,7 +157,7 @@ def runPipeline(image, llrobot):
         chosenSample = chooseSample(allSamples)
         rectangle=computeRectangle(chosenSample)
         rectangleColor = (255, 0, 255)
-        rectangleThickness = 10
+        rectangleThickness = 1
         cv2.rectangle(image, rectangle[0], rectangle[1], rectangleColor, rectangleThickness)
 
         center = computeCenter(chosenSample)
@@ -131,16 +172,16 @@ def runPipeline(image, llrobot):
 
     largestContour = np.array([[]])
     data = [y, x, area, color.value, 0, 0, 0]
-    cv2.imshow('Limelight Image - best sample', image)
-    cv2.waitKey(0)
+    showImage('Limelight Image - best sample', image)
     return largestContour, image, data
 
 #image = cv2.imread('yellowSample.png')
 #image = cv2.imread('redSample.png')
-#image = cv2.imread('blueSample.png')
-image = cv2.imread('yellowBest2.png')
-cv2.imshow('Limelight Image - Camera Image', image)
-cv2.waitKey(0)
+image = cv2.imread('blueSample.png')
+#image = cv2.imread('yellowBest2.png')
+showImage('Limelight Image - Camera Image', image)
 
 llrobot = [1, 1, 1]
+
+random.seed(0)
 runPipeline(image, llrobot)
