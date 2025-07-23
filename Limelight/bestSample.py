@@ -15,11 +15,48 @@ class Sample:
     color = Color.NOTHING
     shape = None
 
+class Rectangle:
+    angle = None
+    center = None
+    size = None
+    points = None
+
+class Point:
+    x = None
+    y = None
+
+class Size:
+    width = None
+    height = None
+
 def randomColor():
     blue = random.randint(0, 255)
     green = random.randint(0, 255)
     red = random.randint(0, 255)
     return(blue, green, red)
+
+def computeRotatedRectangle(shape):
+    rect = cv2.minAreaRect(shape)
+    center = rect[0]
+    size = rect[1]
+    pointsF = cv2.boxPoints(rect)
+
+    rectangle = Rectangle()
+    rectangle.center = Point()
+    rectangle.center.x = center[0]
+    rectangle.center.y = center[1]
+    rectangle.size = Size()
+    rectangle.size.width = size[0]
+    rectangle.size.height = size[1]
+
+    rectangle.angle = rect[2]
+
+    rectangle.points = np.int_(pointsF)
+
+    if rectangle.size.height > rectangle.size.width:
+        rectangle.angle = rectangle.angle + math.pi/2
+
+    return rectangle
 
 
 
@@ -60,20 +97,23 @@ def identifySamples(image, hueImage, color, darkColor, lightColor):
 
     samples = []
     for shape in shapes:
-        x, y, width, height = cv2.boundingRect(shape)
-        topLeft = (x, y)
-        bottomRight = (x + width, y + height)
+        rotatedRect = computeRotatedRectangle(shape)
+        # cv2.drawContours(image, [rotatedRect.points], -1, colorToBGR(color), 3 )
+        #x, y, width, height = cv2.boundingRect(shape)
+        # topLeft = (x, y)
+        # bottomRight = (x + width, y + height)
 
         rectangleColor = colorToBGR(color)
         rectangleThickness = 10
-        area = width * height
-        ratio = width / height
+        area = rotatedRect.size.width * rotatedRect.size.height
+        ratio = rotatedRect.size.width / rotatedRect.size.height
         if 3 > ratio > 2 and area > 500:
             sample  = Sample()
             sample.color = color
             sample.shape = shape
             samples.append(sample)
-            cv2.rectangle(image, topLeft, bottomRight, rectangleColor, rectangleThickness)
+            # cv2.rectangle(image, topLeft, bottomRight, rectangleColor, rectangleThickness)
+            cv2.drawContours(image, [rotatedRect.points], -1, colorToBGR(color), 3)
     return samples
 
 def computeArea(sample):
