@@ -15,9 +15,10 @@ class BrushShape(Enum):
     TRIANGLE = 3,
 #===========================================================
 class Color(Enum):
-   BLUE = 1,
-   RED = 2
-   YELLOW = 3
+   BLUE   = 1,
+   RED    = 2,
+   YELLOW = 3,
+   ERASE  = 4,
 #===========================================================
 def calculateBrushColor( color ):
     if color == Color.BLUE:
@@ -65,35 +66,40 @@ def getMask():
         return maskYellow[ currentImage ]
 # ===========================================================
 def showImage():
+    #make copy of captured image so that we can modify it
     image = imageHolder[currentImage].copy()
 
+    #compute masks
     currentMask       = getMask()
-    currentBlueMask   = maskBlue[ currentImage ]
-    currentRedMask    = maskRed[ currentImage ]
+    currentBlueMask   = maskBlue  [ currentImage ]
+    currentRedMask    = maskRed   [ currentImage ]
     currentYellowMask = maskYellow[ currentImage ]
 
+    #remove painted regions
     cv2.subtract( image, currentBlueMask,   image )
     cv2.subtract( image, currentRedMask,    image )
     cv2.subtract( image, currentYellowMask, image )
 
-    currentColor = calculateBrushColor( brushColor )
-    redColor     = calculateBrushColor( Color.RED )
-    blueColor    = calculateBrushColor( Color.BLUE )
-    yellowColor  = calculateBrushColor( Color.YELLOW )
-
+    #compute tinted masks
+    currentColor        = calculateBrushColor( brushColor   )
+    blueColor           = calculateBrushColor( Color.BLUE   )
+    redColor            = calculateBrushColor( Color.RED    )
+    yellowColor         = calculateBrushColor( Color.YELLOW )
     tintedMaskBGR       = cv2.multiply( currentMask,       currentColor )
-    tintedRedMaskBGR    = cv2.multiply( currentRedMask,    redColor     )
     tintedBlueMaskBGR   = cv2.multiply( currentBlueMask,   blueColor    )
+    tintedRedMaskBGR    = cv2.multiply( currentRedMask,    redColor     )
     tintedYellowMaskBGR = cv2.multiply( currentYellowMask, yellowColor  )
 
     #image = image+getMask()
-    height, width, _ = image.shape
+    #height, width, _ = image.shape
    # composedImage = np.zeros( ( height, width, 3 ), dtype="uint8" )
 
-    cv2.add( image, tintedRedMaskBGR, image )
-    cv2.add( image, tintedBlueMaskBGR, image )
+    #draw painted regions on top of image
+    cv2.add( image, tintedRedMaskBGR,    image )
+    cv2.add( image, tintedBlueMaskBGR,   image )
     cv2.add( image, tintedYellowMaskBGR, image )
 
+    #draw brush
     if lastMousePosition != None:
         if brushShape == BrushShape.RECTANGLE:
             drawRect( image, calculateBrushColor( brushColor ) )
@@ -102,10 +108,20 @@ def showImage():
         elif brushShape == BrushShape.TRIANGLE:
             drawTriangle( image, calculateBrushColor(brushColor) )
 
+    #show image side by side with mask for current color
     painted = np.hstack( [ image, tintedMaskBGR ] )
 
     cv2.imshow( windowName, painted )
 #===========================================================
+def drawBrush( mask, color ):
+    if brushShape == BrushShape.RECTANGLE:
+        drawRect(mask, color)
+    elif brushShape == BrushShape.CIRCLE:
+        drawCircle(mask, color)
+    elif brushShape == BrushShape.TRIANGLE:
+        drawTriangle(mask, color)
+
+# ===========================================================
 def mouseCallback(event, x, y, flags, param):
     global lastMousePosition
     global mouseDown
@@ -119,16 +135,23 @@ def mouseCallback(event, x, y, flags, param):
         mouseDown = False
 
     if mouseDown:
+        # compute masks
         currentMask = getMask()
+        currentBlueMask   = maskBlue[currentImage]
+        currentRedMask    = maskRed[currentImage]
+        currentYellowMask = maskYellow[currentImage]
 
         white = 255, 255, 255
+        black = 0, 0, 0
 
-        if brushShape == BrushShape.RECTANGLE:
-            drawRect( currentMask, white )
-        elif brushShape == BrushShape.CIRCLE:
-            drawCircle( currentMask, white )
-        elif brushShape == BrushShape.TRIANGLE:
-             drawTriangle( currentMask, white )
+        cursorColor = white if brushColor == Color.BLUE else black
+        drawBrush( currentBlueMask, cursorColor )
+
+        cursorColor = white if brushColor == Color.RED else black
+        drawBrush(currentRedMask, cursorColor)
+
+        cursorColor = white if brushColor == Color.YELLOW else black
+        drawBrush(currentYellowMask, cursorColor)
 
 #    print("mouse position: " +str(x)+", " +str(y))
     showImage()
@@ -185,6 +208,9 @@ while True:
         brushColor = Color.YELLOW
         showImage()
 
+    elif keyPressed == ord('4'):
+        brushColor = Color.ERASE
+        showImage()
 
     # Left Arrow or [
     elif keyPressed== 2 or keyPressed == ord('['):
