@@ -19,15 +19,15 @@ class Color(Enum):
    RED = 2
    YELLOW = 3
 #===========================================================
-def calculateBrushColor():
-    if brushColor == Color.BLUE:
-        return (255,0,0)
-    elif brushColor == Color.RED:
-        return (0,0,255)
-    elif brushColor == Color.YELLOW:
-        return (0,255,255)
+def calculateBrushColor( color ):
+    if color == Color.BLUE:
+        return 255, 0, 0
+    elif color == Color.RED:
+        return 0, 0, 255
+    elif color == Color.YELLOW:
+        return 0, 255, 255
     else:
-        return (255,255,255)
+        return 255, 255, 255
 # ===========================================================
 def calculateBrushThickness():
     if mouseDown:
@@ -35,27 +35,24 @@ def calculateBrushThickness():
     else:
         return 2
 #===========================================================
-def drawTriangle(painted):
+def drawTriangle(painted, color):
     top = (lastMousePosition.x , lastMousePosition.y - 15)
     right = (lastMousePosition.x + 20, lastMousePosition.y + 15)
     left = (lastMousePosition.x - 20, lastMousePosition.y + 15)
-    color = calculateBrushColor()
     thickness = calculateBrushThickness()
     cv2.drawContours(painted, [np.array([top,right,left])], 0, color, thickness)
 #===========================================================
-def drawCircle(painted):
+def drawCircle(painted, color):
     center = (lastMousePosition.x, lastMousePosition.y)
     radius = 16
-    color = calculateBrushColor()
     thickness = calculateBrushThickness()
     cv2.circle(painted, center, radius, color, thickness)
 # ===========================================================
-def drawRect(painted):
+def drawRect(painted, color):
     size = 32
     halfSize = np.int32(size / 2)
     topLeft = (lastMousePosition.x - halfSize, lastMousePosition.y - halfSize)
     bottomRight = (lastMousePosition.x + halfSize, lastMousePosition.y + halfSize)
-    color = calculateBrushColor()
     thickness = calculateBrushThickness()
     cv2.rectangle(painted, topLeft, bottomRight, color, thickness)
 #===========================================================
@@ -70,21 +67,42 @@ def getMask():
 def showImage():
     image = imageHolder[currentImage].copy()
 
+    currentMask       = getMask()
+    currentBlueMask   = maskBlue[ currentImage ]
+    currentRedMask    = maskRed[ currentImage ]
+    currentYellowMask = maskYellow[ currentImage ]
+
+    cv2.subtract( image, currentBlueMask,   image )
+    cv2.subtract( image, currentRedMask,    image )
+    cv2.subtract( image, currentYellowMask, image )
+
+    currentColor = calculateBrushColor( brushColor )
+    redColor     = calculateBrushColor( Color.RED )
+    blueColor    = calculateBrushColor( Color.BLUE )
+    yellowColor  = calculateBrushColor( Color.YELLOW )
+
+    tintedMaskBGR       = cv2.multiply( currentMask,       currentColor )
+    tintedRedMaskBGR    = cv2.multiply( currentRedMask,    redColor     )
+    tintedBlueMaskBGR   = cv2.multiply( currentBlueMask,   blueColor    )
+    tintedYellowMaskBGR = cv2.multiply( currentYellowMask, yellowColor  )
+
+    #image = image+getMask()
+    height, width, _ = image.shape
+   # composedImage = np.zeros( ( height, width, 3 ), dtype="uint8" )
+
+    cv2.add( image, tintedRedMaskBGR, image )
+    cv2.add( image, tintedBlueMaskBGR, image )
+    cv2.add( image, tintedYellowMaskBGR, image )
+
     if lastMousePosition != None:
         if brushShape == BrushShape.RECTANGLE:
-            drawRect(image)
+            drawRect( image, calculateBrushColor( brushColor ) )
         elif brushShape == BrushShape.CIRCLE:
-            drawCircle(image)
+            drawCircle( image, calculateBrushColor(brushColor) )
         elif brushShape == BrushShape.TRIANGLE:
-            drawTriangle(image)
+            drawTriangle( image, calculateBrushColor(brushColor) )
 
-    mask = getMask()
-    maskBGR = cv2.cvtColor( mask, cv2.COLOR_GRAY2BGR)
-
-    brushColor = calculateBrushColor()
-
-    maskBGR=cv2.multiply(maskBGR, brushColor)
-    painted = np.hstack( [image, maskBGR] )
+    painted = np.hstack( [ image, tintedMaskBGR ] )
 
     cv2.imshow( windowName, painted )
 #===========================================================
@@ -101,17 +119,18 @@ def mouseCallback(event, x, y, flags, param):
         mouseDown = False
 
     if mouseDown:
-        mask = getMask()
+        currentMask = getMask()
+
+        white = 255, 255, 255
 
         if brushShape == BrushShape.RECTANGLE:
-            drawRect(mask)
+            drawRect( currentMask, white )
         elif brushShape == BrushShape.CIRCLE:
-            drawCircle(mask)
+            drawCircle( currentMask, white )
         elif brushShape == BrushShape.TRIANGLE:
-             drawTriangle(mask)
+             drawTriangle( currentMask, white )
 
-
-    print("mouse position: " +str(x)+", " +str(y))
+#    print("mouse position: " +str(x)+", " +str(y))
     showImage()
 
 #===========================================================
@@ -126,8 +145,8 @@ for fileName in fileNames:
     image = cv2.imread(fileName)
     imageHolder.append( image )
 
-    mask= np.zeros( image.shape[:2], dtype="uint8" )
-
+    height, width, _ = image.shape
+    mask = np.zeros( ( height, width, 3 ), dtype="uint8" )
     maskBlue.append( mask.copy() )
     maskRed.append( mask.copy() )
     maskYellow.append( mask.copy() )
@@ -189,11 +208,3 @@ while True:
         lastKeyPressed = keyPressed
         if keyPressed!= 255:
             print(keyPressed)
-
-
-#image = cv2.imread('yellowSample.png')
-#image = cv2.imread('redSample.png')
-##image = cv2.imread('snapshots/blueSample.png')
-#image = cv2.imread('yellowBest2.png')
-##showImage('Joe Paint!', image)
-
