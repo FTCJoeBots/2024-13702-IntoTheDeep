@@ -37,21 +37,24 @@ def calculateBrushThickness():
         return 2
 #===========================================================
 def drawTriangle(painted, color):
-    top = (lastMousePosition.x , lastMousePosition.y - 15)
-    right = (lastMousePosition.x + 20, lastMousePosition.y + 15)
-    left = (lastMousePosition.x - 20, lastMousePosition.y + 15)
+    cursorRatio = brushSize / 32
+    halfHeight  = np.int32( 15 * cursorRatio )
+    halfWidth   = np.int32( 20 * cursorRatio )
+
+    top = (lastMousePosition.x , lastMousePosition.y - halfHeight)
+    right = (lastMousePosition.x + halfWidth, lastMousePosition.y + halfHeight)
+    left = (lastMousePosition.x - halfWidth, lastMousePosition.y + halfHeight)
     thickness = calculateBrushThickness()
     cv2.drawContours(painted, [np.array([top,right,left])], 0, color, thickness)
 #===========================================================
 def drawCircle(painted, color):
     center = (lastMousePosition.x, lastMousePosition.y)
-    radius = 16
+    radius = np.int32( brushSize / 2 )
     thickness = calculateBrushThickness()
     cv2.circle(painted, center, radius, color, thickness)
 # ===========================================================
 def drawRect(painted, color):
-    size = 32
-    halfSize = np.int32(size / 2)
+    halfSize = np.int32( brushSize / 2 )
     topLeft = (lastMousePosition.x - halfSize, lastMousePosition.y - halfSize)
     bottomRight = (lastMousePosition.x + halfSize, lastMousePosition.y + halfSize)
     thickness = calculateBrushThickness()
@@ -179,6 +182,7 @@ lastKeyPressed = None
 lastMousePosition = None
 brushShape = BrushShape.RECTANGLE
 brushColor = Color.BLUE
+brushSize  = 32
 mouseDown = False
 
 showImage()
@@ -193,6 +197,14 @@ while True:
             brushShape = BrushShape.RECTANGLE
         else:
             brushShape = BrushShape( np.int32(brushShape.value) + 1)
+        showImage()
+
+    if keyPressed == ord('='):
+        brushSize = brushSize + 1
+        showImage()
+
+    if keyPressed == ord('-'):
+        brushSize = brushSize - 1
         showImage()
 
     #change brush color
