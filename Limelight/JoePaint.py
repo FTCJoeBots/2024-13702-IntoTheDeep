@@ -63,6 +63,21 @@ def drawRect(painted, color):
     bottomRight = (lastMousePosition.x + halfSize, lastMousePosition.y + halfSize)
     thickness = calculateBrushThickness()
     cv2.rectangle(painted, topLeft, bottomRight, color, thickness)
+# ===========================================================
+def drawHistogram():
+    hueImage        = drawHistogramChannel( 0 )
+    saturationImage = drawHistogramChannel( 1 )
+    luminanceImage  = drawHistogramChannel( 2 )
+    return np.vstack( [ hueImage, saturationImage, luminanceImage ] )
+#===========================================================
+def drawHistogramChannel( channel ):
+    image        = images[currentImage]
+    height, _, _ = image.shape
+    width        = 360
+    histogramImage = np.zeros((height, width, 3), dtype="uint8")
+
+
+    return histogramImage
 #===========================================================
 def getMask():
     if brushColor == Color.BLUE:
@@ -145,9 +160,10 @@ def updateScreen():
             drawCircle( image, calculateBrushColor(brushColor) )
         elif brushShape == BrushShape.TRIANGLE:
             drawTriangle( image, calculateBrushColor(brushColor) )
+    histogram = drawHistogram()
 
     #show image side by side with mask for current color
-    painted = np.hstack( [ image, tintedMaskBGR ] )
+    painted = np.hstack( [ image, tintedMaskBGR, histogram ] )
 
     cv2.imshow( windowName, painted )
 #===========================================================
