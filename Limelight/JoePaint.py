@@ -13,6 +13,12 @@ class Coordinate:
         self.x = x
         self.y = y
 #===========================================================
+class Histogram:
+    def __init__(self):
+        self.hueCounts        = []
+        self.saturationCounts = []
+        self.luminosityCounts = []
+#===========================================================
 class BrushShape(Enum):
     RECTANGLE = 1,
     CIRCLE = 2,
@@ -88,28 +94,30 @@ def getMask():
         return yellowMasks[ currentImage]
 # ===========================================================
 def computeHistograms():
-    computeSpecificChannelHistograms(0)
-
-    computeSpecificChannelHistograms(1)
-
-    computeSpecificChannelHistograms(2)
+    global redHistogram
+    global blueMasksHistogram
+    global yellowMasksHistogram
+    redHistogram    = computeSpecificColorHistograms( redMasks    )
+    blueHistogram   = computeSpecificColorHistograms( blueMasks   )
+    yellowHistogram = computeSpecificColorHistograms( yellowMasks )
 # ===========================================================
-def computeSpecificChannelHistograms(channel):
-    size =   channelSize(channel)
-
+def computeSpecificColorHistograms( masks ):
+    histogram = Histogram()
+    histogram.hueCounts        = computeSpecificChannelHistograms(0, masks )
+    histogram.luminosityCounts = computeSpecificChannelHistograms(1, masks )
+    histogram.saturationCounts = computeSpecificChannelHistograms(2, masks )
+    return histogram
+# ===========================================================
+def computeSpecificChannelHistograms( channel, masks ):
+    size   = channelSize( channel )
     counts = np.zeros( ( size, 1, 1 ) )
 
-    for index, image in enumerate( images ):
-        mask     = blueMasks[ index ]
-        grayMask = cv2.cvtColor( mask, cv2.COLOR_BGR2GRAY )
-        counts   = cv2.calcHist( [image],[channel], grayMask,[size],[0, size], counts,True )
+    for index, colorImage in enumerate( images ):
+        colorMask     = masks[ index ]
+        grayMask = cv2.cvtColor( colorMask, cv2.COLOR_BGR2GRAY )
+        counts   = cv2.calcHist([colorImage],[channel], grayMask,[size],[0, size], counts,True )
 
-
-    # blueCounts   =  cv2.calcHist(images, [channel], grayMasks,   [size], [0, size])
-    # redCounts    =  cv2.calcHist(images, [channel], redMasks,    [size], [0, size])
-    # yellowCounts =  cv2.calcHist(images, [channel], yellowMasks, [size], [0, size])
-
-
+    return counts
 # ===========================================================
 def channelSize( channel ):
     # hue
