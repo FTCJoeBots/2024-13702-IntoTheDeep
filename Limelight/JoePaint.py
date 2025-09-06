@@ -3,6 +3,10 @@ import numpy as np
 from enum import Enum
 import cv2
 import glob
+
+from numpy.ma.core import count
+
+
 #===========================================================
 class Coordinate:
     def __init__(self, x, y):
@@ -62,21 +66,52 @@ def drawRect(painted, color):
 #===========================================================
 def getMask():
     if brushColor == Color.BLUE:
-        return maskBlue[ currentImage ]
+        return blueMasks[ currentImage]
     elif brushColor == Color.RED:
-       return maskRed[ currentImage ]
+       return redMasks[ currentImage]
     else:
-        return maskYellow[ currentImage ]
+        return yellowMasks[ currentImage]
 # ===========================================================
-def showImage():
+def computeHistograms():
+    computeSpecificChannelHistograms(0)
+
+    computeSpecificChannelHistograms(1)
+
+    computeSpecificChannelHistograms(2)
+# ===========================================================
+def computeSpecificChannelHistograms(channel):
+    size =   channelSize(channel)
+
+    counts = np.zeros( ( size, 1, 1 ) )
+
+    for index, image in enumerate( images ):
+        mask     = blueMasks[ index ]
+        grayMask = cv2.cvtColor( mask, cv2.COLOR_BGR2GRAY )
+        counts   = cv2.calcHist( [image],[channel], grayMask,[size],[0, size], counts,True )
+
+
+    # blueCounts   =  cv2.calcHist(images, [channel], grayMasks,   [size], [0, size])
+    # redCounts    =  cv2.calcHist(images, [channel], redMasks,    [size], [0, size])
+    # yellowCounts =  cv2.calcHist(images, [channel], yellowMasks, [size], [0, size])
+
+
+# ===========================================================
+def channelSize( channel ):
+    # hue
+    if channel == 0:
+        return 180
+    else:
+        return 360
+# ===========================================================
+def updateScreen():
     #make copy of captured image so that we can modify it
-    image = imageHolder[currentImage].copy()
+    image = images[currentImage].copy()
 
     #compute masks
     currentMask       = getMask()
-    currentBlueMask   = maskBlue  [ currentImage ]
-    currentRedMask    = maskRed   [ currentImage ]
-    currentYellowMask = maskYellow[ currentImage ]
+    currentBlueMask   = blueMasks  [ currentImage]
+    currentRedMask    = redMasks   [ currentImage]
+    currentYellowMask = yellowMasks[ currentImage]
 
     #remove painted regions
     cv2.subtract( image, currentBlueMask,   image )
@@ -140,9 +175,9 @@ def mouseCallback(event, x, y, flags, param):
     if mouseDown:
         # compute masks
         currentMask = getMask()
-        currentBlueMask   = maskBlue[currentImage]
-        currentRedMask    = maskRed[currentImage]
-        currentYellowMask = maskYellow[currentImage]
+        currentBlueMask   = blueMasks[currentImage]
+        currentRedMask    = redMasks[currentImage]
+        currentYellowMask = yellowMasks[currentImage]
 
         white = 255, 255, 255
         black = 0, 0, 0
@@ -155,27 +190,28 @@ def mouseCallback(event, x, y, flags, param):
 
         cursorColor = white if brushColor == Color.YELLOW else black
         drawBrush(currentYellowMask, cursorColor)
+        computeHistograms()
 
 #    print("mouse position: " +str(x)+", " +str(y))
-    showImage()
+    updateScreen()
 
 #===========================================================
 windowName="Joe Paint"
-fileNames = glob.glob('snapshots/*.png')
-imageHolder = []
-maskBlue = []
-maskRed = []
-maskYellow = []
+fileNames   =   glob.glob('snapshots/*.png')
+images      =   []
+blueMasks   =   []
+redMasks    =   []
+yellowMasks =   []
 
 for fileName in fileNames:
     image = cv2.imread(fileName)
-    imageHolder.append( image )
+    images.append(image)
 
     height, width, _ = image.shape
     mask = np.zeros( ( height, width, 3 ), dtype="uint8" )
-    maskBlue.append( mask.copy() )
-    maskRed.append( mask.copy() )
-    maskYellow.append( mask.copy() )
+    blueMasks.append(mask.copy())
+    redMasks.append(mask.copy())
+    yellowMasks.append(mask.copy())
 
 currentImage = 0
 lastKeyPressed = None
@@ -185,7 +221,7 @@ brushColor = Color.BLUE
 brushSize  = 32
 mouseDown = False
 
-showImage()
+updateScreen()
 cv2.setMouseCallback(windowName, mouseCallback)
 
 while True:
@@ -197,46 +233,46 @@ while True:
             brushShape = BrushShape.RECTANGLE
         else:
             brushShape = BrushShape( np.int32(brushShape.value) + 1)
-        showImage()
+        updateScreen()
 
     if keyPressed == ord('='):
         brushSize = brushSize + 1
-        showImage()
+        updateScreen()
 
     if keyPressed == ord('-'):
         brushSize = brushSize - 1
-        showImage()
+        updateScreen()
 
     #change brush color
     if keyPressed == ord('1'):
         brushColor = Color.BLUE
-        showImage()
+        updateScreen()
 
     elif keyPressed == ord('2'):
         brushColor = Color.RED
-        showImage()
+        updateScreen()
 
     elif keyPressed == ord('3'):
         brushColor = Color.YELLOW
-        showImage()
+        updateScreen()
 
     elif keyPressed == ord('4'):
         brushColor = Color.ERASE
-        showImage()
+        updateScreen()
 
     # Left Arrow or [
     elif keyPressed== 2 or keyPressed == ord('['):
         currentImage -= 1
         if currentImage < 0:
-            currentImage = len(imageHolder)-1
-        showImage()
+            currentImage = len(images) - 1
+        updateScreen()
 
     # Right Arrow or ]
     if keyPressed == 3 or keyPressed == ord(']'):
         currentImage += 1
-        if currentImage == len(imageHolder):
+        if currentImage == len(images):
             currentImage = 0
-        showImage()
+        updateScreen()
 
     #Escape or Q exits Joe Paint!!!
     if keyPressed == 27 or keyPressed == ord('q'):
