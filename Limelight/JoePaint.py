@@ -74,16 +74,39 @@ def drawHistogram():
     hueImage        = drawHistogramChannel( 0 )
     saturationImage = drawHistogramChannel( 1 )
     luminanceImage  = drawHistogramChannel( 2 )
-    return np.vstack( [ hueImage, saturationImage, luminanceImage ] )
+    stackedImage =  np.vstack( [ hueImage, saturationImage, luminanceImage ] )
+    stackedHeight, stackedWidth, _ = stackedImage.shape
+
+    image             = images[ currentImage ].copy()
+    imageHeight, _, _ = image.shape
+
+    lostHeight = imageHeight - stackedHeight
+    lostImage  = np.zeros( ( lostHeight, stackedWidth, 3 ), dtype="uint8" )
+
+    return np.vstack( [ stackedImage, lostImage ] )
 #===========================================================
+def getCountsForChannel( histogram, channel ):
+  if channel == 0:
+      return histogram.hueCounts
+  elif channel == 1:
+      return histogram.saturationCounts
+  else:
+      return histogram.luminosityCounts
+# ===========================================================
 def drawHistogramChannel( channel ):
-    image        = images[currentImage]
-    height, _, _ = image.shape
-    width        = 360
-    histogramImage = np.zeros((height, width, 3), dtype="uint8")
+    width  = 360
+    height = 100
+    histogramImage = np.zeros( ( height, width, 3 ), dtype="uint8" )
 
+    histogram = currentHistogram()
+    counts    = getCountsForChannel( histogram, channel )
 
-    return histogramImage
+    white = ( 255, 255, 255 )
+    for x, count in enumerate( counts ):
+        y = np.int32( count )
+        cv2.line( histogramImage, ( x, 0 ), ( x, y ), white )
+
+    return np.flipud( histogramImage )
 #===========================================================
 def getMask():
     if brushColor == Color.BLUE:
@@ -93,10 +116,18 @@ def getMask():
     else:
         return yellowMasks[ currentImage]
 # ===========================================================
+def currentHistogram():
+    if brushColor == Color.BLUE:
+        return blueHistogram
+    elif brushColor == Color.RED:
+        return redHistogram
+    else:
+        return yellowHistogram
+# ===========================================================
 def computeHistograms():
     global redHistogram
-    global blueMasksHistogram
-    global yellowMasksHistogram
+    global blueHistogram
+    global yellowHistogram
     redHistogram    = computeSpecificColorHistograms( redMasks    )
     blueHistogram   = computeSpecificColorHistograms( blueMasks   )
     yellowHistogram = computeSpecificColorHistograms( yellowMasks )
@@ -117,7 +148,7 @@ def computeSpecificChannelHistograms( channel, masks ):
         grayMask = cv2.cvtColor( colorMask, cv2.COLOR_BGR2GRAY )
         counts   = cv2.calcHist([colorImage],[channel], grayMask,[size],[0, size], counts,True )
 
-    return counts
+    return counts.flatten()
 # ===========================================================
 def channelSize( channel ):
     # hue
@@ -168,10 +199,10 @@ def updateScreen():
             drawCircle( image, calculateBrushColor(brushColor) )
         elif brushShape == BrushShape.TRIANGLE:
             drawTriangle( image, calculateBrushColor(brushColor) )
-    histogram = drawHistogram()
+    histogramImage = drawHistogram()
 
     #show image side by side with mask for current color
-    painted = np.hstack( [ image, tintedMaskBGR, histogram ] )
+    painted = np.hstack( [ image, tintedMaskBGR, histogramImage ] )
 
     cv2.imshow( windowName, painted )
 #===========================================================
@@ -226,12 +257,15 @@ images      =   []
 blueMasks   =   []
 redMasks    =   []
 yellowMasks =   []
+redHistogram    = Histogram()
+blueHistogram   = Histogram()
+yellowHistogram = Histogram()
 
 for fileName in fileNames:
-    image = cv2.imread(fileName)
-    images.append(image)
+    loadedImage = cv2.imread(fileName)
+    images.append( loadedImage )
 
-    height, width, _ = image.shape
+    height, width, _ = loadedImage.shape
     mask = np.zeros( ( height, width, 3 ), dtype="uint8" )
     blueMasks.append(mask.copy())
     redMasks.append(mask.copy())
